@@ -876,6 +876,23 @@ body {
 .rv1 { transition-delay: 0.08s; }
 .rv2 { transition-delay: 0.16s; }
 
+/* Disciplines: layered entrance — group stays put, children rise in sequence */
+.disc-group.rv { opacity: 1; transform: none; }
+.disc-ghost,
+.disc-title,
+.disc-projects li {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+}
+.disc-group.go .disc-ghost { opacity: 1; transform: none; transition-delay: 0s; }
+.disc-group.go .disc-title { opacity: 1; transform: none; transition-delay: 0.12s; }
+.disc-group.go .disc-projects li { opacity: 1; transform: none; }
+.disc-group.go .disc-projects li:nth-child(1) { transition-delay: 0.24s; }
+.disc-group.go .disc-projects li:nth-child(2) { transition-delay: 0.32s; }
+.disc-group.go .disc-projects li:nth-child(3) { transition-delay: 0.40s; }
+.disc-group.go .disc-projects li:nth-child(4) { transition-delay: 0.48s; }
+
 /* ════════ RESPONSIVE ════════ */
 @media (max-width: 900px) {
   .about-split { grid-template-columns: 1fr; }
@@ -898,7 +915,8 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .it-in { transform: none !important; transition: none; }
-  .rv, .sg { opacity: 1 !important; transform: none !important; transition: none; }
+  .rv, .sg,
+  .disc-ghost, .disc-title, .disc-projects li { opacity: 1 !important; transform: none !important; transition: none; }
   .orbit-ring-inner, .orbit-ring2-inner { transform: none !important; }
   .pill { position: static; display: inline-block; margin: 4px; }
   .orbit-ring, .orbit-ring2 { position: static; width: auto; height: auto; transform: none; text-align: center; }
@@ -934,7 +952,6 @@ body {
     </h1>
     <div class="intro-actions sg">
       <a href="#contact" class="hbtn hbtn-fill" data-ru="Заказать проект" data-en="Start a project">Заказать проект</a>
-      <a href="mailto:n1031309@gmail.com" class="hbtn hbtn-line" data-ru="Связаться" data-en="Get in touch">Связаться</a>
     </div>
   </div>
 
@@ -1060,9 +1077,8 @@ body {
     <div class="contact-row">
       <a href="mailto:n1031309@gmail.com" class="contact-email rv rv1">n1031309@gmail.com</a>
       <div class="contact-links rv rv2">
-        <a href="#" class="contact-link">Telegram</a>
-        <a href="#" class="contact-link">MAX</a>
-        <a href="#" class="contact-link">Behance</a>
+        <a href="https://t.me/xpdpfzspogpcleog" target="_blank" rel="noopener" class="contact-link">Telegram</a>
+        <a href="https://www.behance.net/87a4f21d" target="_blank" rel="noopener" class="contact-link">Behance</a>
       </div>
     </div>
     <div class="footer-row">
