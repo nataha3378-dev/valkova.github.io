@@ -1,0 +1,10 @@
+# Local tooling / preview config (not needed for the live site)
+.claude/
+
+# Font source files — the font is already embedded in index.html as base64
+fonts/
+
+# OS junk
+Thumbs.db
+.DS_Store
+desktop.ini
