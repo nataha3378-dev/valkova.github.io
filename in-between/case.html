@@ -16,14 +16,14 @@
   --sans:'Inter',-apple-system,'Helvetica Neue',Arial,sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;overflow-x:clip;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
 body{font-family:var(--sans);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;
   font-size:17px;line-height:1.7;}
 img{display:block;max-width:100%;}
 a{color:inherit;}
 
-.wrap{max-width:1120px;margin:0 auto;padding:0 32px;}
-.sec{padding:84px 0;}
+.wrap{max-width:1120px;margin:0 auto;padding:0 clamp(20px,4.5vw,32px);}
+.sec{padding-top:84px;padding-bottom:84px;}
 .eyebrow{font-family:var(--display);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--coral-deep);}
 .snum{font-family:var(--display);font-size:14px;font-weight:600;color:var(--ink-faint);letter-spacing:.04em;}
 h1,h2,h3{font-family:var(--display);letter-spacing:-.03em;line-height:1.02;font-weight:600;}
@@ -62,7 +62,7 @@ hr{border:0;border-top:1px solid var(--line);margin:0;}
 .pill svg{width:16px;height:16px;stroke:currentColor;fill:none;}
 
 /* hero */
-.hero{padding:70px 0 64px;}
+.hero{padding-top:70px;padding-bottom:64px;}
 .hero h1{font-size:clamp(54px,10vw,128px);letter-spacing:-.05em;line-height:.9;font-weight:650;}
 .hero h1 em{font-style:normal;}
 .hero .tag{margin-top:26px;max-width:620px;}
@@ -163,7 +163,7 @@ footer .pill{background:var(--coral);}
   .proto-frame iframe{width:100%;max-width:430px;}
   .herophones img,.herophones img:nth-child(2){width:33%;}
 }
-@media (max-width:640px){
+@media (max-width:700px){
   .topnav .pill{display:none;}          /* prototype CTA lives in section 08 anyway */
   .topnav .wrap{gap:10px;}
   .crumbs{gap:6px;font-size:12px;}
@@ -381,7 +381,7 @@ footer .pill{background:var(--coral);}
 </section>
 
 <!-- interlude: ui states -->
-<section style="background:var(--paper)"><div class="wrap" style="padding:64px 32px">
+<section style="background:var(--paper)"><div class="wrap" style="padding-top:64px;padding-bottom:64px">
   <img src="img/ui-states.gif" alt="UI kit&nbsp;— interaction states in&nbsp;motion" style="width:100%;display:block;border-radius:20px;box-shadow:0 30px 64px rgba(0,0,0,.12)">
 </div></section>
 
@@ -404,7 +404,7 @@ footer .pill{background:var(--coral);}
 </section>
 
 <!-- interlude: motion -->
-<section style="background:var(--paper)"><div class="wrap" style="padding:64px 32px">
+<section style="background:var(--paper)"><div class="wrap" style="padding-top:64px;padding-bottom:64px">
   <img src="img/flow.gif" alt="The&nbsp;happy path, in&nbsp;motion" style="width:100%;display:block;border-radius:20px;box-shadow:0 30px 64px rgba(0,0,0,.12)">
 </div></section>
 

@@ -912,7 +912,7 @@ body {
 @media (max-width: 600px) {
   .contact-row { flex-direction: column; align-items: flex-start; }
   .pill { font-size: 9px; padding: 7px 14px; }
-  .orbit-ring  { width: 120vw; height: 120vw; }
+  .orbit-ring  { width: 72vw; height: 72vw; }  /* fits pills inside the phone edges */
   .orbit-ring2 { display: none; }
   .sections-block { height: auto; min-height: 0; padding-top: 80px; padding-bottom: 48px; }
   .bricks { grid-template-columns: 1fr; grid-template-rows: none; }
@@ -1177,6 +1177,7 @@ for (var ci = 0; ci < N; ci++) {
 
 var SPACING = 240;
 var TRACK_LEN = N * SPACING;
+var SIZE_F = 1;   // responsive scale — phones get much smaller cards
 var streamOffset = 0;
 var streamVel = 0;
 var svw = 0, svh = 0;
@@ -1185,9 +1186,20 @@ var sx0 = 0, sy0 = 0;
 var sSpan = 0;
 var introRect = null;
 
+function applyCardSizes() {
+  SIZE_F = Math.max(0.5, Math.min(1, window.innerWidth / 1400));
+  SPACING = Math.round(240 * SIZE_F);
+  TRACK_LEN = N * SPACING;
+  streamCards.forEach(function(c) {
+    c.el.style.width  = Math.round(c.def.w * MAXSCALE * SIZE_F) + 'px';
+    c.el.style.height = Math.round(c.def.w * c.def.ar * MAXSCALE * SIZE_F) + 'px';
+  });
+}
+
 function streamGeometry() {
   svw = window.innerWidth;
   svh = window.innerHeight;
+  applyCardSizes();
   // Clean diagonal: top-left → bottom-right, edges just off-screen (no corner pile-up)
   var ax0 = -svw * 0.15, ay0 = svh * 0.08;
   var ax1 = svw * 1.15,  ay1 = svh * 0.92;
@@ -1215,7 +1227,7 @@ function streamGeometry() {
 function streamRender() {
   for (var i = 0; i < N; i++) {
     var c = streamCards[i];
-    var w = c.def.w * MAXSCALE;     // element natural size (centred = scale 1, crisp)
+    var w = c.def.w * MAXSCALE * SIZE_F;   // element natural size (centred = scale 1, crisp)
     var h = w * c.def.ar;
     var p = ((i * SPACING + streamOffset) % TRACK_LEN + TRACK_LEN) % TRACK_LEN;
     var t = p / TRACK_LEN;
@@ -1283,7 +1295,11 @@ stage.addEventListener('pointermove', function(e) {
   var dyv = e.clientY - sLastY;
   sLastX = e.clientX; sLastY = e.clientY;
   sMoved += Math.abs(dx) + Math.abs(dyv);
-  var along = dx * sdirX + dyv * sdirY;
+  // Touch: vertical swipes scroll the page (touch-action: pan-y), so map the
+  // horizontal component only — otherwise the two gestures fight each other.
+  var along = (e.pointerType === 'touch')
+    ? dx * 1.4
+    : dx * sdirX + dyv * sdirY;
   streamOffset += along;
   streamVel = along * 0.9;
   hideHint();
