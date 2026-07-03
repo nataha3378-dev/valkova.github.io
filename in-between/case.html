@@ -103,7 +103,7 @@ hr{border:0;border-top:1px solid var(--line);margin:0;}
   color:var(--coral-deep);background:var(--coral-soft);padding:4px 11px;border-radius:7px;margin-bottom:16px;}
 .cs h3{font-size:27px;margin-bottom:14px;}
 .cs .imgs{display:flex;gap:16px;justify-content:center;}
-.cs .imgs img{width:50%;max-width:248px;filter:drop-shadow(0 22px 40px rgba(0,0,0,.13));}
+.cs .imgs img{width:calc(50% - 8px);max-width:248px;filter:drop-shadow(0 22px 40px rgba(0,0,0,.13));}
 .cs--rev{direction:rtl;}
 .cs--rev>*{direction:ltr;}
 
@@ -162,6 +162,12 @@ footer .pill{background:var(--coral);}
   .crumbs .crumb-mid{display:none;}
   .proto-frame iframe{width:100%;max-width:430px;}
   .herophones img,.herophones img:nth-child(2){width:33%;}
+}
+@media (max-width:640px){
+  .topnav .pill{display:none;}          /* prototype CTA lives in section 08 anyway */
+  .topnav .wrap{gap:10px;}
+  .crumbs{gap:6px;font-size:12px;}
+  .statgrid{grid-template-columns:1fr!important;} /* beats the inline 2-col styles */
 }
 </style>
 </head>
