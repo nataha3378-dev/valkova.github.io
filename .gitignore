@@ -4,6 +4,28 @@
 # Font source files — the font is already embedded in index.html as base64
 fonts/
 
+# In-Between case — publish only case.html + prototype.html + img/.
+# Exclude heavy Behance export and internal working files.
+in-between/behance/
+in-between/screens/
+in-between/TZ.md
+in-between/case-behance.html
+in-between/cover.html
+in-between/kit.html
+in-between/slides.html
+in-between/design-system.css
+
+# Other project working folders (not linked from the live site yet)
+crew-os/
+magazine/
+cooper-email/
+tracker/
+graphic-elements.html
+graphic-elements.jpg
+global-liquidation-banner.html
+global-liquidation-banner.jpg
+start-tracker.bat
+
 # OS junk
 Thumbs.db
 .DS_Store

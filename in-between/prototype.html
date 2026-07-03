@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>In-Between — Prototype</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400..800;1,400..600&display=swap');
+
+:root{
+  --bg:#FFFFFF; --surface:#F0EFEC; --surface-2:#E7E5E1; --surface-3:#DCDAD4;
+  --ink:#131211; --ink-soft:#6B6863; --ink-faint:#A6A29A;
+  --line:rgba(19,18,17,0.08); --line-strong:rgba(19,18,17,0.16);
+  --coral:#EC5E37; --coral-deep:#D24A26; --coral-soft:#FAE4DB; --coral-tint:#F6D8CC;
+  --on-coral:#FFFFFF; --coral-ink:#8F3318;
+  --st-active:#3E7B4B; --verified:#355E86;
+  --sans:'Hanken Grotesk',-apple-system,'Helvetica Neue',Arial,sans-serif;
+  --r-tile:22px; --r-md:14px; --r-sm:10px;
+  --ease:cubic-bezier(0.22,1,0.36,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:#C9C7C2;color:var(--ink);-webkit-font-smoothing:antialiased;
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px;}
+img{display:block;max-width:100%;}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit;}
+ul{list-style:none;}
+
+/* device */
+.device{width:390px;height:844px;background:var(--bg);border-radius:46px;position:relative;overflow:hidden;
+  box-shadow:0 0 0 11px #131211,0 0 0 13px #2a2824,0 30px 70px rgba(0,0,0,0.32);}
+
+/* status bar */
+.statusbar{position:absolute;top:0;left:0;right:0;height:54px;display:flex;align-items:center;
+  justify-content:space-between;padding:14px 30px 0;font-size:15px;font-weight:600;color:var(--ink);
+  z-index:60;pointer-events:none;}
+.statusbar__icons{display:flex;gap:7px;align-items:center;}
+.statusbar__notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:120px;height:32px;
+  background:#131211;border-radius:18px;}
+
+/* stage + screens */
+.stage{position:absolute;inset:0;}
+.screen{position:absolute;inset:0;opacity:0;visibility:hidden;transform:translateX(var(--enter,26px));
+  transition:opacity .34s cubic-bezier(.33,1,.68,1),transform .34s cubic-bezier(.33,1,.68,1);}
+.screen.active{opacity:1;visibility:visible;transform:translateX(0);z-index:2;}
+
+/* ---- entrance cascade ---- */
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.screen.active .viewport>*{animation:rise .44s cubic-bezier(.33,1,.68,1) both;}
+.screen.active .viewport>*:nth-child(1){animation-delay:.02s}
+.screen.active .viewport>*:nth-child(2){animation-delay:.06s}
+.screen.active .viewport>*:nth-child(3){animation-delay:.10s}
+.screen.active .viewport>*:nth-child(4){animation-delay:.14s}
+.screen.active .viewport>*:nth-child(5){animation-delay:.18s}
+.screen.active .viewport>*:nth-child(6){animation-delay:.22s}
+.screen.active .viewport>*:nth-child(n+7){animation-delay:.26s}
+.screen.active .bento>*{animation:rise .5s cubic-bezier(.33,1,.68,1) both;}
+.screen.active .bento>*:nth-child(2){animation-delay:.05s}
+.screen.active .bento>*:nth-child(3){animation-delay:.10s}
+.screen.active .bento>*:nth-child(4){animation-delay:.13s}
+.screen.active .bento>*:nth-child(5){animation-delay:.17s}
+.screen.active .bento>*:nth-child(6){animation-delay:.21s}
+.screen.active .bento>*:nth-child(7){animation-delay:.25s}
+
+/* ---- photo fade-in ---- */
+@keyframes imgfade{from{opacity:0}to{opacity:1}}
+.cover{animation:imgfade .7s ease both;}
+
+/* ---- tactile press feedback ---- */
+.tile,.btn,.chip,.iconbtn,.mrow,.pick,.lrow,.rcard,.thumb,.tab,.modeseg__opt,.searchpill,.flaw__x,.addmore,.lendpromo,.modechip,.orow,.cmp__img,.ar{transition:transform .15s cubic-bezier(.34,1.4,.7,1),box-shadow .15s,background .15s,border-color .15s,color .15s;}
+.tile:active,.btn:active,.chip:active,.iconbtn:active,.mrow:active,.pick:active,.lrow:active,.rcard:active,.thumb:active,.modeseg__opt:active,.searchpill:active,.addmore:active,.lendpromo:active,.modechip:active,.orow:active,.cmp__img:active,.ar:active{transform:scale(.972);}
+.tab:active{transform:scale(.9);}
+
+/* ---- 'now' pulse on status dots ---- */
+@keyframes pulse{0%{box-shadow:0 0 0 4px var(--coral-soft),0 0 0 0 rgba(236,94,55,.4)}100%{box-shadow:0 0 0 4px var(--coral-soft),0 0 0 11px rgba(236,94,55,0)}}
+.tl__step--now .tl__dot{animation:pulse 1.9s ease-out infinite;}
+
+/* ---- saved heart ---- */
+.iconbtn.is-saved svg,.pcard__save.is-saved svg{fill:var(--coral);stroke:var(--coral);}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.28)}100%{transform:scale(1)}}
+.iconbtn.is-saved svg{animation:pop .32s ease;}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s!important;animation-iteration-count:1!important;transition-duration:.001s!important;}
+}
+.viewport{position:absolute;top:54px;left:0;right:0;bottom:0;padding-bottom:104px;
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
+.viewport::-webkit-scrollbar{display:none;}
+
+/* floating pill tab bar */
+.tabbar{position:absolute;left:14px;right:14px;bottom:16px;height:64px;background:#fff;
+  border:1px solid var(--line);border-radius:999px;z-index:40;box-shadow:0 10px 34px rgba(0,0,0,0.14);
+  display:flex;align-items:center;justify-content:space-between;padding:0 9px;}
+.tab{height:48px;min-width:48px;border-radius:999px;display:flex;align-items:center;justify-content:center;
+  gap:8px;color:var(--ink-faint);font-size:14px;font-weight:600;}
+.tab svg{width:23px;height:23px;stroke:var(--ink-faint);fill:none;}
+.tab--active{background:var(--coral);color:#fff;padding:0 18px;}
+.tab--active svg{stroke:#fff;}
+.tab--lend{width:50px;height:50px;background:var(--ink);border-radius:50%;}
+.tab--lend svg{stroke:#fff;width:22px;height:22px;}
+
+/* header */
+.phead{padding:10px 20px 16px;}
+.phead__eyebrow{font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-faint);}
+.phead__row{display:flex;align-items:flex-start;justify-content:space-between;margin-top:6px;}
+.phead h1{font-size:40px;font-weight:700;letter-spacing:-0.03em;line-height:0.98;}
+.phead__sub{margin-top:10px;font-size:14px;line-height:1.45;color:var(--ink-soft);max-width:250px;}
+
+.iconbtn{width:42px;height:42px;border-radius:50%;background:var(--surface);display:flex;align-items:center;
+  justify-content:center;flex:none;}
+.iconbtn svg{width:19px;height:19px;stroke:var(--ink);fill:none;}
+.iconbtn--white{background:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.12);}
+
+/* bento */
+.bento{display:grid;grid-template-columns:1fr 1fr;gap:10px;grid-auto-rows:104px;padding:0 20px;}
+.span-r2{grid-row:span 2;} .span-r3{grid-row:span 3;} .span-c2{grid-column:span 2;}
+.tile{position:relative;overflow:hidden;background:var(--surface);border-radius:var(--r-tile);padding:16px;
+  display:flex;flex-direction:column;justify-content:space-between;}
+.tile--coral{background:var(--coral);color:var(--on-coral);}
+.tile--ink{background:var(--ink);color:#fff;}
+.tile--img{background:var(--surface-2);}
+.tile--img .tile__ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.tile--img .tile__ph svg{width:58%;height:58%;opacity:0.5;}
+.tile__top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:2;}
+.tile__owner{font-size:12px;line-height:1.15;color:var(--ink-soft);}
+.tile--coral .tile__owner{color:rgba(255,255,255,0.85);}
+.tile__owner b{display:block;font-weight:600;color:var(--ink);}
+.tile--coral .tile__owner b{color:#fff;}
+.tile__arrow{width:26px;height:26px;flex:none;display:flex;align-items:center;justify-content:center;}
+.tile__arrow svg{width:17px;height:17px;stroke:var(--ink);fill:none;}
+.tile--coral .tile__arrow svg{stroke:#fff;}
+.tile__name{position:relative;z-index:2;font-size:23px;font-weight:700;letter-spacing:-0.025em;line-height:0.98;}
+.tile__name--sm{font-size:19px;}
+.tile__meta{position:relative;z-index:2;margin-top:6px;font-size:13px;color:var(--ink-soft);}
+.tile--coral .tile__meta{color:rgba(255,255,255,0.85);}
+.tile__price b{font-weight:700;}
+.tile__stat{font-size:54px;font-weight:700;letter-spacing:-0.04em;line-height:0.9;}
+.feat-name{margin-top:auto;}
+.cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+.tile--photo{background:var(--surface-2);color:#fff;}
+.tile--photo::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,.20),rgba(0,0,0,0) 34%,rgba(0,0,0,0) 46%,rgba(0,0,0,.62));}
+.tile--photo .tile__owner{color:rgba(255,255,255,.88);}
+.tile--photo .tile__owner b{color:#fff;}
+.tile--photo .tile__meta{color:rgba(255,255,255,.92);}
+.tile--photo .tile__name{color:#fff;}
+.tile--photo .tile__arrow svg{stroke:#fff;}
+.summary__th,.lrow__th,.req__th,.thumb,.rcard__img{overflow:hidden;position:relative;}
+
+.searchpill{margin:0 20px 16px;height:50px;border-radius:999px;background:var(--surface);display:flex;
+  align-items:center;gap:11px;padding:0 18px;color:var(--ink-faint);font-size:15px;}
+.searchpill svg{width:19px;height:19px;stroke:var(--ink-faint);fill:none;}
+
+.slabel{padding:24px 20px 12px;font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--ink-faint);}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:0 20px 4px;}
+.chips::-webkit-scrollbar{display:none;}
+.chip{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 16px;border-radius:999px;
+  background:var(--surface);font-size:14px;font-weight:500;color:var(--ink);white-space:nowrap;}
+.chip--active{background:var(--ink);color:#fff;}
+
+.badge{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:7px;font-size:11px;font-weight:600;}
+.badge--available{background:rgba(62,123,75,0.13);color:var(--st-active);}
+.badge--verified{background:rgba(53,94,134,0.13);color:var(--verified);}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:52px;padding:0 24px;
+  border-radius:999px;font-size:16px;font-weight:600;white-space:nowrap;}
+.btn svg{width:19px;height:19px;stroke:currentColor;fill:none;}
+.btn--coral{background:var(--coral);color:#fff;}
+.btn--ghost{background:var(--surface);color:var(--ink);}
+.btn--block{display:flex;width:100%;}
+
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--surface-2);flex:none;display:flex;
+  align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--ink-soft);}
+
+.bookbar{position:absolute;left:0;right:0;bottom:0;z-index:45;background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid var(--line);
+  padding:14px 20px 26px;display:flex;align-items:center;justify-content:space-between;gap:14px;}
+.bookbar__price{font-size:15px;line-height:1.15;}
+.bookbar__price b{font-size:20px;font-weight:700;letter-spacing:-0.02em;}
+.bookbar__price span{color:var(--ink-soft);font-size:12px;}
+
+.stars{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;}
+.stars svg{width:14px;height:14px;fill:var(--ink);}
+.stars span{color:var(--ink-soft);font-weight:400;}
+.spec{background:var(--surface);border-radius:var(--r-md);padding:13px 14px;}
+.spec__k{font-size:12px;color:var(--ink-faint);font-weight:500;}
+.spec__v{font-size:16px;font-weight:600;letter-spacing:-0.01em;margin-top:3px;}
+
+/* shared sections / nav / summary */
+.nav{display:flex;align-items:center;gap:12px;padding:6px 20px 4px;}
+.nav h2{font-size:19px;font-weight:700;letter-spacing:-0.02em;}
+.nav .iconbtn{width:38px;height:38px;}
+.summary{display:flex;align-items:center;gap:12px;margin:14px 20px 0;background:var(--surface);
+  border-radius:16px;padding:12px 14px;}
+.summary__th{width:46px;height:46px;border-radius:11px;background:var(--surface-2);flex:none;display:flex;
+  align-items:center;justify-content:center;}
+.summary__th svg{width:60%;height:60%;opacity:0.5;}
+.summary__n{font-size:15px;font-weight:600;letter-spacing:-0.01em;line-height:1.1;}
+.summary__p{font-size:13px;color:var(--ink-soft);margin-top:3px;}
+.summary__p b{color:var(--ink);font-weight:600;}
+.sec{padding:0 20px;margin-top:26px;}
+.sec__h{font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:12px;}
+
+/* PRODUCT */
+.hero{position:relative;padding:0 14px;}
+.hero__img{position:relative;height:384px;border-radius:26px;overflow:hidden;background:var(--surface-2);
+  display:flex;align-items:center;justify-content:center;}
+.hero__img svg.piece{width:62%;height:62%;opacity:0.5;}
+.hero__ctrls{position:absolute;top:14px;left:14px;right:14px;display:flex;align-items:center;justify-content:space-between;}
+.hero__ctrls .group{display:flex;gap:8px;}
+.hero__count{position:absolute;bottom:14px;right:14px;background:rgba(19,18,17,0.6);color:#fff;font-size:12px;
+  font-weight:600;padding:5px 11px;border-radius:999px;backdrop-filter:blur(6px);}
+.thumbs{display:flex;gap:8px;padding:8px 14px 0;}
+.thumb{width:58px;height:58px;border-radius:12px;background:var(--surface);display:flex;align-items:center;
+  justify-content:center;flex:none;}
+.thumb.is-active{outline:2px solid var(--ink);outline-offset:2px;}
+.thumb svg{width:60%;height:60%;opacity:0.45;}
+.body{padding:22px 20px 0;}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-faint);}
+.title{font-size:34px;font-weight:700;letter-spacing:-0.03em;line-height:0.98;margin-top:8px;}
+.owner{display:flex;align-items:center;gap:11px;margin-top:18px;}
+.owner__name{font-size:15px;font-weight:600;display:flex;align-items:center;gap:6px;}
+.owner__meta{font-size:12.5px;color:var(--ink-soft);margin-top:1px;}
+.owner__resp{margin-left:auto;text-align:right;font-size:12px;color:var(--ink-soft);}
+.priceband{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px;}
+.priceband .tile{padding:15px 16px;}
+.pb-coral{background:var(--coral);color:#fff;}
+.pb-k{font-size:12px;font-weight:500;}
+.pb-coral .pb-k{color:rgba(255,255,255,0.85);}
+.pb-soft .pb-k{color:var(--ink-faint);}
+.pb-v{font-size:26px;font-weight:700;letter-spacing:-0.03em;margin-top:4px;}
+.pb-v small{font-size:14px;font-weight:600;}
+.pb-note{font-size:11.5px;margin-top:3px;}
+.pb-coral .pb-note{color:rgba(255,255,255,0.8);}
+.pb-soft .pb-note{color:var(--ink-soft);}
+.specs{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.cal{display:flex;gap:7px;}
+.cal__day{flex:1;border-radius:12px;background:var(--surface);padding:10px 0;text-align:center;}
+.cal__day.is-busy{background:transparent;border:1px dashed var(--line-strong);}
+.cal__day.is-sel{background:var(--ink);color:#fff;}
+.cal__dow{font-size:11px;color:var(--ink-faint);}
+.cal__day.is-sel .cal__dow{color:rgba(255,255,255,0.7);}
+.cal__num{font-size:16px;font-weight:600;margin-top:3px;}
+.cal__day.is-busy .cal__num{color:var(--ink-faint);text-decoration:line-through;}
+.cal__legend{display:flex;gap:16px;margin-top:12px;font-size:12px;color:var(--ink-soft);}
+.cal__legend i{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:6px;}
+.ar{display:flex;align-items:center;gap:12px;margin-top:14px;background:var(--surface);border-radius:16px;padding:14px 16px;}
+.ar__ic{width:42px;height:42px;border-radius:12px;background:var(--ink);display:flex;align-items:center;justify-content:center;flex:none;}
+.ar__ic svg{width:21px;height:21px;stroke:#fff;fill:none;}
+.ar__t{font-size:15px;font-weight:600;}
+.ar__s{font-size:12.5px;color:var(--ink-soft);margin-top:1px;}
+.ar__go{margin-left:auto;}
+.arrow-ico{width:26px;height:26px;display:flex;align-items:center;justify-content:center;}
+.arrow-ico svg{width:17px;height:17px;stroke:var(--ink);fill:none;}
+.note{display:flex;gap:14px;background:var(--coral-soft);border-radius:16px;padding:16px;}
+.note__txt{font-size:13.5px;line-height:1.45;color:var(--coral-ink);}
+.note__txt b{font-weight:700;}
+.note__img{width:64px;height:64px;border-radius:12px;background:var(--coral-tint);flex:none;display:flex;align-items:center;justify-content:center;}
+.note__img svg{width:60%;height:60%;opacity:0.5;}
+.trust{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.trust__i{text-align:center;padding:14px 6px;background:var(--surface);border-radius:14px;}
+.trust__i svg{width:22px;height:22px;stroke:var(--ink);fill:none;margin-bottom:7px;}
+.trust__i div{font-size:11.5px;line-height:1.25;color:var(--ink-soft);}
+.rail{display:flex;gap:12px;overflow-x:auto;padding:0 20px 4px;margin-top:13px;}
+.rail::-webkit-scrollbar{display:none;}
+.rcard{flex:none;width:140px;}
+.rcard__img{height:150px;border-radius:16px;background:var(--surface);display:flex;align-items:center;justify-content:center;}
+.rcard__img svg{width:58%;height:58%;opacity:0.45;}
+.rcard__n{font-size:14px;font-weight:600;margin-top:9px;letter-spacing:-0.01em;line-height:1.1;}
+.rcard__p{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+
+/* DATES */
+.month{display:flex;align-items:center;justify-content:space-between;padding:24px 24px 14px;}
+.month__t{font-size:18px;font-weight:700;letter-spacing:-0.02em;}
+.month__nav{display:flex;gap:8px;}
+.month__nav button{width:34px;height:34px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;}
+.month__nav svg{width:17px;height:17px;stroke:var(--ink);fill:none;}
+.dow{display:grid;grid-template-columns:repeat(7,1fr);padding:0 18px 6px;}
+.dow span{text-align:center;font-size:12px;font-weight:600;color:var(--ink-faint);}
+.cal2{display:grid;grid-template-columns:repeat(7,1fr);row-gap:4px;padding:0 18px;}
+.cd{height:46px;position:relative;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;}
+.cd__in{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;}
+.cd--muted{color:var(--ink-faint);opacity:0.45;}
+.cd--booked .cd__in{color:var(--ink-faint);text-decoration:line-through;}
+.cd--buffer .cd__in{color:var(--ink-faint);border:1px dashed var(--line-strong);}
+.cd--start::before,.cd--end::before,.cd--mid::before{content:"";position:absolute;top:3px;bottom:3px;z-index:1;background:var(--coral-soft);}
+.cd--mid::before{left:0;right:0;}
+.cd--start::before{left:50%;right:0;}
+.cd--end::before{left:0;right:50%;}
+.cd--start .cd__in,.cd--end .cd__in{background:var(--coral);color:#fff;font-weight:700;}
+.cd--mid .cd__in{color:var(--coral-ink);font-weight:600;}
+.leg{display:flex;flex-wrap:wrap;gap:14px;padding:20px 22px 0;font-size:12.5px;color:var(--ink-soft);}
+.leg span{display:inline-flex;align-items:center;gap:7px;}
+.leg i{width:14px;height:14px;border-radius:50%;display:inline-block;}
+.rule{display:flex;align-items:center;gap:9px;margin:18px 20px 0;background:var(--surface);border-radius:13px;padding:12px 14px;font-size:13px;color:var(--ink-soft);}
+.rule svg{width:17px;height:17px;stroke:var(--ink-soft);fill:none;flex:none;}
+.rule b{color:var(--ink);font-weight:600;}
+
+/* SUMMARY */
+.pick{display:flex;align-items:center;gap:13px;padding:14px;border:1.5px solid var(--line);border-radius:16px;margin-bottom:10px;}
+.pick--sel{border-color:var(--coral);}
+.pick__ic{width:40px;height:40px;border-radius:11px;background:var(--surface);display:flex;align-items:center;justify-content:center;flex:none;}
+.pick--sel .pick__ic{background:var(--coral-soft);}
+.pick__ic svg{width:20px;height:20px;stroke:var(--ink);fill:none;}
+.pick--sel .pick__ic svg{stroke:var(--coral-deep);}
+.pick__t{font-size:15px;font-weight:600;}
+.pick__s{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+.pick__r{margin-left:auto;text-align:right;flex:none;}
+.pick__price{font-size:14px;font-weight:600;}
+.pick__radio{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line-strong);margin:6px 0 0 auto;}
+.pick--sel .pick__radio{border-color:var(--coral);background:var(--coral);display:flex;align-items:center;justify-content:center;}
+.pick__radio svg{display:none;}
+.pick--sel .pick__radio svg{display:block;width:13px;height:13px;stroke:#fff;fill:none;}
+.pick__addr{display:flex;align-items:center;gap:8px;margin:2px 4px 0;font-size:13px;color:var(--ink-soft);}
+.pick__addr svg{width:15px;height:15px;stroke:var(--ink-soft);fill:none;}
+.pick__addr b{color:var(--ink);font-weight:600;}
+.pick__addr a{margin-left:auto;color:var(--coral-deep);font-weight:600;}
+.price{background:var(--surface);border-radius:18px;padding:6px 18px;}
+.prow{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 0;font-size:15px;}
+.prow+.prow{border-top:1px solid var(--line);}
+.prow__sub{font-size:12.5px;color:var(--ink-faint);margin-top:2px;}
+.prow__v{font-weight:600;white-space:nowrap;}
+.prow__info{display:inline-flex;width:15px;height:15px;border-radius:50%;border:1px solid var(--ink-faint);
+  color:var(--ink-faint);font-size:10px;align-items:center;justify-content:center;margin-left:5px;vertical-align:1px;}
+.ptotal{display:flex;align-items:center;justify-content:space-between;padding:14px 0 12px;border-top:1.5px solid var(--ink);margin-top:2px;}
+.ptotal__l{font-size:16px;font-weight:600;}
+.ptotal__v{font-size:22px;font-weight:700;letter-spacing:-0.02em;}
+.dep{background:var(--coral-soft);border-radius:18px;padding:16px 18px;}
+.dep__top{display:flex;align-items:baseline;justify-content:space-between;}
+.dep__t{font-size:15px;font-weight:700;color:var(--coral-ink);}
+.dep__v{font-size:18px;font-weight:700;color:var(--coral-ink);}
+.dep__s{font-size:12.5px;color:var(--coral-ink);opacity:0.85;margin-top:4px;}
+.flow{display:flex;align-items:flex-start;margin-top:16px;}
+.flow__step{flex:1;text-align:center;position:relative;}
+.flow__dot{width:11px;height:11px;border-radius:50%;background:var(--coral);margin:0 auto 8px;position:relative;z-index:2;}
+.flow__step--off .flow__dot{background:var(--coral-tint);}
+.flow__line{position:absolute;top:5px;left:50%;width:100%;height:2px;background:var(--coral-tint);z-index:1;}
+.flow__step:last-child .flow__line{display:none;}
+.flow__lbl{font-size:11px;line-height:1.2;color:var(--coral-ink);}
+
+/* ACTIVE RENTAL */
+.rstatus{margin:14px 20px 0;background:var(--coral);color:#fff;border-radius:18px;padding:18px;}
+.rstatus__lbl{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;opacity:0.85;}
+.rstatus__t{font-size:20px;font-weight:700;letter-spacing:-0.02em;margin-top:7px;line-height:1.05;}
+.rstatus__s{font-size:13px;opacity:0.92;margin-top:7px;line-height:1.42;}
+.tl{padding:2px 4px 0;}
+.tl__step{display:flex;gap:14px;}
+.tl__col{width:24px;flex:none;display:flex;flex-direction:column;align-items:center;}
+.tl__dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;}
+.tl__dot svg{width:13px;height:13px;stroke:#fff;fill:none;}
+.tl__line{width:2px;flex:1;background:var(--line);margin:3px 0;min-height:14px;}
+.tl__step:last-child .tl__line{display:none;}
+.tl__body{padding-bottom:20px;}
+.tl__step:last-child .tl__body{padding-bottom:0;}
+.tl__t{font-size:15px;font-weight:600;letter-spacing:-0.01em;}
+.tl__s{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+.tl__s a{color:var(--coral-deep);font-weight:600;}
+.tl__now{display:inline-block;margin-left:8px;font-size:10px;font-weight:700;letter-spacing:0.04em;
+  text-transform:uppercase;color:var(--coral-deep);background:var(--coral-soft);padding:2px 7px;border-radius:6px;vertical-align:1px;}
+.tl__step--done .tl__dot{background:var(--ink);}
+.tl__step--done .tl__line{background:var(--ink);}
+.tl__step--now .tl__dot{background:var(--coral);box-shadow:0 0 0 4px var(--coral-soft);}
+.tl__step--todo .tl__dot{background:#fff;border:2px solid var(--line-strong);}
+.tl__step--todo .tl__t{color:var(--ink-faint);}
+.orow{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:16px;padding:13px 14px;}
+.orow__n{font-size:15px;font-weight:600;}
+.orow__s{font-size:12.5px;color:var(--ink-soft);margin-top:1px;}
+.orow__ic{margin-left:auto;width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;}
+.orow__ic svg{width:19px;height:19px;stroke:var(--ink);fill:none;}
+
+/* PHOTO CHECK-IN */
+.pc-intro{margin:12px 20px 0;font-size:14px;line-height:1.5;color:var(--ink-soft);}
+.pc-intro b{color:var(--ink);font-weight:600;}
+.shots{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px;}
+.shot{aspect-ratio:1;border-radius:16px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.shot--done{background:var(--surface-2);}
+.shot--done svg.ph{width:52%;height:52%;opacity:0.5;}
+.shot--todo{background:var(--surface);border:1.5px dashed var(--line-strong);flex-direction:column;gap:7px;}
+.shot--todo .cam{width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;}
+.shot--todo .cam svg{width:18px;height:18px;stroke:var(--ink);fill:none;}
+.shot--todo .lbl{font-size:13px;font-weight:600;color:var(--ink);}
+.shot--todo .sub{font-size:11.5px;color:var(--ink-faint);}
+.shot__cap{position:absolute;left:8px;bottom:8px;background:rgba(19,18,17,0.62);color:#fff;font-size:11px;font-weight:600;padding:3px 8px;border-radius:7px;backdrop-filter:blur(4px);}
+.shot__check{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:var(--st-active);display:flex;align-items:center;justify-content:center;}
+.shot__check svg{width:12px;height:12px;stroke:#fff;fill:none;}
+.shot__flag{position:absolute;top:8px;left:8px;background:var(--coral);color:#fff;font-size:10px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;padding:3px 7px;border-radius:6px;}
+.addmore{display:flex;align-items:center;justify-content:center;gap:8px;margin:12px 20px 0;height:44px;border:1.5px dashed var(--line-strong);border-radius:12px;font-size:14px;font-weight:600;color:var(--ink-soft);}
+.addmore svg{width:17px;height:17px;stroke:var(--ink-soft);fill:none;}
+.match{margin:0 20px;background:var(--coral-soft);border-radius:18px;padding:16px;}
+.match__h{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:var(--coral-ink);}
+.match__h svg{width:17px;height:17px;stroke:var(--coral-deep);fill:none;}
+.match__body{display:flex;gap:13px;margin-top:13px;align-items:center;}
+.match__img{width:60px;height:60px;border-radius:12px;background:var(--coral-tint);flex:none;display:flex;align-items:center;justify-content:center;}
+.match__img svg{width:54%;height:54%;stroke:#b9613f;fill:none;}
+.match__txt{font-size:13.5px;color:var(--coral-ink);line-height:1.4;}
+.match__txt b{font-weight:700;}
+.mopt{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+.mo{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.5);border-radius:11px;padding:11px 12px;font-size:13.5px;font-weight:600;color:var(--coral-ink);}
+.mo--sel{background:#fff;}
+.mo__r{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--coral);flex:none;margin-left:auto;}
+.mo--sel .mo__r{background:var(--coral);display:flex;align-items:center;justify-content:center;}
+.mo--sel .mo__r svg{width:11px;height:11px;stroke:#fff;fill:none;}
+.confirmrow{display:flex;align-items:center;gap:12px;margin:0 20px;padding:14px 0 2px;}
+.confirmrow .box{width:24px;height:24px;border-radius:7px;background:var(--ink);display:flex;align-items:center;justify-content:center;flex:none;}
+.confirmrow .box svg{width:14px;height:14px;stroke:#fff;fill:none;}
+.confirmrow span{font-size:14px;color:var(--ink);line-height:1.35;}
+
+/* PROFILE + MODE SWITCH */
+.phero{padding:10px 20px 0;display:flex;align-items:center;gap:15px;}
+.phero__av{width:64px;height:64px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;
+  justify-content:center;font-size:22px;font-weight:700;color:var(--ink-soft);flex:none;}
+.phero__name{font-size:24px;font-weight:700;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px;}
+.phero__meta{font-size:13px;color:var(--ink-soft);margin-top:3px;}
+.modeseg{display:flex;background:var(--surface);border-radius:999px;padding:5px;margin:22px 20px 0;}
+.modeseg__opt{flex:1;height:46px;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:15px;font-weight:600;color:var(--ink-soft);}
+.modeseg__opt svg{width:18px;height:18px;stroke:currentColor;fill:none;}
+.modeseg__opt--active{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.modecap{text-align:center;font-size:12.5px;color:var(--ink-faint);margin-top:10px;padding:0 20px;}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 20px;margin-top:22px;}
+.metric{background:var(--surface);border-radius:14px;padding:14px 12px;}
+.metric__v{font-size:22px;font-weight:700;letter-spacing:-0.02em;}
+.metric__k{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+.menu{padding:0 20px;}
+.mrow{display:flex;align-items:center;gap:14px;padding:15px 0;border-top:1px solid var(--line);}
+.mrow:first-child{border-top:none;}
+.mrow__ic{width:24px;height:24px;flex:none;}
+.mrow__ic svg{width:24px;height:24px;stroke:var(--ink);fill:none;}
+.mrow__t{font-size:15px;font-weight:500;}
+.mrow__r{margin-left:auto;display:flex;align-items:center;gap:9px;color:var(--ink-faint);font-size:13px;}
+.mrow__chev svg{width:18px;height:18px;stroke:var(--ink-faint);fill:none;}
+.lendpromo{display:flex;align-items:center;gap:14px;margin:24px 20px 0;background:var(--coral);color:#fff;
+  border-radius:18px;padding:17px 18px;}
+.lendpromo__t{font-size:16px;font-weight:700;letter-spacing:-0.01em;}
+.lendpromo__s{font-size:12.5px;opacity:0.9;margin-top:3px;line-height:1.35;}
+.lendpromo__go{margin-left:auto;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.22);
+  display:flex;align-items:center;justify-content:center;flex:none;}
+.lendpromo__go svg{width:18px;height:18px;stroke:#fff;fill:none;}
+
+/* LENDER DASHBOARD */
+.dhead{padding:10px 20px 4px;display:flex;align-items:flex-start;justify-content:space-between;}
+.dhead__eyebrow{font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--coral-deep);}
+.dhead h1{font-size:34px;font-weight:700;letter-spacing:-0.03em;line-height:1;margin-top:6px;}
+.modechip{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:999px;background:var(--surface);font-size:13px;font-weight:600;color:var(--ink);}
+.modechip svg{width:16px;height:16px;stroke:var(--ink);fill:none;}
+.req{border:1.5px solid var(--coral);border-radius:18px;padding:16px;margin:0 20px;}
+.req__top{display:flex;align-items:center;gap:11px;}
+.req__n{font-size:15px;font-weight:600;}
+.req__s{font-size:12.5px;color:var(--ink-soft);margin-top:1px;}
+.req__pill{margin-left:auto;background:var(--coral-soft);color:var(--coral-ink);font-size:11px;font-weight:700;padding:4px 9px;border-radius:7px;}
+.req__piece{display:flex;align-items:center;gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);}
+.req__th{width:44px;height:44px;border-radius:11px;background:var(--surface-2);flex:none;display:flex;align-items:center;justify-content:center;}
+.req__th svg{width:60%;height:60%;opacity:.5;}
+.req__pn{font-size:14px;font-weight:600;}
+.req__pd{font-size:12.5px;color:var(--ink-soft);margin-top:1px;}
+.req__amt{margin-left:auto;text-align:right;font-size:14px;font-weight:700;}
+.req__btns{display:flex;gap:10px;margin-top:14px;}
+.req__btns .btn{height:46px;flex:1;font-size:15px;}
+.lrow{display:flex;align-items:center;gap:13px;padding:12px 0;border-top:1px solid var(--line);}
+.lrow:first-child{border-top:none;}
+.lrow__th{width:50px;height:50px;border-radius:12px;background:var(--surface-2);flex:none;display:flex;align-items:center;justify-content:center;}
+.lrow__th svg{width:58%;height:58%;opacity:.5;}
+.lrow__n{font-size:15px;font-weight:600;letter-spacing:-0.01em;}
+.lrow__s{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+.lrow__r{margin-left:auto;text-align:right;}
+.badge--paused{background:rgba(176,122,30,0.14);color:#8a5a14;}
+.badge--draft{background:var(--st-bg);color:var(--ink-faint);}
+
+/* CREATE LISTING */
+.steps{display:flex;gap:6px;padding:14px 20px 0;}
+.steps__seg{flex:1;height:5px;border-radius:3px;background:var(--surface-2);}
+.steps__seg--on{background:var(--coral);}
+.steplabel{padding:12px 20px 0;font-size:13px;font-weight:600;color:var(--ink-soft);}
+.steplabel b{color:var(--ink);}
+.condseg{display:flex;flex-wrap:wrap;gap:8px;padding:0 20px;}
+.condseg .chip{height:40px;}
+.flaw{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:14px;padding:12px;}
+.flaw__img{width:48px;height:48px;border-radius:10px;background:var(--surface-2);flex:none;display:flex;align-items:center;justify-content:center;}
+.flaw__img svg{width:54%;height:54%;stroke:#b9613f;fill:none;}
+.flaw__n{font-size:14px;font-weight:600;}
+.flaw__s{font-size:12px;color:var(--ink-soft);margin-top:1px;}
+.flaw__x{margin-left:auto;width:28px;height:28px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;}
+.flaw__x svg{width:15px;height:15px;stroke:var(--ink-soft);fill:none;}
+.nudge{display:flex;gap:12px;margin:18px 20px 0;background:var(--coral-soft);border-radius:16px;padding:14px 16px;}
+.nudge__ic{width:34px;height:34px;border-radius:9px;background:var(--coral-tint);display:flex;align-items:center;justify-content:center;flex:none;}
+.nudge__ic svg{width:18px;height:18px;stroke:var(--coral-deep);fill:none;}
+.nudge__t{font-size:13px;line-height:1.42;color:var(--coral-ink);}
+.nudge__t b{font-weight:700;}
+
+/* CLAIM / DISPUTE */
+.cbanner{margin:14px 20px 0;background:var(--surface);border-radius:16px;padding:15px 16px;display:flex;gap:12px;align-items:flex-start;}
+.cbanner__ic{width:36px;height:36px;border-radius:10px;background:#F4E9D2;display:flex;align-items:center;justify-content:center;flex:none;}
+.cbanner__ic svg{width:19px;height:19px;stroke:#8a5a14;fill:none;}
+.cbanner__t{font-size:15px;font-weight:700;letter-spacing:-0.01em;display:flex;align-items:center;gap:8px;}
+.cbanner__pill{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a5a14;background:rgba(176,122,30,.16);padding:3px 7px;border-radius:6px;}
+.cbanner__s{font-size:12.5px;color:var(--ink-soft);margin-top:5px;line-height:1.42;}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px;}
+.cmp__img{aspect-ratio:1;border-radius:14px;background:var(--surface-2);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.cmp__img svg.ph{width:62%;height:62%;opacity:.5;}
+.cmp__tag{position:absolute;top:8px;left:8px;background:rgba(19,18,17,.62);color:#fff;font-size:11px;font-weight:600;padding:3px 8px;border-radius:7px;backdrop-filter:blur(4px);}
+.cmp__ring{position:absolute;width:40px;height:40px;border-radius:50%;border:2px solid var(--coral);}
+.cmp__ring--soft{border-color:rgba(19,18,17,.32);border-style:dashed;}
+.cmp__cap{font-size:12px;color:var(--ink-soft);margin-top:7px;text-align:center;}
+.cclaim{margin:0 20px;background:var(--surface);border-radius:16px;padding:14px 16px;}
+.cclaim__h{font-size:14px;font-weight:700;}
+.cclaim__p{font-size:13.5px;color:var(--ink-soft);line-height:1.45;margin-top:6px;font-style:italic;}
+.cvs{display:flex;gap:10px;margin-top:13px;}
+.cvs__col{flex:1;background:#fff;border-radius:11px;padding:10px 12px;}
+.cvs__k{font-size:10.5px;color:var(--ink-faint);font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+.cvs__v{font-size:13.5px;font-weight:600;margin-top:3px;line-height:1.15;}
+.cdep{margin:0 20px;border:1.5px solid var(--line);border-radius:16px;padding:16px;}
+.cdep__row{display:flex;justify-content:space-between;font-size:14px;padding:6px 0;}
+.cdep__row b{font-weight:700;}
+.cdep__bar{height:9px;border-radius:5px;margin:11px 0 7px;overflow:hidden;display:flex;}
+.cdep__held{background:#c98a2e;}
+.cdep__free{background:var(--st-active);}
+.cdep__leg{display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;}
+
+/* SENT */
+.sent{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;}
+.sent__check{width:84px;height:84px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;margin-bottom:24px;}
+.sent__check svg{width:42px;height:42px;stroke:#fff;fill:none;}
+.sent h2{font-size:28px;font-weight:700;letter-spacing:-0.025em;}
+.sent p{font-size:14px;line-height:1.5;color:var(--ink-soft);margin-top:12px;max-width:280px;}
+
+/* clickable affordance */
+[data-go]{cursor:pointer;}
+.hint{position:absolute;bottom:-30px;left:0;right:0;text-align:center;font-size:12px;color:#5a564e;}
+</style>
+</head>
+<body>
+
+<div class="device">
+
+  <!-- shared status bar -->
+  <div class="statusbar">
+    <span>9:41</span>
+    <div class="statusbar__notch"></div>
+    <div class="statusbar__icons">
+      <svg width="17" height="11" viewBox="0 0 17 11" fill="none"><rect x="0" y="6" width="3" height="5" rx="1" fill="#131211"/><rect x="4.5" y="4" width="3" height="7" rx="1" fill="#131211"/><rect x="9" y="2" width="3" height="9" rx="1" fill="#131211"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="#131211"/></svg>
+      <svg width="22" height="11" viewBox="0 0 22 11" fill="none"><rect x="0.5" y="0.5" width="18" height="10" rx="2.5" stroke="#131211" opacity="0.4"/><rect x="2" y="2" width="14" height="7" rx="1.5" fill="#131211"/><rect x="19.5" y="3.5" width="1.5" height="4" rx="0.75" fill="#131211" opacity="0.4"/></svg>
+    </div>
+  </div>
+
+  <div class="stage">
+
+    <!-- ============ 01 EXPLORE ============ -->
+    <section class="screen active" id="explore">
+      <div class="viewport">
+        <div class="phead">
+          <div class="phead__eyebrow">In&#8202;—&#8202;Between · Berlin</div>
+          <div class="phead__row">
+            <h1>Explore</h1>
+            <button class="iconbtn" aria-label="Filters"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M4 7h11M19 7h1M4 12h5M13 12h7M4 17h9M17 17h3"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="14" cy="17" r="2"/></svg></button>
+          </div>
+          <p class="phead__sub">Designer and vintage pieces, rented from the people who own them.</p>
+        </div>
+        <div class="searchpill" style="margin-top:6px"><svg viewBox="0 0 24 24" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>Find a piece, designer, era…</div>
+
+        <div class="bento">
+          <div class="tile tile--photo span-r3" data-go="product">
+            <img class="cover" src="img/chair.jpg" alt="Pierre Jeanneret lounge chair">
+            <div class="tile__top"><div class="tile__owner">Owner<b>Klara M.</b></div><span class="tile__arrow"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+            <div class="feat-name" style="position:relative;z-index:2"><span class="badge badge--available" style="margin-bottom:8px">Available now</span><div class="tile__name">Pierre Jeanneret<br>lounge chair</div><div class="tile__meta tile__price"><b>€34</b> / day · 1960s</div></div>
+          </div>
+          <div class="tile tile--photo span-r2" data-go="product">
+            <img class="cover" src="img/sofa.jpg" alt="Florence Knoll sofa">
+            <div class="tile__top"><div class="tile__owner"><b>Atelier Süd</b></div><span class="tile__arrow"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+            <div style="position:relative;z-index:2"><div class="tile__name">Florence&nbsp;Knoll<br>sofa, 2-seat</div><div class="tile__meta tile__price"><b>€21</b> / day</div></div>
+          </div>
+          <div class="tile tile--coral">
+            <div class="tile__top"><div class="tile__owner" style="font-weight:600">Collection</div><span class="tile__arrow"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+            <div class="tile__name tile__name--sm">Mid-century,<br>by the week</div>
+          </div>
+          <div class="tile tile--photo span-r2" data-go="product">
+            <img class="cover" src="img/chair2.jpg" alt="Wegner Papa Bear chair">
+            <div class="tile__top"><div class="tile__owner">Owner<b>Marta R.</b></div><span class="tile__arrow"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+            <div style="position:relative;z-index:2"><div class="tile__name">Wegner<br>Papa Bear</div><div class="tile__meta tile__price"><b>€40</b> / day · ★ 4.9</div></div>
+          </div>
+          <div class="tile tile--photo" data-go="product">
+            <img class="cover" src="img/console.jpg" alt="Up and Up console">
+            <div class="tile__top"><div class="tile__owner">Owner<b>Studio M.</b></div><span class="tile__arrow"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+            <div class="tile__name tile__name--sm" style="position:relative;z-index:2">Up&nbsp;&amp;&nbsp;Up<br>console</div>
+          </div>
+          <div class="tile tile--photo" data-go="product">
+            <img class="cover" src="img/lamp.jpg" alt="Vistosi globe lamp">
+            <div class="tile__top"><div class="tile__owner"><b>Vistosi</b></div><span class="tile__arrow"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg></span></div>
+            <div style="position:relative;z-index:2"><div class="tile__name tile__name--sm">Globe lamp</div><div class="tile__meta tile__price"><b>€15</b> / day</div></div>
+          </div>
+          <div class="tile tile--ink span-c2" style="flex-direction:row;align-items:center;justify-content:space-between;">
+            <div class="tile__stat">47</div>
+            <div style="text-align:right;color:rgba(255,255,255,0.7);font-size:14px;line-height:1.3;max-width:150px;">designer pieces<br>available near you<br>this week</div>
+          </div>
+        </div>
+
+        <div class="slabel">Browse by</div>
+        <div class="chips"><button class="chip chip--active">All</button><button class="chip">Seating</button><button class="chip">Lighting</button><button class="chip">Tables</button><button class="chip">Storage</button></div>
+      </div>
+      <nav class="tabbar">
+        <div class="tab tab--active"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9h12v-9"/></svg>Explore</div>
+        <div class="tab" aria-label="Saved"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z"/></svg></div>
+        <div class="tab tab--lend" aria-label="Lend" data-go="create"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="tab" aria-label="Rentals" data-go="rental"><svg viewBox="0 0 24 24" stroke-width="1.7"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg></div>
+        <div class="tab" aria-label="Profile" data-go="profile"><svg viewBox="0 0 24 24" stroke-width="1.7"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg></div>
+      </nav>
+    </section>
+
+    <!-- ============ 02 PRODUCT ============ -->
+    <section class="screen" id="product">
+      <div class="viewport" style="padding-bottom:96px">
+        <div class="hero">
+          <div class="hero__img">
+            <img class="cover" src="img/chair.jpg" alt="Pierre Jeanneret lounge chair">
+            <div class="hero__ctrls">
+              <button class="iconbtn iconbtn--white" data-go="back" aria-label="Back"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button>
+              <div class="group">
+                <button class="iconbtn iconbtn--white" aria-label="Share"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M5 13v6h14v-6"/></svg></button>
+                <button class="iconbtn iconbtn--white" aria-label="Save"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z"/></svg></button>
+              </div>
+            </div>
+            <div class="hero__count">1 / 5</div>
+          </div>
+          <div class="thumbs">
+            <div class="thumb is-active"><img class="cover" src="img/chair.jpg" alt="" style="object-position:50% 45%"></div>
+            <div class="thumb"><img class="cover" src="img/chair.jpg" alt="" style="object-position:50% 14%"></div>
+            <div class="thumb"><img class="cover" src="img/chair.jpg" alt="" style="object-position:20% 60%"></div>
+            <div class="thumb"><img class="cover" src="img/chair.jpg" alt="" style="object-position:82% 60%"></div>
+            <div class="thumb"><img class="cover" src="img/chair.jpg" alt="" style="object-position:50% 92%"></div>
+          </div>
+        </div>
+        <div class="body">
+          <div class="eyebrow">Armchair · 1960s · Teak</div>
+          <h1 class="title">Pierre Jeanneret<br>lounge chair</h1>
+          <div class="owner">
+            <div class="avatar">KM</div>
+            <div>
+              <div class="owner__name">Klara M. <span class="badge badge--verified"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>Verified</span></div>
+              <div class="owner__meta">Lender in Mitte · 28 rentals</div>
+            </div>
+            <div class="owner__resp"><div class="stars"><svg viewBox="0 0 24 24"><path d="M12 3l2.5 6 6.5.5-5 4.3 1.6 6.4L12 17l-5.6 3.2L8 13.8l-5-4.3 6.5-.5L12 3Z"/></svg>4.9</div><div style="margin-top:2px">~1h reply</div></div>
+          </div>
+          <div class="priceband">
+            <div class="tile pb-coral"><div class="pb-k">Rental</div><div class="pb-v">€34<small> / day</small></div><div class="pb-note">€204 / week · €640 / month</div></div>
+            <div class="tile pb-soft" style="background:var(--surface)"><div class="pb-k">Refundable deposit</div><div class="pb-v">€300</div><div class="pb-note">Held in escrow, returned after</div></div>
+          </div>
+        </div>
+        <div class="sec"><div class="sec__h">Details</div>
+          <div class="specs">
+            <div class="spec"><div class="spec__k">Condition</div><div class="spec__v">Very good</div></div>
+            <div class="spec"><div class="spec__k">Material</div><div class="spec__v">Teak · cane</div></div>
+            <div class="spec"><div class="spec__k">Dimensions</div><div class="spec__v">66 × 70 × 83</div></div>
+            <div class="spec"><div class="spec__k">Minimum</div><div class="spec__v">3 days</div></div>
+          </div>
+        </div>
+        <div class="sec"><div class="sec__h">Availability · July</div>
+          <div class="cal">
+            <div class="cal__day is-busy"><div class="cal__dow">Mon</div><div class="cal__num">30</div></div>
+            <div class="cal__day"><div class="cal__dow">Tue</div><div class="cal__num">1</div></div>
+            <div class="cal__day is-sel"><div class="cal__dow">Wed</div><div class="cal__num">2</div></div>
+            <div class="cal__day is-sel"><div class="cal__dow">Thu</div><div class="cal__num">3</div></div>
+            <div class="cal__day"><div class="cal__dow">Fri</div><div class="cal__num">4</div></div>
+            <div class="cal__day"><div class="cal__dow">Sat</div><div class="cal__num">5</div></div>
+            <div class="cal__day"><div class="cal__dow">Sun</div><div class="cal__num">6</div></div>
+          </div>
+          <div class="cal__legend"><span><i style="background:var(--ink)"></i>Your dates</span><span><i style="background:var(--surface)"></i>Free</span><span><i style="background:transparent;border:1px dashed var(--line-strong)"></i>Booked + buffer</span></div>
+          <div class="ar" data-go="dates">
+            <div class="ar__ic"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg></div>
+            <div><div class="ar__t">See it in your room</div><div class="ar__s">Place it to scale with AR</div></div>
+            <span class="ar__go arrow-ico"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span>
+          </div>
+        </div>
+        <div class="sec"><div class="sec__h">Owner's note on condition</div>
+          <div class="note"><div class="note__txt"><b>Honest heads-up:</b> a faint ring mark on the left arm from a glass — barely visible, shown in photo 4. Frame and cane are solid.</div><div class="note__img"><svg viewBox="0 0 100 100" fill="none" stroke="#b9613f" stroke-width="3"><circle cx="50" cy="50" r="20"/></svg></div></div>
+        </div>
+        <div class="sec"><div class="sec__h">Rented with protection</div>
+          <div class="trust">
+            <div class="trust__i"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z"/><path d="M9 12l2 2 4-4"/></svg><div>Protected rental</div></div>
+            <div class="trust__i"><svg viewBox="0 0 24 24" stroke-width="1.7"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M8 9V7a4 4 0 0 1 8 0v2"/></svg><div>Deposit in escrow</div></div>
+            <div class="trust__i"><svg viewBox="0 0 24 24" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg><div>ID-verified owner</div></div>
+          </div>
+        </div>
+        <div class="sec" style="padding:0"><div class="sec__h" style="padding:0 20px">More from this era</div></div>
+        <div class="rail">
+          <div class="rcard"><div class="rcard__img"><img class="cover" src="img/chair.jpg" alt=""></div><div class="rcard__n">Hans Wegner CH25</div><div class="rcard__p">€28 / day · ★ 4.8</div></div>
+          <div class="rcard"><div class="rcard__img"><img class="cover" src="img/console.jpg" alt=""></div><div class="rcard__n">Travertine side table</div><div class="rcard__p">€18 / day · ★ 5.0</div></div>
+          <div class="rcard"><div class="rcard__img"><img class="cover" src="img/lamp.jpg" alt=""></div><div class="rcard__n">Vistosi globe</div><div class="rcard__p">€15 / day · ★ 4.8</div></div>
+        </div>
+        <div style="height:8px"></div>
+      </div>
+      <div class="bookbar">
+        <div class="bookbar__price"><b>€34</b> / day<br><span>2 nights selected · Jul 2–3</span></div>
+        <button class="btn btn--coral" style="flex:1;max-width:200px" data-go="dates">Check dates</button>
+      </div>
+    </section>
+
+    <!-- ============ 03 DATES ============ -->
+    <section class="screen" id="dates">
+      <div class="viewport">
+        <div class="nav"><button class="iconbtn" data-go="back" aria-label="Back"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button><h2>Select dates</h2></div>
+        <div class="summary"><div class="summary__th"><img class="cover" src="img/chair.jpg" alt=""></div><div><div class="summary__n">Pierre Jeanneret lounge chair</div><div class="summary__p"><b>€34</b> / day · Klara M.</div></div></div>
+        <div class="month"><div class="month__t">July 2026</div><div class="month__nav"><button aria-label="Prev"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button><button aria-label="Next"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg></button></div></div>
+        <div class="dow"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+        <div class="cal2">
+          <div class="cd cd--muted"><span class="cd__in">30</span></div><div class="cd"><span class="cd__in">1</span></div><div class="cd cd--start"><span class="cd__in">2</span></div><div class="cd cd--mid"><span class="cd__in">3</span></div><div class="cd cd--mid"><span class="cd__in">4</span></div><div class="cd cd--mid"><span class="cd__in">5</span></div><div class="cd cd--end"><span class="cd__in">6</span></div>
+          <div class="cd"><span class="cd__in">7</span></div><div class="cd"><span class="cd__in">8</span></div><div class="cd cd--buffer"><span class="cd__in">9</span></div><div class="cd cd--booked"><span class="cd__in">10</span></div><div class="cd cd--booked"><span class="cd__in">11</span></div><div class="cd cd--booked"><span class="cd__in">12</span></div><div class="cd cd--buffer"><span class="cd__in">13</span></div>
+          <div class="cd"><span class="cd__in">14</span></div><div class="cd"><span class="cd__in">15</span></div><div class="cd"><span class="cd__in">16</span></div><div class="cd"><span class="cd__in">17</span></div><div class="cd"><span class="cd__in">18</span></div><div class="cd"><span class="cd__in">19</span></div><div class="cd"><span class="cd__in">20</span></div>
+          <div class="cd"><span class="cd__in">21</span></div><div class="cd"><span class="cd__in">22</span></div><div class="cd cd--buffer"><span class="cd__in">23</span></div><div class="cd cd--booked"><span class="cd__in">24</span></div><div class="cd cd--booked"><span class="cd__in">25</span></div><div class="cd cd--booked"><span class="cd__in">26</span></div><div class="cd cd--buffer"><span class="cd__in">27</span></div>
+          <div class="cd"><span class="cd__in">28</span></div><div class="cd"><span class="cd__in">29</span></div><div class="cd"><span class="cd__in">30</span></div><div class="cd"><span class="cd__in">31</span></div><div class="cd cd--muted"><span class="cd__in">1</span></div><div class="cd cd--muted"><span class="cd__in">2</span></div><div class="cd cd--muted"><span class="cd__in">3</span></div>
+        </div>
+        <div class="leg"><span><i style="background:var(--coral)"></i>Your dates</span><span><i style="background:var(--surface-2)"></i>Available</span><span><i style="border:1px dashed var(--line-strong)"></i>Booked + buffer</span></div>
+        <div class="rule"><svg viewBox="0 0 24 24" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Minimum rental <b>3 days</b> · a 1-day cleaning buffer sits between rentals.</div>
+      </div>
+      <div class="bookbar">
+        <div class="bookbar__price"><b>Jul 2 – 6</b><br><span>4 nights · €136 rental</span></div>
+        <button class="btn btn--coral" style="flex:1;max-width:210px" data-go="summary">Choose pickup</button>
+      </div>
+    </section>
+
+    <!-- ============ 04 SUMMARY ============ -->
+    <section class="screen" id="summary">
+      <div class="viewport">
+        <div class="nav"><button class="iconbtn" data-go="back" aria-label="Back"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button><h2>Review order</h2></div>
+        <div class="summary"><div class="summary__th"><img class="cover" src="img/chair.jpg" alt=""></div><div><div class="summary__n">Pierre Jeanneret lounge chair</div><div class="summary__p">Jul 2 – 6 · 4 nights · Klara M.</div></div></div>
+        <div class="sec"><div class="sec__h">How you'll get it</div>
+          <div class="pick pick--sel">
+            <div class="pick__ic"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/></svg></div>
+            <div><div class="pick__t">Delivery by In-Between</div><div class="pick__s">Dropped at your door · Jul 2</div></div>
+            <div class="pick__r"><div class="pick__price">€15</div><div class="pick__radio"><svg viewBox="0 0 24 24" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div></div>
+          </div>
+          <div class="pick__addr"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M12 21s7-6.4 7-11a7 7 0 1 0-14 0c0 4.6 7 11 7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>Deliver to <b>Linienstraße 12, Berlin</b><a>Edit</a></div>
+          <div class="pick" style="margin-top:10px">
+            <div class="pick__ic"><svg viewBox="0 0 24 24" stroke-width="1.7"><rect x="4" y="8" width="16" height="11" rx="2"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg></div>
+            <div><div class="pick__t">Courier (DHL)</div><div class="pick__s">1–2 days · you pick the window</div></div>
+            <div class="pick__r"><div class="pick__price">€9</div><div class="pick__radio"><svg viewBox="0 0 24 24" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div></div>
+          </div>
+          <div class="pick">
+            <div class="pick__ic"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M5 11l7-6 7 6"/><path d="M7 10v8h10v-8"/><path d="M10 18v-4h4v4"/></svg></div>
+            <div><div class="pick__t">Self-pickup</div><div class="pick__s">Collect from Klara in Mitte</div></div>
+            <div class="pick__r"><div class="pick__price">Free</div><div class="pick__radio"><svg viewBox="0 0 24 24" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div></div>
+          </div>
+        </div>
+        <div class="sec"><div class="sec__h">Price</div>
+          <div class="price">
+            <div class="prow"><div><div class="prow__l">Rental</div><div class="prow__sub">€34 × 4 nights</div></div><div class="prow__v">€136</div></div>
+            <div class="prow"><div><div class="prow__l">Service fee<span class="prow__info">i</span></div></div><div class="prow__v">€14</div></div>
+            <div class="prow"><div><div class="prow__l">Delivery</div></div><div class="prow__v">€15</div></div>
+            <div class="prow"><div><div class="prow__l">Damage protection<span class="prow__info">i</span></div><div class="prow__sub">Covers accidental damage</div></div><div class="prow__v">€8</div></div>
+            <div class="ptotal"><div class="ptotal__l">Total today</div><div class="ptotal__v">€173</div></div>
+          </div>
+        </div>
+        <div class="sec"><div class="dep">
+          <div class="dep__top"><div class="dep__t">Refundable deposit</div><div class="dep__v">€300</div></div>
+          <div class="dep__s">Not charged now — only authorized on your card and held in escrow.</div>
+          <div class="flow">
+            <div class="flow__step"><div class="flow__line"></div><div class="flow__dot"></div><div class="flow__lbl">Authorized<br>at booking</div></div>
+            <div class="flow__step"><div class="flow__line"></div><div class="flow__dot"></div><div class="flow__lbl">Held in<br>escrow</div></div>
+            <div class="flow__step flow__step--off"><div class="flow__dot"></div><div class="flow__lbl">Released 48h<br>after return</div></div>
+          </div>
+        </div></div>
+      </div>
+      <div class="bookbar">
+        <div class="bookbar__price"><b>€173</b> today<br><span>+ €300 deposit held</span></div>
+        <button class="btn btn--coral" style="flex:1;max-width:210px" data-go="sent">Pay &amp; request</button>
+      </div>
+    </section>
+
+    <!-- ============ 04b SENT ============ -->
+    <section class="screen" id="sent">
+      <div class="viewport" style="padding-bottom:0">
+        <div class="sent">
+          <div class="sent__check"><svg viewBox="0 0 24 24" stroke-width="2.4"><path d="M5 13l4 4L19 7"/></svg></div>
+          <h2>Request sent</h2>
+          <p>We let Klara know. You'll usually hear back within an hour. Your card is authorized, not charged, until she confirms.</p>
+          <button class="btn btn--coral btn--block" style="margin-top:26px;max-width:240px" data-go="explore">Back to Explore</button>
+          <button class="btn btn--ghost btn--block" style="margin-top:10px;max-width:240px" data-go="rental">View my request</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 05 ACTIVE RENTAL ============ -->
+    <section class="screen" id="rental">
+      <div class="viewport">
+        <div class="nav"><button class="iconbtn" data-go="back" aria-label="Back"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button><h2>Your rental</h2></div>
+        <div class="summary"><div class="summary__th"><img class="cover" src="img/chair.jpg" alt=""></div><div><div class="summary__n">Pierre Jeanneret lounge chair</div><div class="summary__p">Klara M. · Jul 2 – 6 · 4 nights</div></div></div>
+
+        <div class="rstatus">
+          <div class="rstatus__lbl">Active rental</div>
+          <div class="rstatus__t">Delivered — confirm its condition</div>
+          <div class="rstatus__s">Take a few photos within 24h so you and Klara agree on how it arrived. This is what protects your deposit if anything's disputed later.</div>
+        </div>
+
+        <div class="sec"><div class="sec__h">Progress</div>
+          <div class="tl">
+            <div class="tl__step tl__step--done">
+              <div class="tl__col"><div class="tl__dot"><svg viewBox="0 0 24 24" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div><div class="tl__line"></div></div>
+              <div class="tl__body"><div class="tl__t">Requested</div><div class="tl__s">Jun 28 · 18:04</div></div>
+            </div>
+            <div class="tl__step tl__step--done">
+              <div class="tl__col"><div class="tl__dot"><svg viewBox="0 0 24 24" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div><div class="tl__line"></div></div>
+              <div class="tl__body"><div class="tl__t">Confirmed by Klara</div><div class="tl__s">Jun 28 · 18:45 · deposit authorized</div></div>
+            </div>
+            <div class="tl__step tl__step--done">
+              <div class="tl__col"><div class="tl__dot"><svg viewBox="0 0 24 24" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div><div class="tl__line"></div></div>
+              <div class="tl__body"><div class="tl__t">Out for delivery</div><div class="tl__s">Jul 2 · 09:12 · <a>Track courier</a></div></div>
+            </div>
+            <div class="tl__step tl__step--now">
+              <div class="tl__col"><div class="tl__dot"></div><div class="tl__line"></div></div>
+              <div class="tl__body"><div class="tl__t">Delivered<span class="tl__now">Now</span></div><div class="tl__s">Jul 2 · just now — confirm condition to start</div></div>
+            </div>
+            <div class="tl__step tl__step--todo">
+              <div class="tl__col"><div class="tl__dot"></div><div class="tl__line"></div></div>
+              <div class="tl__body"><div class="tl__t">In use</div><div class="tl__s">Jul 2 – 6</div></div>
+            </div>
+            <div class="tl__step tl__step--todo">
+              <div class="tl__col"><div class="tl__dot"></div></div>
+              <div class="tl__body"><div class="tl__t">Return · deposit released</div><div class="tl__s">Jul 6 → refund ~48h after</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec"><div class="sec__h">Your lender</div>
+          <div class="orow">
+            <div class="avatar">KM</div>
+            <div><div class="orow__n">Klara M.</div><div class="orow__s">Usually replies in ~1h</div></div>
+            <div class="orow__ic"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M5 5h14v11H9l-4 4V5Z"/></svg></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bookbar">
+        <div class="bookbar__price"><b>Due in 24h</b><br><span>Confirm condition to start</span></div>
+        <button class="btn btn--coral" style="flex:1;max-width:210px" data-go="photo">Photo check-in</button>
+      </div>
+    </section>
+
+    <!-- ============ 06 PHOTO CHECK-IN ============ -->
+    <section class="screen" id="photo">
+      <div class="viewport">
+        <div class="nav"><button class="iconbtn" data-go="back" aria-label="Back"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button><h2>Photo check-in</h2></div>
+        <p class="pc-intro">Photograph the chair <b>as it arrived</b>. You and Klara both get a timestamped copy — if there's ever a dispute, this is the evidence that protects your deposit.</p>
+
+        <div class="sec"><div class="sec__h">On-arrival photos</div>
+          <div class="shots">
+            <div class="shot shot--done">
+              <svg class="ph" viewBox="0 0 100 100" fill="none" stroke="#8f8a80" stroke-width="3"><path d="M28 48c0-6 4-9 9-9h26c5 0 9 3 9 9v14H28V48Z"/><path d="M28 62v8M72 62v8"/></svg>
+              <span class="shot__check"><svg viewBox="0 0 24 24" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>
+              <span class="shot__cap">Overall</span>
+            </div>
+            <div class="shot shot--done">
+              <img class="cover" src="img/chair.jpg" alt="" style="object-position:50% 80%">
+              <span class="shot__check"><svg viewBox="0 0 24 24" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>
+              <span class="shot__cap">Seat &amp; cane</span>
+            </div>
+            <div class="shot shot--done">
+              <svg class="ph" viewBox="0 0 100 100" fill="none" stroke="#8f8a80" stroke-width="3"><circle cx="50" cy="50" r="22"/><path d="M42 44a10 10 0 0 1 16 0"/></svg>
+              <span class="shot__flag">Noted mark</span>
+              <span class="shot__check"><svg viewBox="0 0 24 24" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>
+              <span class="shot__cap">Left arm</span>
+            </div>
+            <div class="shot shot--todo">
+              <span class="cam"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M4 8h3l2-2h6l2 2h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+              <span class="lbl">Legs &amp; joints</span>
+              <span class="sub">Tap to capture</span>
+            </div>
+          </div>
+          <div class="addmore"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add another angle</div>
+        </div>
+
+        <div class="sec"><div class="sec__h">Owner's disclosed condition</div>
+          <div class="match">
+            <div class="match__h"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M5 21V4M5 5h11l-2 3 2 3H5"/></svg>Klara flagged one thing upfront</div>
+            <div class="match__body">
+              <div class="match__img"><svg viewBox="0 0 100 100" stroke-width="3"><circle cx="50" cy="50" r="20"/></svg></div>
+              <div class="match__txt"><b>Faint ring mark</b> on the left arm, from a glass. Check your photo and tell us if it matches.</div>
+            </div>
+            <div class="mopt">
+              <div class="mo mo--sel">I can see it — matches the listing<span class="mo__r"><svg viewBox="0 0 24 24" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span></div>
+              <div class="mo" data-go="claim">Looks worse than described — report it<span class="mo__r"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="confirmrow"><div class="box"><svg viewBox="0 0 24 24" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div><span>Everything else matches the listing photos.</span></div>
+      </div>
+
+      <div class="bookbar">
+        <div class="bookbar__price"><b>3 of 4</b> shots<br><span>Mark confirmed · 1 left</span></div>
+        <button class="btn btn--coral" style="flex:1;max-width:210px" data-go="rental">Confirm &amp; start</button>
+      </div>
+    </section>
+
+    <!-- ============ 07 PROFILE + MODE SWITCH ============ -->
+    <section class="screen" id="profile">
+      <div class="viewport">
+        <div class="phero">
+          <div class="phero__av">LV</div>
+          <div>
+            <div class="phero__name">Lena Voss <span class="badge badge--verified"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>Verified</span></div>
+            <div class="phero__meta">Berlin · joined 2024 · ★ 4.9</div>
+          </div>
+        </div>
+
+        <!-- the mode switch -->
+        <div class="modeseg">
+          <div class="modeseg__opt modeseg__opt--active">
+            <svg viewBox="0 0 24 24" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>Renting
+          </div>
+          <div class="modeseg__opt" data-go="dashboard">
+            <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M3 9.5 12 3l9 6.5"/><path d="M5 8v11h14V8"/><path d="M9 19v-6h6v6"/></svg>Lending
+          </div>
+        </div>
+        <div class="modecap">You're browsing as a renter. Switch to lending to manage what you rent out.</div>
+
+        <div class="metrics">
+          <div class="metric"><div class="metric__v">6</div><div class="metric__k">rentals</div></div>
+          <div class="metric"><div class="metric__v">12</div><div class="metric__k">saved</div></div>
+          <div class="metric"><div class="metric__v">4.9</div><div class="metric__k">as renter</div></div>
+        </div>
+
+        <div class="sec" style="margin-top:26px;padding:0"><div class="sec__h" style="padding:0 20px">Account</div>
+          <div class="menu">
+            <div class="mrow">
+              <span class="mrow__ic"><svg viewBox="0 0 24 24" stroke-width="1.7"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg></span>
+              <span class="mrow__t">Wallet</span>
+              <span class="mrow__r">€300 in holds <span class="mrow__chev"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span></span>
+            </div>
+            <div class="mrow">
+              <span class="mrow__ic"><svg viewBox="0 0 24 24" stroke-width="1.7"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg></span>
+              <span class="mrow__t">Payment methods</span>
+              <span class="mrow__r"><span class="mrow__chev"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span></span>
+            </div>
+            <div class="mrow">
+              <span class="mrow__ic"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M12 21s7-6.4 7-11a7 7 0 1 0-14 0c0 4.6 7 11 7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg></span>
+              <span class="mrow__t">Delivery addresses</span>
+              <span class="mrow__r">2 saved <span class="mrow__chev"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span></span>
+            </div>
+            <div class="mrow">
+              <span class="mrow__ic"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z"/><path d="M9 12l2 2 4-4"/></svg></span>
+              <span class="mrow__t">ID verification</span>
+              <span class="mrow__r"><span class="badge badge--verified">Verified</span></span>
+            </div>
+            <div class="mrow">
+              <span class="mrow__ic"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M12 3l2.5 6 6.5.5-5 4.3 1.6 6.4L12 17l-5.6 3.2L8 13.8l-5-4.3 6.5-.5L12 3Z"/></svg></span>
+              <span class="mrow__t">Reviews</span>
+              <span class="mrow__r">28 reviews <span class="mrow__chev"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span></span>
+            </div>
+            <div class="mrow">
+              <span class="mrow__ic"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z"/></svg></span>
+              <span class="mrow__t">Help &amp; safety</span>
+              <span class="mrow__r"><span class="mrow__chev"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lendpromo" data-go="dashboard">
+          <div>
+            <div class="lendpromo__t">Earn from what you own</div>
+            <div class="lendpromo__s">You have pieces others would love to live with. List your first one.</div>
+          </div>
+          <span class="lendpromo__go"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></span>
+        </div>
+
+        <div style="height:14px"></div>
+      </div>
+
+      <nav class="tabbar">
+        <div class="tab" data-go="explore"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9h12v-9"/></svg></div>
+        <div class="tab" aria-label="Saved"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z"/></svg></div>
+        <div class="tab tab--lend" aria-label="Lend" data-go="create"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="tab" aria-label="Rentals" data-go="rental"><svg viewBox="0 0 24 24" stroke-width="1.7"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg></div>
+        <div class="tab tab--active"><svg viewBox="0 0 24 24" stroke-width="1.7"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>Profile</div>
+      </nav>
+    </section>
+
+    <!-- ============ 08 LENDER DASHBOARD ============ -->
+    <section class="screen" id="dashboard">
+      <div class="viewport">
+        <div class="dhead">
+          <div><div class="dhead__eyebrow">Lending mode</div><h1>Dashboard</h1></div>
+          <div class="modechip" data-go="profile"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M7 4 3 8l4 4M3 8h13"/><path d="m17 20 4-4-4-4M21 16H8"/></svg>Renting</div>
+        </div>
+
+        <div style="padding:0 20px;margin-top:16px;">
+          <div class="tile tile--ink" style="padding:18px;">
+            <div style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.7)">Earnings · this month</div>
+            <div style="font-size:44px;font-weight:700;letter-spacing:-.03em;margin-top:6px;line-height:1;">€420</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:6px;">+€120 vs last month · €1,840 all-time</div>
+          </div>
+        </div>
+        <div class="metrics" style="margin-top:10px;">
+          <div class="metric" style="background:var(--coral-soft);"><div class="metric__v" style="color:var(--coral-ink)">2</div><div class="metric__k" style="color:var(--coral-ink)">requests</div></div>
+          <div class="metric"><div class="metric__v">3</div><div class="metric__k">active</div></div>
+          <div class="metric"><div class="metric__v">4.9</div><div class="metric__k">as lender</div></div>
+        </div>
+
+        <div class="sec"><div class="sec__h">Requests · 2 waiting</div>
+          <div class="req">
+            <div class="req__top">
+              <div class="avatar">TM</div>
+              <div><div class="req__n">Tomas M.</div><div class="req__s">★ 4.8 · verified renter</div></div>
+              <div class="req__pill">New</div>
+            </div>
+            <div class="req__piece">
+              <div class="req__th"><img class="cover" src="img/chair.jpg" alt=""></div>
+              <div><div class="req__pn">Pierre Jeanneret lounge chair</div><div class="req__pd">Jul 14 – 18 · 4 nights · delivery</div></div>
+              <div class="req__amt">€136</div>
+            </div>
+            <div class="req__btns">
+              <button class="btn btn--ghost">Decline</button>
+              <button class="btn btn--coral">Accept</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec"><div class="sec__h">Your listings</div>
+          <div class="menu">
+            <div class="lrow">
+              <div class="lrow__th"><img class="cover" src="img/chair.jpg" alt=""></div>
+              <div><div class="lrow__n">Pierre Jeanneret lounge chair</div><div class="lrow__s">€34 / day · 28 rentals · ★ 4.9</div></div>
+              <div class="lrow__r"><span class="badge badge--rented">Rented</span></div>
+            </div>
+            <div class="lrow">
+              <div class="lrow__th"><img class="cover" src="img/lamp.jpg" alt=""></div>
+              <div><div class="lrow__n">Vistosi globe lamp</div><div class="lrow__s">€15 / day · 9 rentals</div></div>
+              <div class="lrow__r"><span class="badge badge--available">Active</span></div>
+            </div>
+            <div class="lrow">
+              <div class="lrow__th"><img class="cover" src="img/console.jpg" alt=""></div>
+              <div><div class="lrow__n">Travertine console</div><div class="lrow__s">Not published yet</div></div>
+              <div class="lrow__r"><span class="badge badge--draft">Draft</span></div>
+            </div>
+          </div>
+          <div class="addmore" data-go="create" style="margin-top:16px"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>List a new piece</div>
+        </div>
+
+        <div style="height:14px"></div>
+      </div>
+
+      <nav class="tabbar">
+        <div class="tab" data-go="explore"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9h12v-9"/></svg></div>
+        <div class="tab tab--active"><svg viewBox="0 0 24 24" stroke-width="1.7"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 14h6"/></svg>Listings</div>
+        <div class="tab tab--lend" data-go="create" aria-label="List a piece"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+        <div class="tab" aria-label="Earnings"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M4 19V5M4 19h16M8 16v-4M12 16V8M16 16v-7"/></svg></div>
+        <div class="tab" aria-label="Profile" data-go="profile"><svg viewBox="0 0 24 24" stroke-width="1.7"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg></div>
+      </nav>
+    </section>
+
+    <!-- ============ 09 CREATE LISTING ============ -->
+    <section class="screen" id="create">
+      <div class="viewport">
+        <div class="nav"><button class="iconbtn" data-go="back" aria-label="Back"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button><h2>New listing</h2></div>
+        <div class="steps">
+          <div class="steps__seg steps__seg--on"></div><div class="steps__seg steps__seg--on"></div><div class="steps__seg steps__seg--on"></div><div class="steps__seg"></div><div class="steps__seg"></div><div class="steps__seg"></div>
+        </div>
+        <div class="steplabel">Step <b>3</b> of 6 · Condition &amp; honesty</div>
+
+        <div class="summary"><div class="summary__th"><img class="cover" src="img/console.jpg" alt=""></div><div><div class="summary__n">Travertine console</div><div class="summary__p">Draft · started today</div></div></div>
+
+        <div class="sec"><div class="sec__h">Overall condition</div>
+          <div class="condseg">
+            <button class="chip">New</button>
+            <button class="chip">Excellent</button>
+            <button class="chip chip--active">Very good</button>
+            <button class="chip">Good</button>
+            <button class="chip">Worn</button>
+          </div>
+        </div>
+
+        <div class="sec"><div class="sec__h">Disclose flaws — honesty builds trust</div>
+          <div style="padding:0 20px">
+            <div class="flaw">
+              <div class="flaw__img"><svg viewBox="0 0 100 100" stroke-width="3" fill="none"><path d="M30 64c8-10 14-10 22 0"/><circle cx="62" cy="40" r="6"/></svg></div>
+              <div><div class="flaw__n">Hairline chip · front edge</div><div class="flaw__s">Cosmetic · barely visible</div></div>
+              <button class="flaw__x" aria-label="Remove"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+            </div>
+          </div>
+          <div class="addmore"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add a flaw with photo</div>
+        </div>
+
+        <div class="nudge">
+          <div class="nudge__ic"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z"/><path d="M9 12l2 2 4-4"/></svg></div>
+          <div class="nudge__t"><b>Honest listings get booked more and disputed less.</b> Renters photograph the piece on arrival against what you disclose here — so flagging flaws now protects your deposit claims later.</div>
+        </div>
+
+        <div style="height:14px"></div>
+      </div>
+
+      <div class="bookbar" style="gap:10px;">
+        <button class="btn btn--ghost" data-go="back" style="flex:0 0 auto">Back</button>
+        <button class="btn btn--coral" data-go="dashboard" style="flex:1">Continue</button>
+      </div>
+    </section>
+
+    <!-- ============ 10 CLAIM / DISPUTE ============ -->
+    <section class="screen" id="claim">
+      <div class="viewport">
+        <div class="nav"><button class="iconbtn" data-go="back" aria-label="Back"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button><h2>Damage claim</h2></div>
+
+        <div class="cbanner">
+          <div class="cbanner__ic"><svg viewBox="0 0 24 24" stroke-width="1.7"><path d="M12 3v18M6 21h12M12 6 6 8m6-2 6 2"/><path d="M6 8 3.5 13.5a2.6 2.6 0 0 0 5 0L6 8Z"/><path d="M18 8l-2.5 5.5a2.6 2.6 0 0 0 5 0L18 8Z"/></svg></div>
+          <div>
+            <div class="cbanner__t">Under review <span class="cbanner__pill">Neutral</span></div>
+            <div class="cbanner__s">Klara reported damage at return. You both shared photos — In-Between reaches a fair decision by Jul 8. This is about the facts, not fault.</div>
+          </div>
+        </div>
+
+        <div class="sec"><div class="sec__h">The evidence · before vs after</div>
+          <div class="cmp">
+            <div>
+              <div class="cmp__img">
+                <img class="cover" src="img/chair.jpg" alt="">
+                <span class="cmp__tag">On arrival · Jul 2</span>
+                <div class="cmp__ring cmp__ring--soft" style="top:36%;left:14%"></div>
+              </div>
+              <div class="cmp__cap">Your check-in photo</div>
+            </div>
+            <div>
+              <div class="cmp__img">
+                <img class="cover" src="img/chair.jpg" alt="">
+                <span class="cmp__tag">On return · Jul 6</span>
+                <div class="cmp__ring" style="top:36%;left:14%"></div>
+              </div>
+              <div class="cmp__cap">Klara's return photo</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec"><div class="sec__h">What was reported</div>
+          <div class="cclaim">
+            <div class="cclaim__h">Scratch on the left arm</div>
+            <div class="cclaim__p">"A ~4 cm scratch on the left arm that wasn't there at handover."</div>
+            <div class="cvs">
+              <div class="cvs__col"><div class="cvs__k">Disclosed at booking</div><div class="cvs__v">Faint ring mark · cosmetic</div></div>
+              <div class="cvs__col"><div class="cvs__k">Reported now</div><div class="cvs__v">4 cm scratch</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec"><div class="sec__h">Proposed resolution</div>
+          <div class="cdep">
+            <div class="cdep__row"><span>Refundable deposit</span><b>€300</b></div>
+            <div class="cdep__bar"><div class="cdep__held" style="width:26.7%"></div><div class="cdep__free" style="width:73.3%"></div></div>
+            <div class="cdep__leg"><span style="color:#8a5a14">€80 held for repair</span><span style="color:var(--st-active)">€220 back to you</span></div>
+          </div>
+        </div>
+
+        <div class="sec"><div class="sec__h">Status</div>
+          <div class="tl">
+            <div class="tl__step tl__step--done"><div class="tl__col"><div class="tl__dot"><svg viewBox="0 0 24 24" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div><div class="tl__line"></div></div><div class="tl__body"><div class="tl__t">Damage reported</div><div class="tl__s">Jul 6 · 16:20 by Klara</div></div></div>
+            <div class="tl__step tl__step--done"><div class="tl__col"><div class="tl__dot"><svg viewBox="0 0 24 24" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div><div class="tl__line"></div></div><div class="tl__body"><div class="tl__t">Photos compared</div><div class="tl__s">Your check-in photos attached automatically</div></div></div>
+            <div class="tl__step tl__step--now"><div class="tl__col"><div class="tl__dot"></div><div class="tl__line"></div></div><div class="tl__body"><div class="tl__t">Under review<span class="tl__now">Now</span></div><div class="tl__s">In-Between mediates · decision by Jul 8</div></div></div>
+            <div class="tl__step tl__step--todo"><div class="tl__col"><div class="tl__dot"></div></div><div class="tl__body"><div class="tl__t">Resolution · deposit settled</div><div class="tl__s">Remaining balance released right after</div></div></div>
+          </div>
+        </div>
+
+        <div style="height:14px"></div>
+      </div>
+
+      <div class="bookbar" style="gap:10px;">
+        <button class="btn btn--ghost" style="flex:1">Contest</button>
+        <button class="btn btn--coral" style="flex:1" data-go="rental">Accept</button>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+  if (location.search.indexOf('shot') >= 0){
+    document.documentElement.style.background = 'transparent';
+    document.body.style.background = 'transparent';
+    var _s = document.createElement('style');
+    _s.textContent = '*{animation:none!important;transition:none!important}.screen{transform:none!important}';
+    document.head.appendChild(_s);
+  }
+  const stack = ['explore'];
+  const byId = id => document.getElementById(id);
+
+  /* direction-aware screen transition: forward enters from right, back from left */
+  function show(id, dir){
+    const cur = document.querySelector('.screen.active');
+    const next = byId(id);
+    if (!next) return;
+    if (next === cur){ const v = next.querySelector('.viewport'); if (v) v.scrollTop = 0; return; }
+    next.style.setProperty('--enter', dir === 'back' ? '-26px' : '26px');
+    const v = next.querySelector('.viewport'); if (v) v.scrollTop = 0;
+    if (cur) cur.classList.remove('active');
+    /* next is resting at its --enter offset; adding active animates it to 0 */
+    requestAnimationFrame(() => next.classList.add('active'));
+  }
+  function go(id){
+    if (id === 'back'){
+      if (stack.length > 1){ stack.pop(); show(stack[stack.length-1], 'back'); }
+      return;
+    }
+    if (!byId(id)) return; /* screen not built yet — no-op */
+    if (id === 'explore'){ stack.length = 0; stack.push('explore'); show('explore', 'back'); return; }
+    stack.push(id); show(id, 'forward');
+  }
+
+  document.addEventListener('click', e => {
+    /* navigation */
+    const nav = e.target.closest('[data-go]');
+    if (nav){ go(nav.getAttribute('data-go')); return; }
+
+    /* save / heart toggle */
+    const save = e.target.closest('[aria-label="Save"]');
+    if (save){ save.classList.toggle('is-saved'); return; }
+
+    /* segmented chips: filters + condition */
+    const chip = e.target.closest('.chips .chip, .condseg .chip');
+    if (chip){
+      chip.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('chip--active'));
+      chip.classList.add('chip--active');
+      return;
+    }
+
+    /* pickup method selection */
+    const pick = e.target.closest('.pick');
+    if (pick){
+      pick.parentElement.querySelectorAll('.pick').forEach(p => p.classList.remove('pick--sel'));
+      pick.classList.add('pick--sel');
+      return;
+    }
+  });
+
+  addEventListener('load', () => {
+    const h = location.hash.slice(1);
+    if (h && byId(h)) go(h);
+  });
+</script>
+</body>
+</html>

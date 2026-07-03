@@ -969,7 +969,7 @@ body {
       <span class="disc-ghost">(01)</span>
       <h3 class="disc-title">Ux/ui</h3>
       <ul class="disc-projects">
-        <li><a href="#"><span class="dp-num">1.1</span><span class="dp-name">Проект 1</span></a></li>
+        <li><a href="in-between/case.html"><span class="dp-num">1.1</span><span class="dp-name">In-Between</span></a></li>
         <li><a href="#"><span class="dp-num">1.2</span><span class="dp-name">Проект 2</span></a></li>
         <li><a href="#"><span class="dp-num">1.3</span><span class="dp-name">Проект 3</span></a></li>
         <li><a href="#"><span class="dp-num">1.4</span><span class="dp-name">Проект 4</span></a></li>
@@ -1141,9 +1141,14 @@ var N = CARD_DEFS.length;
 for (var ci = 0; ci < N; ci++) {
   var cdef = CARD_DEFS[ci];
   var ccat = CATS[ci % 4];
+  var chref = '#project-' + (ci + 1);
+  if (ci === 0) {                        // first card → In-Between case study
+    ccat = { ru: 'In-Between', en: 'In-Between' };
+    chref = 'in-between/case.html';
+  }
   var ca = document.createElement('a');
   ca.className = 'card ' + COLORS[ci % COLORS.length];
-  ca.href = '#project-' + (ci + 1);
+  ca.href = chref;
   ca.setAttribute('draggable', 'false');
   ca.style.width  = Math.round(cdef.w * MAXSCALE) + 'px';
   ca.style.height = Math.round(cdef.w * cdef.ar * MAXSCALE) + 'px';
