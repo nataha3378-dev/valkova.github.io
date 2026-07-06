@@ -2907,6 +2907,20 @@ document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLower
 
 applyLang(LANG);
 {const tp=new URLSearchParams(location.search).get('tab'); if(tp){const el=document.querySelector('.ptab[data-ptab="'+tp+'"]'); if(el) el.click();}}
+/* demo scripting (GIF frames): ?do=sel|sel|type=sel~text  &hl=sel (cursor ring) */
+{const q=new URLSearchParams(location.search);
+ (q.get('do')||'').split('|').forEach(s=>{ if(!s) return;
+   if(s.startsWith('type=')){const m=s.slice(5).split('~');const el=document.querySelector(m[0]);
+     if(el){el.value=m[1]||'';el.dispatchEvent(new Event('input'));}}
+   else{const el=document.querySelector(s); if(el) el.click();}
+ });
+ const hl=q.get('hl');
+ if(hl){const el=document.querySelector(hl);
+   if(el){const r=el.getBoundingClientRect();const c=document.createElement('div');
+     c.style.cssText='position:fixed;z-index:999;pointer-events:none;width:40px;height:40px;border-radius:50%;'
+       +'left:'+(r.left+r.width/2-20)+'px;top:'+(r.top+r.height/2-20)+'px;'
+       +'background:rgba(240,199,78,.42);box-shadow:0 0 0 3px rgba(43,42,38,.9) inset,0 6px 16px rgba(0,0,0,.28);';
+     document.body.appendChild(c);}}}
 </script>
 </body>
 </html>

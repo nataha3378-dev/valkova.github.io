@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CREW OS — Operating system for a production studio · Case study</title>
+<title>CREW OS — кейс · Natalya Valkova</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Tektur:wght@500;600;700&display=swap" rel="stylesheet">
@@ -11,370 +11,482 @@
 :root{
   --paper:#EAE7E0; --surface:#FFFFFF; --surface-2:#F1EEE9; --surface-3:#E3DED5;
   --panel:#33322E; --panel-2:#403F39;
-  --ink:#2B2A26; --ink-soft:#6E6A62; --ink-faint:#9E9A90; --ink-ghost:#C0BBB0;
-  --line:rgba(43,42,38,.10); --line-strong:rgba(43,42,38,.16);
-  --acc:#F0C74E; --acc-soft:rgba(240,199,78,.18); --grad:linear-gradient(105deg,#F8DE86,#EFC64C);
-  --st-ok:#3E9B6E; --st-bad:#EC4B3B; --st-info:#2C7A93; --st-warn:#C07A1E;
-  --head:'Tektur','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --ink:#2B2A26; --ink-soft:#6E6A62; --ink-faint:#9E9A90;
+  --line:rgba(43,42,38,.10);
+  --acc:#F0C74E; --acc-deep:#8a6d16; --acc-soft:rgba(240,199,78,.18);
+  --grad:linear-gradient(105deg,#F8DE86,#EFC64C);
+  --st-ok:#3E9B6E; --st-bad:#EC4B3B; --st-info:#2C7A93; --st-warn:#C07A1E; --st-draft:#8A857B;
+  --head:'Tektur','Helvetica Neue',Arial,sans-serif;
   --sans:'Golos Text',-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
-  --mono:'Golos Text',ui-monospace,Menlo,monospace;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
 body{font-family:var(--sans);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;font-size:17px;line-height:1.65;}
-img{display:block;max-width:100%;} a{color:inherit;text-decoration:none;}
-.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+img{display:block;max-width:100%;}
+a{color:inherit;text-decoration:none;}
 .wrap{max-width:1120px;margin:0 auto;padding:0 32px;}
-.sec{padding:78px 0;border-top:1px solid var(--line);}
-h1,h2,h3{font-family:var(--head);letter-spacing:-.015em;line-height:1.06;font-weight:600;}
-h2{font-size:clamp(28px,3.9vw,42px);margin-top:14px;}
-h3{font-size:20px;letter-spacing:-.01em;line-height:1.2;margin-bottom:6px;}
+.sec{padding-top:76px;padding-bottom:76px;}
+h1,h2,h3{font-family:var(--head);letter-spacing:-.015em;line-height:1.08;font-weight:600;}
+h2{font-size:clamp(26px,3.6vw,38px);margin-top:12px;}
+h3{font-size:19px;line-height:1.25;}
 p{color:var(--ink-soft);} b,strong{color:var(--ink);font-weight:600;}
-.lead{font-size:clamp(18px,2vw,22px);line-height:1.5;color:var(--ink);}
-.eyebrow{font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#8a6d16;}
-.snum{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink-faint);}
-.sec-head{display:flex;gap:16px;align-items:baseline;margin-bottom:34px;}
-.col2{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
-.col2-13{display:grid;grid-template-columns:.82fr 1.18fr;gap:48px;align-items:start;}
-@media(max-width:820px){.col2,.col2-13{grid-template-columns:1fr;gap:28px;}}
+em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.lead{font-size:clamp(17px,1.9vw,21px);line-height:1.5;color:var(--ink);}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--acc-deep);}
+.snum{font-family:var(--head);font-size:13px;font-weight:600;color:var(--ink-faint);}
+.sec-head{display:flex;gap:16px;align-items:baseline;margin-bottom:32px;}
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:46px;align-items:start;}
+.col2-13{display:grid;grid-template-columns:.85fr 1.15fr;gap:46px;align-items:start;}
 
-/* nav */
-.topnav{position:sticky;top:0;z-index:50;background:rgba(234,231,224,.82);backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--line);}
-.topnav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;}
-.brand{display:flex;align-items:center;gap:9px;font-family:var(--head);font-weight:700;letter-spacing:.06em;font-size:14px;}
-.brand .lg{width:24px;height:24px;border-radius:7px;background:var(--grad);display:grid;place-items:center;color:#2B2A26;font-weight:800;font-size:13px;}
-.brand b{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
-.topnav nav{display:flex;gap:22px;font-size:13.5px;font-weight:500;}
+/* dark band */
+.band{background:var(--panel);color:#fff;}
+.band h2,.band h3{color:#fff;}
+.band p{color:rgba(255,255,255,.72);}
+.band b{color:#fff;}
+.band .eyebrow{color:var(--acc);}
+.band .snum{color:rgba(255,255,255,.4);}
+
+/* topnav */
+.topnav{position:sticky;top:0;z-index:50;background:rgba(234,231,224,.85);backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--line);}
+.topnav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;gap:16px;}
+.crumbs{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--ink-soft);white-space:nowrap;}
+.crumbs .home{font-family:var(--head);font-weight:700;font-size:15px;color:var(--ink);}
+.crumbs .sep{color:var(--ink-faint);}
+.crumbs b{color:var(--ink);font-weight:600;}
+.topnav nav{display:flex;gap:20px;font-size:13.5px;font-weight:500;}
 .topnav nav a{color:var(--ink-soft);} .topnav nav a:hover{color:var(--ink);}
-@media(max-width:820px){.topnav nav{display:none;}}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.lang-pill{display:flex;background:var(--surface);border-radius:9px;padding:2px;}
+.lang-btn{border:0;background:none;cursor:pointer;font-family:var(--sans);padding:5px 10px;font-size:11.5px;font-weight:600;color:var(--ink-faint);border-radius:7px;}
+.lang-btn.active{background:var(--panel);color:#fff;}
 .pill{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 16px;border-radius:999px;background:var(--panel);color:#fff;font-size:13.5px;font-weight:600;}
 .pill:hover{background:var(--panel-2);}
-.pill svg{width:15px;height:15px;stroke:currentColor;fill:none;}
+.pill svg{width:14px;height:14px;}
+.pill--acc{background:var(--grad);color:#2B2A26;}
+.pill--acc:hover{filter:brightness(1.04);background:var(--grad);}
 
 /* hero */
-.hero{padding:64px 0 8px;}
-.hero__code{font-family:var(--mono);font-size:13px;font-weight:600;color:#8a6d16;background:var(--acc-soft);padding:3px 11px;border-radius:20px;display:inline-block;}
-.hero h1{font-size:clamp(48px,9vw,104px);letter-spacing:-.02em;line-height:.95;margin-top:22px;}
-.hero h1 b{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-weight:600;}
-.hero .tag{margin-top:24px;max-width:640px;}
-.metarow{display:flex;flex-wrap:wrap;gap:34px;margin-top:36px;padding-top:24px;border-top:1px solid var(--line);}
-.metarow div span{display:block;font-size:11.5px;color:var(--ink-faint);font-weight:600;letter-spacing:.05em;text-transform:uppercase;}
+.hero{padding-top:64px;padding-bottom:56px;}
+.hero h1{font-size:clamp(34px,6.4vw,72px);letter-spacing:-.02em;line-height:1.0;margin-top:18px;max-width:1000px;}
+.hero .tag{margin-top:24px;max-width:720px;}
+.metarow{display:flex;flex-wrap:wrap;gap:32px;margin-top:34px;padding-top:24px;border-top:1px solid var(--line);}
+.metarow div span{display:block;font-size:11.5px;color:var(--ink-faint);font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:2px;}
 .metarow div b{font-weight:600;font-size:15px;}
 
-/* browser-chrome shot with live scaled iframe */
-.shot{border-radius:16px;overflow:hidden;background:var(--surface);box-shadow:0 1px 2px rgba(43,42,38,.05),0 40px 80px -40px rgba(43,42,38,.4);border:1px solid var(--line);}
-.shot__bar{display:flex;align-items:center;gap:8px;padding:11px 15px;background:var(--surface-2);border-bottom:1px solid var(--line);}
-.shot__dots{display:flex;gap:6px;} .shot__dots i{width:11px;height:11px;border-radius:50%;background:var(--surface-3);}
-.shot__url{font-family:var(--mono);font-size:11.5px;color:var(--ink-faint);background:var(--surface);padding:4px 12px;border-radius:7px;margin:0 auto;}
-.shot__vp{position:relative;width:100%;overflow:hidden;background:var(--paper);}
-.shot__vp iframe{position:absolute;top:0;left:0;border:0;transform-origin:top left;background:var(--paper);}
-figure{margin:0;} figcaption{font-size:13px;color:var(--ink-faint);margin-top:12px;padding:0 2px;}
+/* browser-framed shot */
+.shot{border-radius:16px;overflow:hidden;background:var(--surface);border:1px solid var(--line);
+  box-shadow:0 1px 2px rgba(43,42,38,.05),0 40px 80px -40px rgba(43,42,38,.4);}
+.shot__bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--surface-2);border-bottom:1px solid var(--line);}
+.shot__bar i{width:11px;height:11px;border-radius:50%;background:var(--surface-3);}
+.shot__url{font-family:var(--head);font-size:10.5px;color:var(--ink-faint);background:var(--surface);padding:4px 12px;border-radius:7px;margin:0 auto;}
+.shot img{width:100%;}
+figure{margin:0;}
+figcaption{font-size:13px;color:var(--ink-faint);margin-top:12px;}
 figcaption b{color:var(--ink-soft);font-weight:600;}
 
-/* solution blocks */
-.solution{padding:26px 0;border-top:1px solid var(--line);}
-.solution:first-child{border-top:0;}
-.solution .tags{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
-.tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--surface);color:var(--ink-soft);border:1px solid var(--line);}
-.tag--p{background:var(--st-bad);color:#fff;border-color:transparent;}
-.tag--s{background:var(--st-ok);color:#fff;border-color:transparent;}
-.pline{display:flex;gap:10px;font-size:15px;margin-bottom:7px;}
-.pline b{flex:none;width:74px;color:var(--ink-faint);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;padding-top:3px;}
+/* stats */
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:44px;}
+.statbig{font-family:var(--head);font-size:clamp(38px,5vw,58px);font-weight:600;letter-spacing:-.02em;line-height:1;}
+.band .statbig em{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.statgrid .k{font-size:14px;color:rgba(255,255,255,.6);margin-top:10px;max-width:280px;}
 
-/* chips grid (design system) */
-.dsgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px;}
-@media(max-width:820px){.dsgrid{grid-template-columns:1fr 1fr;}}
-.dscard{background:var(--surface);border-radius:14px;padding:16px 17px;border:1px solid var(--line);}
-.dscard h3{font-size:15px;margin-bottom:5px;}
-.dscard p{font-size:13.5px;line-height:1.5;}
-.dschips{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px;}
-.dschip{font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;}
-.b-ok{background:#E0F1E8;color:#26694a;} .b-info{background:#E0EEF2;color:#1d5a6d;}
-.b-warn{background:#F8EBD3;color:#8a5710;} .b-bad{background:#FBE3DF;color:#a5322a;}
-.b-draft{background:#ECE9E3;color:#6c665c;} .b-acc{background:var(--acc-soft);color:#8a6d16;}
+/* UX decision blocks */
+.cs{display:grid;grid-template-columns:.85fr 1.15fr;gap:48px;align-items:center;padding:52px 0;border-top:1px solid var(--line);}
+.cs:first-of-type{border-top:0;}
+.cs--rev{direction:rtl;} .cs--rev>*{direction:ltr;}
+.tag-chal{display:inline-block;font-family:var(--head);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:#a5322a;background:#FBE3DF;padding:4px 11px;border-radius:7px;margin-bottom:14px;}
+.tag-sol{color:#26694a;background:#E0F1E8;}
+.cs h3{font-size:24px;margin-bottom:12px;}
+.cs p{font-size:15.5px;}
+.cs p+p{margin-top:12px;}
+
+/* gif blocks */
+.gifgrid{display:flex;flex-direction:column;gap:56px;}
+.gifitem .gifhead{display:flex;align-items:baseline;gap:14px;margin-bottom:16px;flex-wrap:wrap;}
+.gifitem .gifhead h3{font-size:21px;}
+.giftag{display:inline-flex;align-items:center;gap:7px;font-family:var(--head);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-deep);background:var(--acc-soft);padding:4px 12px;border-radius:999px;}
+.gifitem img{width:100%;border-radius:18px;box-shadow:0 30px 64px rgba(0,0,0,.14);border:1px solid var(--line);}
+.gifitem p{font-size:14.5px;max-width:760px;margin-top:14px;}
+
+/* design system */
+.tokens{display:flex;flex-wrap:wrap;gap:14px;margin-top:18px;}
+.swatch{display:flex;flex-direction:column;gap:7px;}
+.swatch .chip{width:82px;height:60px;border-radius:12px;border:1px solid var(--line);}
+.swatch span{font-size:11.5px;color:var(--ink-faint);font-weight:500;}
+.statusline{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;align-items:center;}
+.st{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 13px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--surface);border:1px solid var(--line);}
+.st i{width:8px;height:8px;border-radius:50%;}
+.st .arr{color:var(--ink-faint);}
+.dscols{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px;}
+.dscol{background:var(--surface);border-radius:16px;padding:22px;border:1px solid var(--line);}
+.dscol h3{font-size:14.5px;margin-bottom:11px;}
+.dscol ul{list-style:none;font-size:13.5px;color:var(--ink-soft);line-height:1.85;}
+.dscol li{padding-left:17px;position:relative;}
+.dscol li::before{content:"";position:absolute;left:0;top:10px;width:6px;height:6px;border-radius:2px;background:var(--acc);}
 
 /* gallery */
-.gallery{display:flex;flex-direction:column;gap:52px;}
+.gallery{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:34px;}
+.gallery figcaption{text-align:center;}
 
-/* cta */
-.cta{background:var(--panel);color:#fff;border-radius:20px;padding:44px 40px;text-align:center;}
-.cta h2{color:#fff;} .cta p{color:#c9c3b8;max-width:560px;margin:12px auto 24px;}
-.cta__btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
-.pill--acc{background:var(--grad);color:#2B2A26;} .pill--acc:hover{filter:brightness(1.04);}
-.pill--ghost{background:rgba(255,255,255,.1);color:#fff;} .pill--ghost:hover{background:rgba(255,255,255,.18);}
+/* prototype CTA */
+.proto{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
+.proto .btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;}
 
-.foot{padding:40px 0 60px;color:var(--ink-faint);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;}
-ul.clean{list-style:none;} ul.clean li{position:relative;padding-left:20px;margin-bottom:9px;color:var(--ink-soft);font-size:15px;}
-ul.clean li::before{content:"";position:absolute;left:0;top:9px;width:7px;height:7px;border-radius:2px;background:var(--acc);}
+/* reflection */
+.refl{display:grid;grid-template-columns:1fr 1fr;gap:44px;}
+.refl ul{list-style:none;}
+.refl li{padding:14px 0;border-top:1px solid rgba(255,255,255,.12);font-size:15px;color:rgba(255,255,255,.66);}
+.refl li b{color:#fff;}
+
+footer{background:var(--panel);color:#fff;padding:64px 0;border-top:1px solid rgba(255,255,255,.08);}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:22px;}
+footer h2{color:#fff;font-size:26px;margin:0;}
+footer a{color:rgba(255,255,255,.7);font-size:14px;}
+
+@media (max-width:860px){
+  body{font-size:16px;}
+  .col2,.col2-13,.cs,.proto,.refl{grid-template-columns:1fr;gap:30px;}
+  .cs--rev{direction:ltr;}
+  .statgrid{grid-template-columns:1fr;gap:26px;}
+  .dscols{grid-template-columns:1fr;}
+  .gallery{grid-template-columns:1fr;}
+  .topnav nav{display:none;}
+  .crumbs .crumb-mid{display:none;}
+  .sec{padding-top:56px;padding-bottom:56px;}
+}
+@media (max-width:700px){
+  .topnav .pill{display:none;}
+  .topnav .wrap{gap:10px;}
+  .crumbs{gap:6px;font-size:12px;}
+  .metarow{gap:20px;}
+}
 </style>
 </head>
-<body>
+<body id="top">
 
-<header class="topnav">
-  <div class="wrap">
-    <a class="brand" href="#top"><span class="lg">C</span>CREW&nbsp;<b>OS</b></a>
-    <nav>
-      <a href="#context">Context</a>
-      <a href="#roles">Roles</a>
-      <a href="#ia">Architecture</a>
-      <a href="#decisions">UX decisions</a>
-      <a href="#system">Design system</a>
-      <a href="#screens">Screens</a>
-    </nav>
-    <a class="pill" href="prototype.html" target="_blank">Open prototype <svg viewBox="0 0 24 24" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+<!-- nav -->
+<div class="topnav"><div class="wrap">
+  <div class="crumbs">
+    <a class="home" href="../">NV.</a>
+    <span class="sep">/</span>
+    <a href="../" data-ru="Главная" data-en="Home">Главная</a>
+    <span class="sep crumb-mid">/</span>
+    <a class="crumb-mid" href="../#sections" data-ru="Работы" data-en="Work">Работы</a>
+    <span class="sep">/</span>
+    <b>CREW OS</b>
   </div>
+  <nav>
+    <a href="#context" data-ru="Контекст" data-en="Context">Контекст</a>
+    <a href="#decisions" data-ru="UX-решения" data-en="UX decisions">UX-решения</a>
+    <a href="#motion" data-ru="В движении" data-en="In motion">В движении</a>
+    <a href="#system" data-ru="Дизайн-система" data-en="Design system">Дизайн-система</a>
+    <a href="#prototype" data-ru="Прототип" data-en="Prototype">Прототип</a>
+  </nav>
+  <div class="nav-right">
+    <div class="lang-pill">
+      <button class="lang-btn active" data-lang="ru" onclick="setLang('ru')">RU</button>
+      <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+    </div>
+    <a class="pill pill--acc" href="prototype.html" target="_blank"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg><span data-ru="Прототип" data-en="Prototype">Прототип</span></a>
+  </div>
+</div></div>
+
+<!-- hero -->
+<header class="wrap hero">
+  <div class="eyebrow" data-ru="CREW OS · Кейс&nbsp;— продуктовый и&nbsp;UX-дизайн · B2B SaaS" data-en="CREW OS · Case study&nbsp;— Product &amp;&nbsp;UX design · B2B SaaS">CREW OS · Кейс&nbsp;— продуктовый и&nbsp;UX-дизайн · B2B SaaS</div>
+  <h1 data-ru="Операционная система продакшен-студии." data-en="The&nbsp;operating system of&nbsp;a&nbsp;production studio.">Операционная система продакшен-студии.</h1>
+  <p class="lead tag" data-ru="CREW OS&nbsp;— место, где живут проекты, команда, техника, сметы и&nbsp;согласования коммерческой студии. Не&nbsp;софт для&nbsp;режиссёра, а&nbsp;инструмент <b>продюсера, который держит бизнес</b>: много параллельных заказов, общие люди и&nbsp;техника, деньги в&nbsp;реальном времени." data-en="CREW OS is where a&nbsp;commercial studio's projects, crew, gear, budgets and&nbsp;approvals live. Not software for&nbsp;the&nbsp;director&nbsp;— a&nbsp;tool for&nbsp;<b>the&nbsp;producer who holds the&nbsp;business</b>: many parallel jobs, shared people and&nbsp;equipment, money in&nbsp;real time.">CREW OS&nbsp;— место, где живут проекты, команда, техника, сметы и&nbsp;согласования коммерческой студии. Не&nbsp;софт для&nbsp;режиссёра, а&nbsp;инструмент <b>продюсера, который держит бизнес</b>: много параллельных заказов, общие люди и&nbsp;техника, деньги в&nbsp;реальном времени.</p>
+  <div class="metarow">
+    <div><span data-ru="Роль" data-en="Role">Роль</span><b data-ru="Продуктовый и&nbsp;визуальный дизайн" data-en="Product &amp;&nbsp;visual design">Продуктовый и&nbsp;визуальный дизайн</b></div>
+    <div><span data-ru="Платформы" data-en="Platforms">Платформы</span><b data-ru="Web (штаб) + Mobile (поле)" data-en="Web (HQ) + Mobile (field)">Web (штаб) + Mobile (поле)</b></div>
+    <div><span data-ru="Объём" data-en="Scope">Объём</span><b data-ru="11 hi-fi экранов · ~43 в&nbsp;IA" data-en="11 hi-fi screens · ~43 in&nbsp;IA">11 hi-fi экранов · ~43 в&nbsp;IA</b></div>
+    <div><span data-ru="Язык" data-en="Language">Язык</span><b>RU · EN</b></div>
+    <div><span data-ru="Год" data-en="Year">Год</span><b>2026</b></div>
+  </div>
+  <figure style="margin-top:44px">
+    <div class="shot">
+      <div class="shot__bar"><i></i><i></i><i></i><span class="shot__url">crew-os / dashboard</span></div>
+      <img src="img/dashboard.jpg" alt="CREW OS — дашборд студии">
+    </div>
+    <figcaption data-ru="<b>Дашборд студии</b>&nbsp;— операционная «домашняя»: проекты, конфликты ресурсов, согласования, деньги и&nbsp;ближайшие смены. Каждый виджет ведёт в&nbsp;свой экран." data-en="<b>Studio dashboard</b>&nbsp;— the&nbsp;operational home: projects, resource conflicts, approvals, money and&nbsp;the&nbsp;next shifts. Every widget links into&nbsp;its screen."><b>Дашборд студии</b>&nbsp;— операционная «домашняя»: проекты, конфликты ресурсов, согласования, деньги и&nbsp;ближайшие смены. Каждый виджет ведёт в&nbsp;свой экран.</figcaption>
+  </figure>
 </header>
 
-<a id="top"></a>
-<section class="wrap hero">
-  <span class="hero__code">B2B · SaaS concept</span>
-  <h1>CREW&nbsp;<b>OS</b></h1>
-  <p class="lead tag">The operating system for a commercial production studio — where projects, crew, gear, budgets, approvals and client access finally live in one place.</p>
-  <div class="metarow">
-    <div><span>Role</span><b>Product &amp; visual design</b></div>
-    <div><span>Platforms</span><b>Web (HQ) + Mobile (field)</b></div>
-    <div><span>Scope</span><b>10 hi-fi · ~43 in IA</b></div>
-    <div><span>Language</span><b>RU-first · EN toggle</b></div>
-    <div><span>Year</span><b>2026</b></div>
+<!-- 01 context -->
+<section class="band" id="context">
+  <div class="wrap sec">
+    <div class="sec-head"><span class="snum">01</span><span class="eyebrow" data-ru="Контекст и&nbsp;отстройка" data-en="Context &amp;&nbsp;positioning">Контекст и&nbsp;отстройка</span></div>
+    <div class="col2-13">
+      <h2 data-ru="Не&nbsp;инструмент режиссёра. Инструмент продюсера." data-en="Not a&nbsp;director's tool. A&nbsp;producer's tool.">Не&nbsp;инструмент режиссёра. Инструмент продюсера.</h2>
+      <div>
+        <p data-ru="Лидеры рынка&nbsp;— StudioBinder, Yamdu, Celtx&nbsp;— заточены под&nbsp;<b>кино</b>: сценарий → breakdown → стрипборд → call sheet. Тяжёлые инструменты «от&nbsp;сценария»." data-en="The&nbsp;market leaders&nbsp;— StudioBinder, Yamdu, Celtx&nbsp;— are built for&nbsp;<b>film</b>: script → breakdown → stripboard → call sheet. Heavy, «from-the-screenplay» instruments.">Лидеры рынка&nbsp;— StudioBinder, Yamdu, Celtx&nbsp;— заточены под&nbsp;<b>кино</b>: сценарий → breakdown → стрипборд → call sheet. Тяжёлые инструменты «от&nbsp;сценария».</p>
+        <p style="margin-top:16px" data-ru="Но&nbsp;у&nbsp;коммерческого продакшена&nbsp;— рекламные съёмки, бренд-контент, ивенты, фото&nbsp;— боль другая. Не&nbsp;«как разбить сценарий», а&nbsp;<b>«как вести много проектов-заказчиков параллельно, не&nbsp;потеряв деньги, людей и&nbsp;технику»</b>. Эти студии живут в&nbsp;Excel, гугл-таблицах и&nbsp;мессенджерах." data-en="But commercial production&nbsp;— ad&nbsp;shoots, brand content, events, photo&nbsp;— hurts differently. Not «how do&nbsp;I break down a&nbsp;script», but <b>«how do&nbsp;I run many client projects in&nbsp;parallel without losing money, people and&nbsp;gear»</b>. These studios live in&nbsp;Excel, Google Sheets and&nbsp;messengers.">Но&nbsp;у&nbsp;коммерческого продакшена&nbsp;— рекламные съёмки, бренд-контент, ивенты, фото&nbsp;— боль другая. Не&nbsp;«как разбить сценарий», а&nbsp;<b>«как вести много проектов-заказчиков параллельно, не&nbsp;потеряв деньги, людей и&nbsp;технику»</b>. Эти студии живут в&nbsp;Excel, гугл-таблицах и&nbsp;мессенджерах.</p>
+        <p style="margin-top:16px" data-ru="CREW OS занимает эту нишу: <b>операционная система студии</b>&nbsp;— проекты, команда, техника, сметы, согласования и&nbsp;клиентский доступ в&nbsp;одном месте." data-en="CREW OS takes that gap: <b>the&nbsp;studio's operating system</b>&nbsp;— projects, crew, gear, budgets, approvals and&nbsp;client access in&nbsp;one place.">CREW OS занимает эту нишу: <b>операционная система студии</b>&nbsp;— проекты, команда, техника, сметы, согласования и&nbsp;клиентский доступ в&nbsp;одном месте.</p>
+      </div>
+    </div>
+    <div class="statgrid">
+      <div><div class="statbig"><em>7</em></div><div class="k" data-ru="ролей с&nbsp;разными правами&nbsp;— от&nbsp;владельца студии до&nbsp;клиента" data-en="roles with different permissions&nbsp;— from studio owner to&nbsp;client">ролей с&nbsp;разными правами&nbsp;— от&nbsp;владельца студии до&nbsp;клиента</div></div>
+      <div><div class="statbig"><em>~43</em></div><div class="k" data-ru="экрана в&nbsp;информационной архитектуре, 11 из&nbsp;них&nbsp;— hi-fi" data-en="screens in&nbsp;the&nbsp;IA, 11 of&nbsp;them built hi-fi">экрана в&nbsp;информационной архитектуре, 11 из&nbsp;них&nbsp;— hi-fi</div></div>
+      <div><div class="statbig"><em>2</em></div><div class="k" data-ru="платформы: web-штаб и&nbsp;мобильное «поле»&nbsp;— одни данные, два среза" data-en="platforms: web HQ and&nbsp;the&nbsp;mobile field app&nbsp;— same data, two views">платформы: web-штаб и&nbsp;мобильное «поле»&nbsp;— одни данные, два среза</div></div>
+    </div>
   </div>
 </section>
 
-<section class="wrap" style="padding-top:22px;padding-bottom:20px;">
-  <figure class="shot">
-    <div class="shot__bar"><span class="shot__dots"><i></i><i></i><i></i></span><span class="shot__url">crew-os / dashboard</span></div>
-    <div class="shot__vp" data-base="1440" data-h="900"><iframe loading="lazy" src="prototype.html?lang=en#dash"></iframe></div>
+<!-- 02 problem -->
+<section class="wrap sec" id="problem">
+  <div class="sec-head"><span class="snum">02</span><span class="eyebrow" data-ru="Проблема и&nbsp;гипотеза" data-en="Problem &amp;&nbsp;hypothesis">Проблема и&nbsp;гипотеза</span></div>
+  <div class="col2">
+    <div>
+      <h3 data-ru="Сегодня" data-en="Today">Сегодня</h3>
+      <p style="margin-top:10px" data-ru="Оператор забронирован на&nbsp;две съёмки сразу&nbsp;— никто не&nbsp;замечает до&nbsp;съёмочного дня. Смета тихо расходится с&nbsp;фактом. Правка клиента тонет в&nbsp;переписке&nbsp;— какую версию согласовали, не&nbsp;помнит никто." data-en="An&nbsp;operator is booked on&nbsp;two shoots at&nbsp;once&nbsp;— nobody notices until the&nbsp;day. The&nbsp;budget quietly drifts from the&nbsp;plan. A&nbsp;client's change request drowns in&nbsp;chat&nbsp;— nobody remembers which version was approved.">Оператор забронирован на&nbsp;две съёмки сразу&nbsp;— никто не&nbsp;замечает до&nbsp;съёмочного дня. Смета тихо расходится с&nbsp;фактом. Правка клиента тонет в&nbsp;переписке&nbsp;— какую версию согласовали, не&nbsp;помнит никто.</p>
+    </div>
+    <div>
+      <h3 data-ru="Гипотеза" data-en="Hypothesis">Гипотеза</h3>
+      <p style="margin-top:10px" data-ru="Одна операционная поверхность&nbsp;— с&nbsp;<b>детекцией конфликтов ресурсов</b>, <b>бюджетом план/факт в&nbsp;реальном времени</b> и&nbsp;<b>версионными согласованиями</b>&nbsp;— превращает хаос в&nbsp;систему, на&nbsp;которой студия может работать." data-en="One operational surface&nbsp;— with <b>resource-conflict detection</b>, a&nbsp;<b>real-time plan-vs-actual budget</b> and&nbsp;<b>versioned approvals</b>&nbsp;— turns the&nbsp;chaos into a&nbsp;system the&nbsp;studio can actually run on.">Одна операционная поверхность&nbsp;— с&nbsp;<b>детекцией конфликтов ресурсов</b>, <b>бюджетом план/факт в&nbsp;реальном времени</b> и&nbsp;<b>версионными согласованиями</b>&nbsp;— превращает хаос в&nbsp;систему, на&nbsp;которой студия может работать.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 03 roles -->
+<section class="wrap sec" id="roles" style="padding-top:0">
+  <div class="sec-head"><span class="snum">03</span><span class="eyebrow" data-ru="Роли и&nbsp;права" data-en="Roles &amp;&nbsp;permissions">Роли и&nbsp;права</span></div>
+  <div class="col2-13">
+    <h2 data-ru="Один экран&nbsp;— семь ролей." data-en="One screen&nbsp;— seven roles.">Один экран&nbsp;— семь ролей.</h2>
+    <div>
+      <p data-ru="Владелец, продюсер, координатор, департамент-хэд, фрилансер, подрядчик и&nbsp;клиент видят один и&nbsp;тот же проект по-разному. Поэтому RBAC спроектирован как&nbsp;<b>система</b>, а&nbsp;не&nbsp;как&nbsp;«спрятать кнопку»: матрица <b>сущность × роль × право</b> (просмотр / комментарий / редактирование / согласование / нет доступа)&nbsp;— 12 сущностей, 7 ролей, 84 ячейки." data-en="Owner, producer, coordinator, department head, freelancer, vendor and&nbsp;client all see the&nbsp;same project differently. So&nbsp;RBAC is designed as&nbsp;a&nbsp;<b>system</b>, not «hide the&nbsp;button»: an&nbsp;<b>entity × role × permission</b> matrix (view / comment / edit / approve / none)&nbsp;— 12 entities, 7 roles, 84 cells.">Владелец, продюсер, координатор, департамент-хэд, фрилансер, подрядчик и&nbsp;клиент видят один и&nbsp;тот же проект по-разному. Поэтому RBAC спроектирован как&nbsp;<b>система</b>, а&nbsp;не&nbsp;как&nbsp;«спрятать кнопку»: матрица <b>сущность × роль × право</b> (просмотр / комментарий / редактирование / согласование / нет доступа)&nbsp;— 12 сущностей, 7 ролей, 84 ячейки.</p>
+      <p style="margin-top:14px" data-ru="Одна и&nbsp;та&nbsp;же строка сметы отрисовывается четырьмя способами&nbsp;— вплоть до&nbsp;честного состояния 403." data-en="The&nbsp;same budget line renders four different ways&nbsp;— down to&nbsp;an&nbsp;honest 403 state.">Одна и&nbsp;та&nbsp;же строка сметы отрисовывается четырьмя способами&nbsp;— вплоть до&nbsp;честного состояния 403.</p>
+    </div>
+  </div>
+  <figure style="margin-top:36px">
+    <div class="shot">
+      <div class="shot__bar"><i></i><i></i><i></i><span class="shot__url">crew-os / настройки / роли и права</span></div>
+      <img src="img/rbac.jpg" alt="Матрица ролей и прав" loading="lazy">
+    </div>
+    <figcaption data-ru="<b>RBAC-матрица</b>&nbsp;— 84 редактируемые ячейки прав + живой превью «один компонент&nbsp;— четыре состояния права»." data-en="<b>The&nbsp;RBAC matrix</b>&nbsp;— 84 editable permission cells + a&nbsp;live «one component&nbsp;— four permission states» preview."><b>RBAC-матрица</b>&nbsp;— 84 редактируемые ячейки прав + живой превью «один компонент&nbsp;— четыре состояния права».</figcaption>
   </figure>
-  <figcaption><b>Studio dashboard</b> — the operational home: active projects, resource conflicts, what's awaiting your approval, money, and the next shifts. Every widget links straight into the screen behind it.</figcaption>
 </section>
 
-<!-- 01 -->
-<section class="sec" id="context">
-  <div class="wrap">
-    <div class="sec-head"><span class="snum">01</span><span class="eyebrow">Context &amp; positioning</span></div>
+<!-- 04 platform -->
+<section class="band" id="platform">
+  <div class="wrap sec">
+    <div class="sec-head"><span class="snum">04</span><span class="eyebrow" data-ru="Платформенная стратегия" data-en="Platform strategy">Платформенная стратегия</span></div>
     <div class="col2-13">
-      <h2>Not a tool for the director. A tool for the producer.</h2>
+      <h2 data-ru="Web&nbsp;— штаб. Mobile&nbsp;— поле." data-en="Web is the&nbsp;HQ. Mobile is the&nbsp;field.">Web&nbsp;— штаб. Mobile&nbsp;— поле.</h2>
       <div>
-        <p class="lead" style="margin-bottom:18px">The market leaders — StudioBinder, Yamdu, Celtx — are built for <b>film</b>: script → breakdown → stripboard → call sheet. Heavy, "from-the-screenplay" instruments.</p>
-        <p style="margin-bottom:16px">But commercial production — ad shoots, brand content, events, photo — has a different pain. Not <em>"how do I break down a script,"</em> but <b>"how do I run many client projects in parallel without losing money, people and gear."</b></p>
-        <p>CREW OS is positioned as the <b>studio's operating system</b>: the place where projects, the team, equipment, estimates, approvals and client access all live. Software for the producer and the production manager who hold the business together.</p>
+        <p data-ru="<b>Web</b>&nbsp;— тяжёлая работа: планирование, сметы, ресурсы, плотные таблицы, согласования. Здесь продюсер проводит день. <b>Mobile</b>&nbsp;— съёмочный день: свой call sheet, подтвердить участие, отметить «в&nbsp;пути / на&nbsp;месте». Минимум ввода&nbsp;— «глянул, понял, подтвердил»." data-en="<b>Web</b> is the&nbsp;heavy work: planning, budgets, resources, dense tables, approvals&nbsp;— where the&nbsp;producer spends the&nbsp;day. <b>Mobile</b> is the&nbsp;shoot day: your call sheet, confirming attendance, marking «en&nbsp;route / on&nbsp;set». Minimum input&nbsp;— glance, get it, confirm."><b>Web</b>&nbsp;— тяжёлая работа: планирование, сметы, ресурсы, плотные таблицы, согласования. Здесь продюсер проводит день. <b>Mobile</b>&nbsp;— съёмочный день: свой call sheet, подтвердить участие, отметить «в&nbsp;пути / на&nbsp;месте». Минимум ввода&nbsp;— «глянул, понял, подтвердил».</p>
+        <p style="margin-top:14px" data-ru="Связывает всё один принцип: <b>одни данные, разный срез под&nbsp;контекст</b>. Смена&nbsp;— это строка в&nbsp;web-таймлайне и&nbsp;карточка «сегодня» на&nbsp;телефоне. Один объект, два представления." data-en="One principle ties it together: <b>same data, a&nbsp;different slice per&nbsp;context</b>. A&nbsp;shift is a&nbsp;row in&nbsp;the&nbsp;web timeline and&nbsp;a&nbsp;«today» card on&nbsp;the&nbsp;phone. One object, two views.">Связывает всё один принцип: <b>одни данные, разный срез под&nbsp;контекст</b>. Смена&nbsp;— это строка в&nbsp;web-таймлайне и&nbsp;карточка «сегодня» на&nbsp;телефоне. Один объект, два представления.</p>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- 02 -->
-<section class="sec">
-  <div class="wrap">
-    <div class="sec-head"><span class="snum">02</span><span class="eyebrow">Problem &amp; hypothesis</span></div>
-    <div class="col2">
-      <div>
-        <h3>Today</h3>
-        <p>The producer lives in Excel + Google Sheets + messengers. An operator gets double-booked across two shoots. The budget quietly drifts from the plan. A client's rejection is buried three chat threads deep. Nothing is a system — everything is a copy-paste.</p>
+    <figure style="margin-top:36px">
+      <div class="shot">
+        <div class="shot__bar"><i></i><i></i><i></i><span class="shot__url">crew-os / mobile — «поле»</span></div>
+        <img src="img/mobile.jpg" alt="Мобильное приложение «поле»" loading="lazy">
       </div>
-      <div>
-        <h3>Hypothesis</h3>
-        <p>A single operational surface — with <b>multi-project resource management and conflict detection</b>, <b>real-time plan-vs-actual budgets</b>, and <b>versioned client approvals</b> — turns that chaos into a system the studio can actually run on.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 03 -->
-<section class="sec" id="roles">
-  <div class="wrap">
-    <div class="sec-head"><span class="snum">03</span><span class="eyebrow">Roles &amp; permissions</span></div>
-    <h2 style="max-width:760px;margin-bottom:26px">One project screen looks different to seven roles.</h2>
-    <div class="col2-13">
-      <div>
-        <p style="margin-bottom:16px">From Owner to Client, everyone touches the same project — but sees a different slice of it. So RBAC is designed as a <b>system</b>, not as "hide a button."</p>
-        <p style="margin-bottom:16px">The matrix maps <b>entity × role × permission</b> — view / comment / edit / approve / no-access — across 12 entities and 7 roles. Cells are editable; the same budget line renders four different ways depending on who's looking, down to a real 403 state.</p>
-        <ul class="clean">
-          <li>Owner / Admin — the whole studio</li>
-          <li>Producer — own projects, end to end</li>
-          <li>Coordinator, Dept head — scoped down</li>
-          <li>Freelancer, Vendor — only their part</li>
-          <li>Client — the portal, nothing internal</li>
-        </ul>
-      </div>
-      <figure class="shot">
-        <div class="shot__bar"><span class="shot__dots"><i></i><i></i><i></i></span><span class="shot__url">crew-os / settings / roles</span></div>
-        <div class="shot__vp" data-base="1440" data-h="940"><iframe loading="lazy" src="prototype.html?lang=en#settings"></iframe></div>
-        <figcaption><b>RBAC matrix</b> — 84 permission cells + a live "one component, four permission states" preview.</figcaption>
-      </figure>
-    </div>
-  </div>
-</section>
-
-<!-- 04 -->
-<section class="sec" id="ia">
-  <div class="wrap">
-    <div class="sec-head"><span class="snum">04</span><span class="eyebrow">Architecture &amp; platform strategy</span></div>
-    <div class="col2-13">
-      <h2>Web is the HQ.<br>Mobile is the field.</h2>
-      <div>
-        <p style="margin-bottom:16px"><b>Web (desktop)</b> is where the heavy work happens — planning, estimates, resources, dense tables, approvals, analytics. The producer spends the day here.</p>
-        <p style="margin-bottom:16px"><b>Mobile</b> is the shoot day — see your call sheet, confirm attendance, snap the set, mark "en route / on set." Minimum input, maximum "glanced → got it → confirmed."</p>
-        <p>The principle that ties them: <b>same data, a different slice per context.</b> A shift is a row in the web timeline — and a "today" card on the phone. One object, two representations.</p>
-      </div>
-    </div>
-    <figure class="shot" style="margin-top:36px">
-      <div class="shot__bar"><span class="shot__dots"><i></i><i></i><i></i></span><span class="shot__url">crew-os / mobile — the field app</span></div>
-      <div class="shot__vp" data-base="1340" data-h="860"><iframe loading="lazy" src="mobile.html?lang=en"></iframe></div>
-      <figcaption><b>Mobile "field" app</b> — today, the shift call-sheet in my view, and attendance / status. The freelancer's status is visible to the coordinator on the studio dashboard in real time.</figcaption>
+      <figcaption style="color:rgba(255,255,255,.45)" data-ru="<b style='color:rgba(255,255,255,.75)'>Mobile «поле»</b>&nbsp;— сегодня, смена глазами фрилансера и&nbsp;статус «в&nbsp;пути → на&nbsp;месте», который координатор видит на&nbsp;дашборде в&nbsp;реальном времени." data-en="<b style='color:rgba(255,255,255,.75)'>The&nbsp;mobile field app</b>&nbsp;— today, the&nbsp;shift through a&nbsp;freelancer's eyes, and&nbsp;the&nbsp;«en&nbsp;route → on&nbsp;set» status the&nbsp;coordinator sees on&nbsp;the&nbsp;dashboard in&nbsp;real time."><b style="color:rgba(255,255,255,.75)">Mobile «поле»</b>&nbsp;— сегодня, смена глазами фрилансера и&nbsp;статус «в&nbsp;пути → на&nbsp;месте», который координатор видит на&nbsp;дашборде в&nbsp;реальном времени.</figcaption>
     </figure>
   </div>
 </section>
 
-<!-- 05 -->
-<section class="sec" id="decisions">
-  <div class="wrap">
-    <div class="sec-head"><span class="snum">05</span><span class="eyebrow">Key UX decisions</span></div>
-    <h2 style="max-width:640px;margin-bottom:30px">Four problems, four systemic answers.</h2>
+<!-- 05 UX decisions -->
+<section class="wrap sec" id="decisions">
+  <div class="sec-head"><span class="snum">05</span><span class="eyebrow" data-ru="Ключевые UX-решения" data-en="Key UX decisions">Ключевые UX-решения</span></div>
 
-    <div class="solution">
-      <div class="tags"><span class="tag tag--p">Problem</span><span class="tag tag--s">Solution</span></div>
-      <div class="col2-13">
-        <div>
-          <div class="pline"><b>Problem</b><span>People and gear are shared across projects — and get double-booked with no warning.</span></div>
-          <div class="pline"><b>Solution</b><span>A shared resource pool with an occupancy timeline that <b>detects overlaps</b> and offers a fix: reschedule the shift, find a replacement, or request from the other project's producer. Overlap days are hatched red; each conflict card shows the exact clashing interval.</span></div>
-        </div>
-        <figure class="shot">
-          <div class="shot__bar"><span class="shot__dots"><i></i><i></i><i></i></span><span class="shot__url">crew-os / resources</span></div>
-          <div class="shot__vp" data-base="1440" data-h="900"><iframe loading="lazy" src="prototype.html?lang=en#resources"></iframe></div>
-        </figure>
-      </div>
+  <div class="cs">
+    <div>
+      <span class="tag-chal" data-ru="Проблема" data-en="Problem">Проблема</span>
+      <h3 data-ru="Люди и&nbsp;техника дважды забронированы" data-en="People and&nbsp;gear get double-booked">Люди и&nbsp;техника дважды забронированы</h3>
+      <p data-ru="Один оператор&nbsp;— общий ресурс между проектами. Пересечение всплывает в&nbsp;день съёмки, когда менять что-либо уже дорого." data-en="One operator is a&nbsp;shared resource across projects. The&nbsp;overlap surfaces on&nbsp;the&nbsp;shoot day, when changing anything is already expensive.">Один оператор&nbsp;— общий ресурс между проектами. Пересечение всплывает в&nbsp;день съёмки, когда менять что-либо уже дорого.</p>
+      <span class="tag-chal tag-sol" style="margin-top:18px" data-ru="Решение" data-en="Solution">Решение</span>
+      <p data-ru="Таймлайн занятости с&nbsp;<b>детекцией пересечений</b>: конфликтные дни заштрихованы красным, в&nbsp;карточке&nbsp;— точный интервал и&nbsp;три выхода: сдвинуть смену, найти замену, запросить у&nbsp;продюсера." data-en="An&nbsp;occupancy timeline with <b>overlap detection</b>: clashing days are hatched red, and&nbsp;each card shows the&nbsp;exact interval plus three ways out: reschedule, replace, or&nbsp;request from the&nbsp;other producer.">Таймлайн занятости с&nbsp;<b>детекцией пересечений</b>: конфликтные дни заштрихованы красным, в&nbsp;карточке&nbsp;— точный интервал и&nbsp;три выхода: сдвинуть смену, найти замену, запросить у&nbsp;продюсера.</p>
     </div>
+    <figure class="shot"><div class="shot__bar"><i></i><i></i><i></i><span class="shot__url">crew-os / ресурсы</span></div><img src="img/resources.jpg" alt="Ресурсы с детекцией конфликтов" loading="lazy"></figure>
+  </div>
 
-    <div class="solution">
-      <div class="col2-13">
-        <div>
-          <div class="pline"><b>Problem</b><span>Budgets drift from the plan and no one notices until it's too late.</span></div>
-          <div class="pline"><b>Solution</b><span>A dense <b>estimate → committed → actual</b> table with variance highlighted per line, grouped by department, with drill-down to <em>why</em> a line went over — tied back to the very schedule conflict that caused it.</span></div>
-        </div>
-        <figure class="shot">
-          <div class="shot__bar"><span class="shot__dots"><i></i><i></i><i></i></span><span class="shot__url">crew-os / project / budget</span></div>
-          <div class="shot__vp" data-base="1440" data-h="900"><iframe loading="lazy" src="prototype.html?lang=en&tab=budget#project"></iframe></div>
-        </figure>
-      </div>
+  <div class="cs cs--rev">
+    <div>
+      <span class="tag-chal" data-ru="Проблема" data-en="Problem">Проблема</span>
+      <h3 data-ru="Смета тихо уезжает от&nbsp;плана" data-en="The&nbsp;budget quietly drifts">Смета тихо уезжает от&nbsp;плана</h3>
+      <p data-ru="Пока платежи капают, никто не&nbsp;видит, что строка «свет» уже в&nbsp;перерасходе&nbsp;— и&nbsp;почему." data-en="While payments trickle in, nobody sees that the&nbsp;lighting line is already over&nbsp;budget&nbsp;— or&nbsp;why.">Пока платежи капают, никто не&nbsp;видит, что строка «свет» уже в&nbsp;перерасходе&nbsp;— и&nbsp;почему.</p>
+      <span class="tag-chal tag-sol" style="margin-top:18px" data-ru="Решение" data-en="Solution">Решение</span>
+      <p data-ru="Плотная таблица <b>estimate → committed → actual</b> с&nbsp;подсветкой отклонений по&nbsp;строкам и&nbsp;drill-down в&nbsp;причину: перерасход по&nbsp;гафферу тянется из&nbsp;того самого конфликта в&nbsp;расписании." data-en="A&nbsp;dense <b>estimate → committed → actual</b> table with per-line variance highlighting and&nbsp;a&nbsp;drill-down into the&nbsp;cause: the&nbsp;gaffer overrun traces back to&nbsp;that very schedule conflict.">Плотная таблица <b>estimate → committed → actual</b> с&nbsp;подсветкой отклонений по&nbsp;строкам и&nbsp;drill-down в&nbsp;причину: перерасход по&nbsp;гафферу тянется из&nbsp;того самого конфликта в&nbsp;расписании.</p>
     </div>
+    <figure class="shot"><div class="shot__bar"><i></i><i></i><i></i><span class="shot__url">crew-os / проект / бюджет</span></div><img src="img/budget.jpg" alt="Бюджет план/факт" loading="lazy"></figure>
+  </div>
 
-    <div class="solution">
-      <div class="col2-13">
-        <div>
-          <div class="pline"><b>Problem</b><span>Client approvals get lost in chat; nobody knows which version was signed off.</span></div>
-          <div class="pline"><b>Solution</b><span>A versioned approval flow — <b>draft → sent → in review → changes → approved</b> — with a <b>diff</b> that shows exactly what changed between v1 and v2, and a threaded discussion pinned to the line in question.</span></div>
-        </div>
-        <figure class="shot">
-          <div class="shot__bar"><span class="shot__dots"><i></i><i></i><i></i></span><span class="shot__url">crew-os / project / approvals</span></div>
-          <div class="shot__vp" data-base="1440" data-h="940"><iframe loading="lazy" src="prototype.html?lang=en&tab=approvals#project"></iframe></div>
-        </figure>
-      </div>
+  <div class="cs">
+    <div>
+      <span class="tag-chal" data-ru="Проблема" data-en="Problem">Проблема</span>
+      <h3 data-ru="Согласования тонут в&nbsp;чатах" data-en="Approvals drown in&nbsp;chat">Согласования тонут в&nbsp;чатах</h3>
+      <p data-ru="Клиент реджектит одну позицию в&nbsp;переписке&nbsp;— через неделю никто не&nbsp;скажет, какая версия сметы утверждена." data-en="The&nbsp;client rejects one line in&nbsp;a&nbsp;chat thread&nbsp;— a&nbsp;week later nobody can say which version of&nbsp;the&nbsp;estimate is approved.">Клиент реджектит одну позицию в&nbsp;переписке&nbsp;— через неделю никто не&nbsp;скажет, какая версия сметы утверждена.</p>
+      <span class="tag-chal tag-sol" style="margin-top:18px" data-ru="Решение" data-en="Solution">Решение</span>
+      <p data-ru="Версионный флоу <b>черновик → отправлено → на&nbsp;проверке → изменения → утверждено</b> с&nbsp;diff-вью «что изменилось v1 → v2» и&nbsp;тредом, привязанным к&nbsp;конкретной строке." data-en="A&nbsp;versioned flow&nbsp;— <b>draft → sent → in&nbsp;review → changes → approved</b>&nbsp;— with a&nbsp;«what changed v1 → v2» diff and&nbsp;a&nbsp;thread pinned to&nbsp;the&nbsp;exact line.">Версионный флоу <b>черновик → отправлено → на&nbsp;проверке → изменения → утверждено</b> с&nbsp;diff-вью «что изменилось v1 → v2» и&nbsp;тредом, привязанным к&nbsp;конкретной строке.</p>
     </div>
+    <figure class="shot"><div class="shot__bar"><i></i><i></i><i></i><span class="shot__url">crew-os / проект / согласования</span></div><img src="img/approvals.jpg" alt="Согласования с diff" loading="lazy"></figure>
+  </div>
 
-    <div class="solution">
-      <div class="col2-13">
-        <div>
-          <div class="pline"><b>Problem</b><span>Call sheets are static PDFs — no one knows who actually got it or confirmed.</span></div>
-          <div class="pline"><b>Solution</b><span>A call sheet with a builder/preview toggle, <b>personal call times</b> per crew member, and live <b>delivery &amp; confirmation status</b> — 9 of 14 confirmed, one declined and flagged for replacement.</span></div>
-        </div>
-        <figure class="shot">
-          <div class="shot__bar"><span class="shot__dots"><i></i><i></i><i></i></span><span class="shot__url">crew-os / project / call sheet</span></div>
-          <div class="shot__vp" data-base="1440" data-h="940"><iframe loading="lazy" src="prototype.html?lang=en&tab=schedule#project"></iframe></div>
-        </figure>
+  <div class="cs cs--rev">
+    <div>
+      <span class="tag-chal" data-ru="Проблема" data-en="Problem">Проблема</span>
+      <h3 data-ru="Call sheet&nbsp;— мёртвый PDF" data-en="The&nbsp;call sheet is a&nbsp;dead PDF">Call sheet&nbsp;— мёртвый PDF</h3>
+      <p data-ru="Разослали&nbsp;— и&nbsp;тишина: кто получил, кто прочитал, кто&nbsp;вообще придёт&nbsp;— неизвестно до&nbsp;утра смены." data-en="It&nbsp;goes out&nbsp;— then silence: who received it, who read it, who is actually coming&nbsp;— unknown until the&nbsp;morning of&nbsp;the&nbsp;shift.">Разослали&nbsp;— и&nbsp;тишина: кто получил, кто прочитал, кто&nbsp;вообще придёт&nbsp;— неизвестно до&nbsp;утра смены.</p>
+      <span class="tag-chal tag-sol" style="margin-top:18px" data-ru="Решение" data-en="Solution">Решение</span>
+      <p data-ru="Живой call sheet: конструктор и&nbsp;предпросмотр, <b>персональный call-time</b> каждому участнику и&nbsp;статус доставки в&nbsp;реальном времени&nbsp;— 9 из&nbsp;14 подтвердили, одна модель отклонила и&nbsp;помечена на&nbsp;замену." data-en="A&nbsp;living call sheet: builder and&nbsp;preview, a&nbsp;<b>personal call time</b> for&nbsp;every crew member, and&nbsp;live delivery status&nbsp;— 9 of&nbsp;14 confirmed, one model declined and&nbsp;is flagged for&nbsp;replacement.">Живой call sheet: конструктор и&nbsp;предпросмотр, <b>персональный call-time</b> каждому участнику и&nbsp;статус доставки в&nbsp;реальном времени&nbsp;— 9 из&nbsp;14 подтвердили, одна модель отклонила и&nbsp;помечена на&nbsp;замену.</p>
+    </div>
+    <figure class="shot"><div class="shot__bar"><i></i><i></i><i></i><span class="shot__url">crew-os / проект / call sheet</span></div><img src="img/callsheet.jpg" alt="Call sheet" loading="lazy"></figure>
+  </div>
+</section>
+
+<!-- 06 gifs -->
+<section class="band" id="motion">
+  <div class="wrap sec">
+    <div class="sec-head"><span class="snum">06</span><span class="eyebrow" data-ru="Интерфейс в&nbsp;движении" data-en="The&nbsp;interface in&nbsp;motion">Интерфейс в&nbsp;движении</span></div>
+    <h2 style="max-width:820px;margin-bottom:40px" data-ru="Как это кликается." data-en="How it clicks.">Как это кликается.</h2>
+    <div class="gifgrid">
+      <div class="gifitem">
+        <div class="gifhead"><span class="giftag" data-ru="Сквозной сценарий" data-en="End-to-end path">Сквозной сценарий</span><h3 data-ru="Один сюжет через всю систему" data-en="One story through the&nbsp;whole system">Один сюжет через всю систему</h3></div>
+        <img src="img/flow.gif" alt="Сквозной пользовательский сценарий" loading="lazy">
+        <p data-ru="Дашборд сигналит о&nbsp;конфликтах → в&nbsp;ресурсах виден точный интервал пересечения → перерасход в&nbsp;бюджете раскрывается до&nbsp;причины → diff уходит клиенту → клиент согласовывает в&nbsp;портале. Жёлтая точка&nbsp;— куда кликает пользователь." data-en="The&nbsp;dashboard flags conflicts → resources show the&nbsp;exact overlap → the&nbsp;budget overrun drills down to&nbsp;its cause → the&nbsp;diff goes to&nbsp;the&nbsp;client → the&nbsp;client approves in&nbsp;the&nbsp;portal. The&nbsp;yellow dot marks where the&nbsp;user clicks.">Дашборд сигналит о&nbsp;конфликтах → в&nbsp;ресурсах виден точный интервал пересечения → перерасход в&nbsp;бюджете раскрывается до&nbsp;причины → diff уходит клиенту → клиент согласовывает в&nbsp;портале. Жёлтая точка&nbsp;— куда кликает пользователь.</p>
+      </div>
+      <div class="gifitem">
+        <div class="gifhead"><span class="giftag">RBAC</span><h3 data-ru="Один экран, три роли" data-en="One screen, three roles">Один экран, три роли</h3></div>
+        <img src="img/roles.gif" alt="Смена ролевого среза бюджета" loading="lazy">
+        <p data-ru="Бюджет глазами продюсера&nbsp;— полный доступ; координатора&nbsp;— только просмотр; фрилансера&nbsp;— честный 403. Права не&nbsp;«прячут кнопку», а&nbsp;перестраивают экран." data-en="The&nbsp;budget as the&nbsp;producer&nbsp;— full access; as the&nbsp;coordinator&nbsp;— view-only; as a&nbsp;freelancer&nbsp;— an&nbsp;honest 403. Permissions don't hide buttons&nbsp;— they reshape the&nbsp;screen.">Бюджет глазами продюсера&nbsp;— полный доступ; координатора&nbsp;— только просмотр; фрилансера&nbsp;— честный 403. Права не&nbsp;«прячут кнопку», а&nbsp;перестраивают экран.</p>
+      </div>
+      <div class="gifitem">
+        <div class="gifhead"><span class="giftag" data-ru="Таблица как система" data-en="The&nbsp;table as a&nbsp;system">Таблица как система</span><h3 data-ru="Bulk-выбор, плотность, ⌘K" data-en="Bulk select, density, ⌘K">Bulk-выбор, плотность, ⌘K</h3></div>
+        <img src="img/ui.gif" alt="Массовый выбор, плотность, командная палитра" loading="lazy">
+        <p data-ru="Массовое бронирование ресурсов, переключение плотности таблицы и&nbsp;командная палитра ⌘K с&nbsp;поиском по&nbsp;проектам, людям и&nbsp;технике." data-en="Bulk resource booking, table-density switching, and&nbsp;the&nbsp;⌘K command palette searching projects, people and&nbsp;gear.">Массовое бронирование ресурсов, переключение плотности таблицы и&nbsp;командная палитра ⌘K с&nbsp;поиском по&nbsp;проектам, людям и&nbsp;технике.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- 06 -->
-<section class="sec" id="system">
-  <div class="wrap">
-    <div class="sec-head"><span class="snum">06</span><span class="eyebrow">Design system</span></div>
-    <h2 style="max-width:720px;margin-bottom:14px">A system that keeps clarity in a dense interface.</h2>
-    <p class="lead" style="max-width:760px;margin-bottom:30px">Ashy-paper canvas, Helvetica headers over Inter data type with tabular figures, one soft-yellow accent, glass where it earns it, and — deliberately — no dividers: separation by fills, not lines.</p>
-    <div class="dsgrid">
-      <div class="dscard"><h3>Status language</h3><p>One badge vocabulary across projects, shifts, approvals, payments and resources.</p><div class="dschips"><span class="dschip b-draft">Draft</span><span class="dschip b-info">In review</span><span class="dschip b-warn">Changes</span><span class="dschip b-ok">Approved</span><span class="dschip b-bad">Conflict</span></div></div>
-      <div class="dscard"><h3>The table as a system</h3><p>Sort, filter, inline edit, bulk-select, density, sticky headers — plus empty / loading / error states.</p><div class="dschips"><span class="dschip b-draft">Comfortable</span><span class="dschip b-acc">Compact</span></div></div>
-      <div class="dscard"><h3>Access &amp; 403</h3><p>A permission chip vocabulary and a real no-access pattern, driven by the RBAC matrix.</p><div class="dschips"><span class="dschip b-ok">Edit</span><span class="dschip" style="background:#EEE4FA;color:#6b3fa8">Approve</span><span class="dschip b-info">Comment</span><span class="dschip b-draft">View</span></div></div>
-      <div class="dscard"><h3>Diff component</h3><p>Added / removed / changed rows with old → new values and a delta chip — for approval versions.</p><div class="dschips"><span class="dschip b-ok">+ added</span><span class="dschip b-bad">− removed</span><span class="dschip b-warn">~ changed</span></div></div>
-      <div class="dscard"><h3>Status-flow stepper</h3><p>A reusable pipeline used for approvals and for the mobile attendance flow.</p><div class="dschips"><span class="dschip b-ok">done</span><span class="dschip b-acc">current</span><span class="dschip b-draft">upcoming</span></div></div>
-      <div class="dscard"><h3>Web ↔ mobile</h3><p>The same "shift" object: a row in the desktop timeline, a "today" card on the phone.</p><div class="dschips"><span class="dschip b-draft">1 object</span><span class="dschip b-acc">2 views</span></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- 07 -->
-<section class="sec" id="screens">
-  <div class="wrap">
-    <div class="sec-head"><span class="snum">07</span><span class="eyebrow">Hi-fi screens</span></div>
-    <h2 style="margin-bottom:32px">The full contour, live.</h2>
-    <div class="gallery">
-      <figure class="shot">
-        <div class="shot__bar"><span class="shot__dots"><i></i><i></i><i></i></span><span class="shot__url">crew-os / client portal</span></div>
-        <div class="shot__vp" data-base="1440" data-h="940"><iframe loading="lazy" src="prototype.html?lang=en#client"></iframe></div>
-        <figcaption><b>Client portal</b> — a separate, stripped-down contour. Approvals to sign off, the approved estimate (only agreed figures — no internal actuals or margin), milestones and deliverables. A live demonstration of the "Client" RBAC slice.</figcaption>
-      </figure>
-    </div>
-  </div>
-</section>
-
-<!-- 08 -->
-<section class="sec">
-  <div class="wrap">
-    <div class="cta">
-      <span class="eyebrow" style="color:var(--acc)">Live &amp; interactive</span>
-      <h2>Walk through it yourself.</h2>
-      <p>The whole thing is a working, self-contained prototype — bilingual (RU / EN), clickable end to end. Happy path: launch a project → approve the estimate → generate the call sheet. Sad path: a resource conflict to resolve.</p>
-      <div class="cta__btns">
-        <a class="pill pill--acc" href="prototype.html" target="_blank">Open web prototype <svg viewBox="0 0 24 24" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
-        <a class="pill pill--ghost" href="mobile.html" target="_blank">Open mobile "field" <svg viewBox="0 0 24 24" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+<!-- 07 design system -->
+<section class="wrap sec" id="system">
+  <div class="sec-head"><span class="snum">07</span><span class="eyebrow" data-ru="Дизайн-система" data-en="Design system">Дизайн-система</span></div>
+  <div class="col2-13">
+    <h2 data-ru="Ясность в&nbsp;плотном интерфейсе." data-en="Clarity in&nbsp;a&nbsp;dense interface.">Ясность в&nbsp;плотном интерфейсе.</h2>
+    <div>
+      <p data-ru="Пепельная бумага, дисплейный Tektur поверх рабочего Golos Text, один мягко-жёлтый акцент и&nbsp;принцип «без&nbsp;разделителей»: секции держатся на&nbsp;заливках и&nbsp;тенях, а&nbsp;не&nbsp;на&nbsp;линиях. В&nbsp;плотных таблицах&nbsp;— тинты, в&nbsp;отдельно стоящих алертах&nbsp;— сплошной красный." data-en="Ashy paper, display Tektur over workhorse Golos Text, a&nbsp;single soft-yellow accent, and&nbsp;a&nbsp;«no-dividers» principle: sections hold on&nbsp;fills and&nbsp;shadows, not lines. Tints inside dense tables&nbsp;— solid red for&nbsp;standalone alerts.">Пепельная бумага, дисплейный Tektur поверх рабочего Golos Text, один мягко-жёлтый акцент и&nbsp;принцип «без&nbsp;разделителей»: секции держатся на&nbsp;заливках и&nbsp;тенях, а&nbsp;не&nbsp;на&nbsp;линиях. В&nbsp;плотных таблицах&nbsp;— тинты, в&nbsp;отдельно стоящих алертах&nbsp;— сплошной красный.</p>
+      <div class="tokens">
+        <div class="swatch"><div class="chip" style="background:#EAE7E0"></div><span>#EAE7E0 · paper</span></div>
+        <div class="swatch"><div class="chip" style="background:#33322E"></div><span>#33322E · panel</span></div>
+        <div class="swatch"><div class="chip" style="background:#F0C74E"></div><span>#F0C74E · accent</span></div>
+        <div class="swatch"><div class="chip" style="background:#EC4B3B"></div><span>#EC4B3B · conflict</span></div>
+        <div class="swatch"><div class="chip" style="background:#3E9B6E"></div><span>#3E9B6E · approved</span></div>
+        <div class="swatch"><div class="chip" style="background:#2C7A93"></div><span>#2C7A93 · review</span></div>
       </div>
     </div>
   </div>
+  <div class="statusline">
+    <span class="st"><i style="background:var(--st-draft)"></i><span data-ru="Черновик" data-en="Draft">Черновик</span></span><span class="arr">→</span>
+    <span class="st"><i style="background:var(--st-info)"></i><span data-ru="На&nbsp;проверке" data-en="In&nbsp;review">На&nbsp;проверке</span></span><span class="arr">→</span>
+    <span class="st"><i style="background:var(--st-warn)"></i><span data-ru="Изменения" data-en="Changes">Изменения</span></span><span class="arr">→</span>
+    <span class="st"><i style="background:var(--st-ok)"></i><span data-ru="Утверждено" data-en="Approved">Утверждено</span></span>
+    <span class="st" style="margin-left:14px"><i style="background:var(--st-bad)"></i><span data-ru="Конфликт" data-en="Conflict">Конфликт</span></span>
+  </div>
+  <div class="dscols">
+    <div class="dscol"><h3 data-ru="Таблица как система" data-en="The&nbsp;table as a&nbsp;system">Таблица как система</h3><ul>
+      <li data-ru="сортировка и&nbsp;инлайн-редактирование" data-en="sorting and&nbsp;inline editing">сортировка и&nbsp;инлайн-редактирование</li>
+      <li data-ru="bulk-выбор и&nbsp;переключатель плотности" data-en="bulk select and&nbsp;a&nbsp;density switch">bulk-выбор и&nbsp;переключатель плотности</li>
+      <li data-ru="состояния: пусто / загрузка / ошибка / 403" data-en="states: empty / loading / error / 403">состояния: пусто / загрузка / ошибка / 403</li>
+    </ul></div>
+    <div class="dscol"><h3 data-ru="Компоненты логики" data-en="Logic components">Компоненты логики</h3><ul>
+      <li data-ru="diff-вью: добавлено / убрано / изменено" data-en="diff view: added / removed / changed">diff-вью: добавлено / убрано / изменено</li>
+      <li data-ru="статус-степпер для&nbsp;согласований и&nbsp;смен" data-en="a&nbsp;status stepper for&nbsp;approvals and&nbsp;shifts">статус-степпер для&nbsp;согласований и&nbsp;смен</li>
+      <li data-ru="словарь прав: ред. / согл. / комм. / просмотр" data-en="a&nbsp;permission vocabulary: edit / approve / comment / view">словарь прав: ред. / согл. / комм. / просмотр</li>
+    </ul></div>
+    <div class="dscol"><h3 data-ru="Web ↔ mobile" data-en="Web ↔ mobile">Web ↔ mobile</h3><ul>
+      <li data-ru="один объект «смена»&nbsp;— два представления" data-en="one «shift» object&nbsp;— two representations">один объект «смена»&nbsp;— два представления</li>
+      <li data-ru="единый статус-язык на&nbsp;обеих платформах" data-en="one status language on&nbsp;both platforms">единый статус-язык на&nbsp;обеих платформах</li>
+      <li data-ru="RU/EN&nbsp;— двуязычность по&nbsp;умолчанию" data-en="RU/EN&nbsp;— bilingual by&nbsp;default">RU/EN&nbsp;— двуязычность по&nbsp;умолчанию</li>
+    </ul></div>
+  </div>
 </section>
 
-<!-- 09 -->
-<section class="sec">
-  <div class="wrap">
-    <div class="sec-head"><span class="snum">09</span><span class="eyebrow">Reflection</span></div>
-    <div class="col2">
+<!-- 08 screens -->
+<section class="wrap sec" id="screens" style="padding-top:0">
+  <div class="sec-head"><span class="snum">08</span><span class="eyebrow" data-ru="Ещё экраны" data-en="More screens">Ещё экраны</span></div>
+  <div class="gallery">
+    <figure>
+      <div class="shot"><div class="shot__bar"><i></i><i></i><i></i><span class="shot__url">crew-os / клиентский портал</span></div><img src="img/client.jpg" alt="Клиентский портал" loading="lazy"></div>
+      <figcaption data-ru="<b>Клиентский портал</b>&nbsp;— отдельный урезанный контур: согласования, утверждённая смета без&nbsp;внутренней кухни, вехи и&nbsp;деливераблы." data-en="<b>The&nbsp;client portal</b>&nbsp;— a&nbsp;separate stripped-down contour: approvals, the&nbsp;approved estimate with no&nbsp;internal figures, milestones and&nbsp;deliverables."><b>Клиентский портал</b>&nbsp;— отдельный урезанный контур: согласования, утверждённая смета без&nbsp;внутренней кухни, вехи и&nbsp;деливераблы.</figcaption>
+    </figure>
+    <figure>
+      <div class="shot"><div class="shot__bar"><i></i><i></i><i></i><span class="shot__url">crew-os / финансы</span></div><img src="img/finance.jpg" alt="Финансы студии" loading="lazy"></div>
+      <figcaption data-ru="<b>Финансы студии</b>&nbsp;— поступления и&nbsp;расходы, задолженности, P&amp;L по&nbsp;проектам со&nbsp;сводной маржой." data-en="<b>Studio finance</b>&nbsp;— receipts and&nbsp;expenses, receivables, per-project P&amp;L with the&nbsp;overall margin."><b>Финансы студии</b>&nbsp;— поступления и&nbsp;расходы, задолженности, P&amp;L по&nbsp;проектам со&nbsp;сводной маржой.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 09 prototype -->
+<section class="band" id="prototype">
+  <div class="wrap sec">
+    <div class="sec-head"><span class="snum">09</span><span class="eyebrow" data-ru="Живой прототип" data-en="Live prototype">Живой прототип</span></div>
+    <div class="proto">
       <div>
-        <h3>What the case set out to prove</h3>
-        <p>That a B2B product can carry genuinely complex logic — multi-role permissions, dense data, live states, versioned approvals, plan-vs-actual — and still stay legible. The through-line helps: one story (a gaffer's extra day) travels from a resource conflict, into a budget overrun, into an approval diff, to the client, onto a call sheet, and back to the coordinator's dashboard.</p>
+        <h2 data-ru="Рабочий прототип, а&nbsp;не&nbsp;картинка." data-en="A&nbsp;working prototype, not a&nbsp;mockup.">Рабочий прототип, а&nbsp;не&nbsp;картинка.</h2>
+        <p style="margin-top:16px" data-ru="Кликается насквозь, двуязычный. Happy path: запуск проекта → согласование сметы → call sheet. Sad path: конфликт ресурса, который нужно разрулить. Плюс роли, состояния, ⌘K и&nbsp;живые таблицы." data-en="Clickable end to&nbsp;end, bilingual. Happy path: launch → estimate approval → call sheet. Sad path: a&nbsp;resource conflict to&nbsp;resolve. Plus roles, states, ⌘K and&nbsp;live tables.">Кликается насквозь, двуязычный. Happy path: запуск проекта → согласование сметы → call sheet. Sad path: конфликт ресурса, который нужно разрулить. Плюс роли, состояния, ⌘K и&nbsp;живые таблицы.</p>
+        <div class="btns">
+          <a class="pill pill--acc" href="prototype.html" target="_blank"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg><span data-ru="Открыть web-прототип" data-en="Open the&nbsp;web prototype">Открыть web-прототип</span></a>
+          <a class="pill" style="background:rgba(255,255,255,.12)" href="mobile.html" target="_blank"><span data-ru="Мобильное «поле»" data-en="The&nbsp;mobile field app">Мобильное «поле»</span></a>
+        </div>
+      </div>
+      <figure class="shot"><div class="shot__bar"><i></i><i></i><i></i><span class="shot__url">crew-os / прототип</span></div><img src="img/resources.jpg" alt="Прототип" loading="lazy"></figure>
+    </div>
+  </div>
+</section>
+
+<!-- 10 reflection -->
+<section class="band" style="border-top:1px solid rgba(255,255,255,.08)">
+  <div class="wrap sec">
+    <div class="sec-head"><span class="snum">10</span><span class="eyebrow" data-ru="Рефлексия" data-en="Reflection">Рефлексия</span></div>
+    <div class="refl">
+      <div>
+        <h3 data-ru="Что кейс должен был доказать" data-en="What the&nbsp;case set out to&nbsp;prove">Что кейс должен был доказать</h3>
+        <p style="margin-top:12px;font-size:15px" data-ru="Что B2B-продукт может нести по-настоящему сложную логику&nbsp;— мультиролевость, плотные данные, версионность, план/факт&nbsp;— и&nbsp;оставаться читаемым. Помогает сквозной сюжет: одна лишняя смена гаффера проходит через конфликт ресурсов, перерасход бюджета, diff согласования, решение клиента, call sheet и&nbsp;дашборд координатора." data-en="That a&nbsp;B2B product can carry genuinely complex logic&nbsp;— multi-role access, dense data, versioning, plan-vs-actual&nbsp;— and&nbsp;stay legible. A&nbsp;through-line helps: one extra gaffer day travels through a&nbsp;resource conflict, a&nbsp;budget overrun, an&nbsp;approval diff, a&nbsp;client decision, a&nbsp;call sheet and&nbsp;the&nbsp;coordinator's dashboard.">Что B2B-продукт может нести по-настоящему сложную логику&nbsp;— мультиролевость, плотные данные, версионность, план/факт&nbsp;— и&nbsp;оставаться читаемым. Помогает сквозной сюжет: одна лишняя смена гаффера проходит через конфликт ресурсов, перерасход бюджета, diff согласования, решение клиента, call sheet и&nbsp;дашборд координатора.</p>
       </div>
       <div>
-        <h3>Where I'd push further</h3>
-        <ul class="clean">
-          <li>Real finance visualization on the studio level (cashflow, P&amp;L per project)</li>
-          <li>An offline field mode — shoots happen in basements and forests</li>
-          <li>A designed notification system across web and mobile</li>
-          <li>Template libraries for estimates and call sheets</li>
+        <h3 data-ru="Куда развивать дальше" data-en="Where to&nbsp;push next">Куда развивать дальше</h3>
+        <ul style="margin-top:12px">
+          <li data-ru="<b>Финансы глубже</b>&nbsp;— cashflow и&nbsp;P&amp;L-аналитика на&nbsp;уровне студии" data-en="<b>Deeper finance</b>&nbsp;— studio-level cashflow and&nbsp;P&amp;L analytics"><b>Финансы глубже</b>&nbsp;— cashflow и&nbsp;P&amp;L-аналитика на&nbsp;уровне студии</li>
+          <li data-ru="<b>Офлайн-режим «поля»</b>&nbsp;— съёмки случаются в&nbsp;подвалах и&nbsp;лесах" data-en="<b>An&nbsp;offline field mode</b>&nbsp;— shoots happen in&nbsp;basements and&nbsp;forests"><b>Офлайн-режим «поля»</b>&nbsp;— съёмки случаются в&nbsp;подвалах и&nbsp;лесах</li>
+          <li data-ru="<b>Система уведомлений</b>&nbsp;— спроектированная, для&nbsp;web и&nbsp;mobile" data-en="<b>A&nbsp;designed notification system</b>&nbsp;— across web and&nbsp;mobile"><b>Система уведомлений</b>&nbsp;— спроектированная, для&nbsp;web и&nbsp;mobile</li>
+          <li data-ru="<b>Библиотеки шаблонов</b>&nbsp;— смет и&nbsp;call sheet под&nbsp;типовые заказы" data-en="<b>Template libraries</b>&nbsp;— estimates and&nbsp;call sheets for&nbsp;typical jobs"><b>Библиотеки шаблонов</b>&nbsp;— смет и&nbsp;call sheet под&nbsp;типовые заказы</li>
         </ul>
       </div>
     </div>
   </div>
 </section>
 
-<div class="wrap foot">
-  <span>CREW OS — B2B production-management concept · design case, 2026</span>
-  <span><a href="prototype.html" style="color:var(--ink-soft)">Prototype ↗</a> &nbsp;·&nbsp; <a href="mobile.html" style="color:var(--ink-soft)">Mobile ↗</a></span>
-</div>
+<footer>
+  <div class="wrap">
+    <h2 data-ru="Спасибо, что&nbsp;досмотрели." data-en="Thanks for&nbsp;scrolling this far.">Спасибо, что&nbsp;досмотрели.</h2>
+    <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+      <a href="../" data-ru="← На&nbsp;главную" data-en="← Back home">← На&nbsp;главную</a>
+      <a class="pill pill--acc" href="prototype.html" target="_blank"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg><span data-ru="Прототип" data-en="Prototype">Прототип</span></a>
+    </div>
+  </div>
+</footer>
 
 <script>
-function scaleShots(){
-  document.querySelectorAll('.shot__vp').forEach(vp=>{
-    const base=+vp.dataset.base, h=+vp.dataset.h, w=vp.clientWidth, s=w/base;
-    vp.style.height=(h*s)+'px';
-    const f=vp.querySelector('iframe');
-    f.style.width=base+'px'; f.style.height=h+'px'; f.style.transform='scale('+s+')';
+function setLang(l) {
+  document.querySelectorAll('.lang-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.lang === l);
   });
+  document.querySelectorAll('[data-ru]').forEach(function(el) {
+    var t = el.dataset[l];
+    if (!t) return;
+    if (t.indexOf('<') !== -1) { el.innerHTML = t; }
+    else { el.textContent = t; }
+  });
+  document.documentElement.lang = l;
+  document.title = l === 'en' ? 'CREW OS — case study · Natalya Valkova' : 'CREW OS — кейс · Natalya Valkova';
+  try { localStorage.setItem('nv-lang', l); } catch (e) {}
 }
-window.addEventListener('resize',scaleShots);
-window.addEventListener('load',scaleShots);
-document.addEventListener('DOMContentLoaded',scaleShots);
-requestAnimationFrame(scaleShots);
-setTimeout(scaleShots,150);
-setTimeout(scaleShots,600);
+try { if (localStorage.getItem('nv-lang') === 'en') setLang('en'); } catch (e) {}
 </script>
+
 </body>
 </html>

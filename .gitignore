@@ -15,11 +15,12 @@ in-between/kit.html
 in-between/slides.html
 in-between/design-system.css
 
-# CREW OS case — publish case.html + prototype.html + mobile.html.
+# CREW OS case — publish case.html + prototype.html + mobile.html + img/.
 # Exclude Behance slides and internal working files.
 crew-os/TZ.md
 crew-os/slides.html
 crew-os/fonts.html
+crew-os/cover.html
 
 # Other project working folders (not linked from the live site yet)
 magazine/
