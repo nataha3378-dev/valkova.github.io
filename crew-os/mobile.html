@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CREW OS — Mobile «поле»</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Tektur:wght@500;600;700&display=swap');
+:root{
+  --paper:#EAE7E0; --surface:#FFFFFF; --surface-2:#F1EEE9; --surface-3:#E3DED5;
+  --panel:#33322E; --panel-2:#403F39;
+  --ink:#2B2A26; --ink-soft:#6E6A62; --ink-faint:#9E9A90; --ink-ghost:#C0BBB0;
+  --line:rgba(43,42,38,0.06); --line-strong:rgba(43,42,38,0.10);
+  --acc:#F0C74E; --acc-hi:#F8DE86; --acc-soft:rgba(240,199,78,.18);
+  --grad:linear-gradient(105deg,#F8DE86 0%,#EFC64C 100%);
+  --st-info:#2C7A93; --st-info-bg:#E0EEF2; --st-warn:#C07A1E; --st-warn-bg:#F8EBD3;
+  --st-ok:#3E9B6E; --st-ok-bg:#E0F1E8; --st-bad:#EC4B3B; --st-bad-bg:#FBE3DF;
+  --head:'Tektur','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --sans:'Golos Text',-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --mono:'Golos Text',-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --r-lg:20px; --r-md:14px; --r-sm:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:#DED9D0;color:var(--ink);-webkit-font-smoothing:antialiased;
+  min-height:100vh;padding:34px 40px 60px;}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit;font-size:inherit;}
+ul{list-style:none;}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+.avaimg{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;}
+
+/* canvas header */
+.chead{display:flex;align-items:flex-start;gap:18px;margin-bottom:30px;max-width:1240px;}
+.chead__logo{width:34px;height:34px;border-radius:10px;background:var(--grad);display:grid;place-items:center;
+  color:#2B2A26;font-weight:800;font-size:17px;font-family:var(--head);flex:none;}
+.chead h1{font-family:var(--head);font-size:17px;font-weight:600;letter-spacing:0;}
+.chead h1 b{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.chead p{font-size:13px;color:var(--ink-soft);margin-top:3px;}
+.lang{margin-left:auto;display:flex;background:var(--surface);border-radius:var(--r-sm);overflow:hidden;padding:2px;}
+.lang button{padding:6px 11px;font-size:12px;font-weight:600;color:var(--ink-faint);border-radius:7px;}
+.lang button.is-active{background:var(--panel);color:#fff;}
+
+/* devices row */
+.rack{display:flex;gap:44px;flex-wrap:wrap;align-items:flex-start;}
+.phone{display:flex;flex-direction:column;align-items:center;gap:15px;}
+.device{width:372px;height:806px;background:var(--paper);border-radius:46px;position:relative;overflow:hidden;
+  box-shadow:0 0 0 11px #17140f,0 0 0 12px #34322d,0 44px 90px -26px rgba(0,0,0,.5);}
+.notch{position:absolute;top:13px;left:50%;transform:translateX(-50%);width:112px;height:30px;background:#17140f;border-radius:18px;z-index:60;}
+.plabel{font-size:12.5px;color:var(--ink-soft);font-weight:500;text-align:center;}
+.plabel b{color:var(--ink);font-weight:600;}
+
+/* screen shell */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--paper);}
+.statusbar{height:52px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:16px 28px 0;
+  font-size:14px;font-weight:600;z-index:40;}
+.statusbar__ic{display:flex;gap:6px;align-items:center;}
+.scroll{flex:1;overflow-y:auto;padding:6px 16px 90px;}
+.scroll::-webkit-scrollbar{width:0;}
+
+/* app header */
+.mtop{display:flex;align-items:center;gap:12px;padding:8px 2px 16px;}
+.mtop__ava{width:42px;height:42px;border-radius:13px;background:#B4700A;color:#fff;display:grid;place-items:center;font-weight:600;font-size:15px;flex:none;}
+.mtop__m{flex:1;min-width:0;}
+.mtop__hi{font-family:var(--head);font-size:16px;font-weight:600;letter-spacing:0;}
+.mtop__d{font-size:12.5px;color:var(--ink-soft);}
+.mtop__bell{width:38px;height:38px;border-radius:12px;background:var(--surface);display:grid;place-items:center;color:var(--ink-soft);position:relative;flex:none;}
+.mtop__bell .dot{position:absolute;top:9px;right:10px;width:7px;height:7px;border-radius:50%;background:var(--st-bad);box-shadow:0 0 0 2px var(--paper);}
+.mback{display:flex;align-items:center;gap:12px;padding:8px 2px 14px;}
+.mback__btn{width:38px;height:38px;border-radius:12px;background:var(--surface);display:grid;place-items:center;color:var(--ink);flex:none;}
+.mback__t{font-family:var(--head);font-size:14px;font-weight:600;}
+.mback__t span{display:block;font-family:var(--sans);font-size:11.5px;font-weight:500;color:var(--ink-faint);}
+
+/* push banner */
+.push{display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:var(--r-md);margin-bottom:14px;
+  background:var(--acc-soft);box-shadow:inset 0 0 0 1px rgba(240,199,78,.4);}
+.push__ic{width:30px;height:30px;border-radius:9px;background:var(--grad);color:#2B2A26;display:grid;place-items:center;flex:none;}
+.push__t{font-size:12.5px;line-height:1.4;}
+.push__t b{font-weight:700;}
+
+/* shift hero (dark) */
+.hero{background:var(--panel);color:#fff;border-radius:var(--r-lg);padding:18px;margin-bottom:14px;position:relative;overflow:hidden;}
+.hero__tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--acc);letter-spacing:.03em;margin-bottom:9px;}
+.hero__tag .d{width:6px;height:6px;border-radius:50%;background:var(--acc);}
+.hero__title{font-family:var(--head);font-size:15px;font-weight:600;letter-spacing:0;}
+.hero__loc{font-size:12.5px;color:#c9c3b8;margin-top:5px;display:flex;align-items:center;gap:6px;}
+.hero__call{display:flex;align-items:flex-end;gap:16px;margin-top:16px;padding-top:15px;border-top:1px solid rgba(255,255,255,.1);}
+.hero__call .b{}
+.hero__call .b span{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#9c968b;display:block;}
+.hero__call .b b{font-family:var(--mono);font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1;}
+.hero__call .b.hot b{color:var(--acc);}
+.hero__wx{margin-left:auto;text-align:right;font-size:12px;color:#c9c3b8;}
+.hero__wx b{font-family:var(--mono);color:#fff;}
+
+/* confirm cta */
+.confirm{background:var(--surface);border-radius:var(--r-md);padding:14px;margin-bottom:14px;box-shadow:inset 0 0 0 1.5px var(--st-warn);}
+.confirm__q{font-size:13px;font-weight:600;margin-bottom:3px;}
+.confirm__s{font-size:12px;color:var(--ink-faint);margin-bottom:12px;}
+.confirm__btns{display:flex;gap:9px;}
+.mbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:12px;border-radius:var(--r-sm);font-size:13.5px;font-weight:600;transition:.13s;}
+.mbtn--ok{background:var(--st-ok);color:#fff;}
+.mbtn--dark{background:var(--panel);color:#fff;}
+.mbtn--ghost{background:var(--surface-2);color:var(--ink-soft);}
+.mbtn--acc{background:var(--grad);color:#2B2A26;}
+.mbtn--full{width:100%;}
+
+/* confirmed status pills */
+.statusrow{display:flex;gap:9px;margin-bottom:14px;}
+.statusrow .mbtn{flex:1;}
+.confirmed-badge{display:flex;align-items:center;gap:8px;background:var(--st-ok-bg);color:#26694a;border-radius:var(--r-md);padding:12px 14px;font-size:13px;font-weight:600;margin-bottom:14px;}
+
+/* section card */
+.mcard{background:var(--surface);border-radius:var(--r-md);padding:15px 16px;margin-bottom:14px;}
+.mcard__h{display:flex;align-items:center;gap:8px;font-family:var(--head);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:12px;}
+.mcard__h svg{color:var(--ink-faint);}
+.mcard__h .link{margin-left:auto;font-family:var(--sans);font-size:11px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--st-info);}
+
+/* map */
+.mmap{height:130px;border-radius:12px;position:relative;overflow:hidden;margin-bottom:12px;
+  background:linear-gradient(0deg,transparent 27px,rgba(43,42,38,.05) 28px),linear-gradient(90deg,transparent 27px,rgba(43,42,38,.05) 28px),var(--surface-2);
+  background-size:28px 28px,28px 28px,100% 100%;}
+.mmap__r1{position:absolute;left:-5%;top:56%;width:110%;height:11px;background:#fff;transform:rotate(-6deg);box-shadow:0 0 0 1px var(--line);}
+.mmap__r2{position:absolute;left:40%;top:-10%;width:11px;height:120%;background:#fff;transform:rotate(5deg);box-shadow:0 0 0 1px var(--line);}
+.mmap__pin{position:absolute;left:44%;top:42%;width:24px;height:24px;border-radius:50% 50% 50% 2px;background:var(--st-bad);transform:rotate(45deg);box-shadow:0 5px 12px -3px rgba(206,54,47,.55);}
+.mmap__pin::after{content:"";position:absolute;inset:6px;border-radius:50%;background:#fff;}
+.addr{font-size:13px;line-height:1.55;}
+.addr b{font-weight:600;} .addr .muted{color:var(--ink-faint);}
+
+/* checklist */
+.chk{display:flex;align-items:center;gap:11px;padding:9px 0;font-size:13.5px;cursor:pointer;}
+.chk+.chk{box-shadow:0 -1px 0 var(--line);}
+.chk__box{width:21px;height:21px;border-radius:7px;border:1.5px solid var(--line-strong);flex:none;display:grid;place-items:center;color:#fff;transition:.12s;}
+.chk.on .chk__box{background:var(--st-ok);border-color:var(--st-ok);}
+.chk.on .chk__t{color:var(--ink-faint);text-decoration:line-through;}
+.chk__t{flex:1;}
+
+/* timeline mini */
+.mtl{display:flex;gap:12px;align-items:baseline;padding:7px 0;font-size:13px;}
+.mtl .t{font-family:var(--mono);font-weight:600;font-size:12.5px;width:44px;flex:none;}
+.mtl .dt{width:7px;height:7px;border-radius:50%;background:var(--ink-ghost);flex:none;align-self:center;}
+.mtl.hot .dt{background:var(--acc);} .mtl.meal .dt{background:var(--st-ok);}
+.mtl .l{flex:1;}
+
+/* contacts */
+.mct{display:flex;align-items:center;gap:11px;padding:9px 0;}
+.mct+.mct{box-shadow:0 -1px 0 var(--line);}
+.mct__ic{width:36px;height:36px;border-radius:11px;background:var(--surface-2);display:grid;place-items:center;color:var(--ink-soft);flex:none;}
+.mct__ic.sos{background:var(--st-bad-bg);color:var(--st-bad);}
+.mct__m{flex:1;min-width:0;}
+.mct__n{font-size:13.5px;font-weight:600;}
+.mct__r{font-size:11.5px;color:var(--ink-faint);}
+.mct__call{width:38px;height:38px;border-radius:12px;background:var(--st-ok-bg);color:var(--st-ok);display:grid;place-items:center;flex:none;}
+
+/* task rows */
+.mtask{display:flex;align-items:center;gap:11px;padding:11px 0;cursor:pointer;}
+.mtask+.mtask{box-shadow:0 -1px 0 var(--line);}
+.mtask__t{flex:1;font-size:13.5px;font-weight:500;}
+.mtask.on .mtask__t{color:var(--ink-faint);text-decoration:line-through;}
+.mtask__tag{font-size:10.5px;font-weight:600;color:var(--st-info);background:var(--st-info-bg);padding:2px 7px;border-radius:6px;}
+
+/* vertical stepper (screen 3) */
+.vstep{position:relative;padding-left:8px;margin-bottom:16px;}
+.vstep__i{display:flex;gap:14px;position:relative;padding-bottom:22px;}
+.vstep__i:last-child{padding-bottom:0;}
+.vstep__i::before{content:"";position:absolute;left:11px;top:24px;bottom:-2px;width:2px;background:var(--surface-3);}
+.vstep__i:last-child::before{display:none;}
+.vstep__i.done::before{background:var(--st-ok);}
+.vstep__dot{width:24px;height:24px;border-radius:50%;background:var(--surface-3);color:#fff;display:grid;place-items:center;font-size:12px;flex:none;z-index:1;}
+.vstep__i.done .vstep__dot{background:var(--st-ok);}
+.vstep__i.current .vstep__dot{background:var(--acc);color:#2B2A26;box-shadow:0 0 0 5px var(--acc-soft);}
+.vstep__t{font-size:14px;font-weight:600;padding-top:2px;}
+.vstep__i:not(.done):not(.current) .vstep__t{color:var(--ink-faint);}
+.vstep__s{font-size:11.5px;color:var(--ink-faint);margin-top:2px;}
+
+/* summary strip */
+.msum{background:var(--surface);border-radius:var(--r-md);padding:13px 15px;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+.msum__c{font-family:var(--mono);font-size:11px;font-weight:700;color:#8a6d16;background:var(--acc-soft);padding:2px 7px;border-radius:5px;}
+.msum__m{flex:1;min-width:0;}
+.msum__t{font-size:13.5px;font-weight:600;}
+.msum__s{font-size:11.5px;color:var(--ink-faint);}
+.msum__call{text-align:right;}
+.msum__call b{font-family:var(--mono);font-size:17px;font-weight:700;}
+.msum__call span{font-size:9.5px;color:var(--ink-faint);text-transform:uppercase;display:block;}
+
+/* tab bar */
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:74px;background:rgba(247,245,240,.9);backdrop-filter:blur(14px);
+  display:flex;align-items:flex-start;padding:9px 12px 0;z-index:40;box-shadow:0 -1px 0 var(--line);}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink-faint);font-size:10px;font-weight:500;}
+.tab.is-active{color:var(--ink);}
+.tab.is-active svg{color:var(--panel);}
+.tab .badge{position:absolute;transform:translate(11px,-3px);min-width:15px;height:15px;border-radius:9px;background:var(--st-bad);color:#fff;font-size:9px;font-weight:700;display:grid;place-items:center;padding:0 3px;}
+
+/* sticky action */
+.stickyact{position:absolute;left:0;right:0;bottom:0;padding:14px 16px calc(14px + env(safe-area-inset-bottom));
+  background:linear-gradient(0deg,var(--paper) 70%,transparent);z-index:35;}
+.hint{font-size:11px;color:var(--ink-faint);text-align:center;margin-top:9px;}
+.mnote{font-size:12px;color:var(--ink-soft);line-height:1.5;}
+</style>
+</head>
+<body>
+
+<div class="chead">
+  <div class="chead__logo">C</div>
+  <div>
+    <h1>CREW&nbsp;<b>OS</b> — Mobile «поле»</h1>
+    <p data-i18n="head.sub">Съёмочный день глазами фрилансера · Денис, 1-й ассистент оператора</p>
+  </div>
+  <div class="lang">
+    <button data-lang="ru" class="is-active">RU</button>
+    <button data-lang="en">EN</button>
+  </div>
+</div>
+
+<div class="rack">
+
+  <!-- ==================== SCREEN 1 — TODAY ==================== -->
+  <div class="phone">
+    <div class="device">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="statusbar__ic">
+          <svg width="17" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4" y="5" width="3" height="7" rx="1"/><rect x="8" y="3" width="3" height="9" rx="1"/><rect x="12" y="1" width="3" height="11" rx="1"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.5c2 0 3.8.8 5.1 2.1l1.1-1.1A9 9 0 0 0 8 .9 9 9 0 0 0 1.8 3.5l1.1 1.1A7 7 0 0 1 8 2.5zM8 6c1 0 2 .4 2.7 1.1l1.1-1.1A5.5 5.5 0 0 0 8 4.3c-1.5 0-2.9.6-3.8 1.7l1.1 1.1A4 4 0 0 1 8 6zm0 3.4 1.7-1.7A2.4 2.4 0 0 0 8 7a2.4 2.4 0 0 0-1.7.7z"/></svg>
+          <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="1" y="1.5" width="19" height="9" rx="2.5" stroke="currentColor"/><rect x="2.5" y="3" width="15" height="6" rx="1.5" fill="currentColor"/><rect x="21" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg>
+        </span></div>
+        <div class="scroll" id="s1scroll">
+          <div class="mtop">
+            <div class="mtop__ava">ДК</div>
+            <div class="mtop__m">
+              <div class="mtop__hi" data-i18n="s1.hi">Привет, Денис</div>
+              <div class="mtop__d" data-i18n="s1.date">Чт, 8 мая · 1 смена сегодня</div>
+            </div>
+            <div class="mtop__bell"><span class="dot"></span><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+          </div>
+
+          <div class="push">
+            <div class="push__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg></div>
+            <div class="push__t"><b data-i18n="s1.push.t">Call-time сдвинут на 30 мин раньше</b><br><span data-i18n="s1.push.s">Новый общий сбор — 08:00</span></div>
+          </div>
+
+          <div class="hero">
+            <div class="hero__tag"><span class="d"></span><span data-i18n="s1.today">Сегодня · Смена 1</span></div>
+            <div class="hero__title">Nike — весенний лукбук</div>
+            <div class="hero__loc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Студия «Ангар», зал B</div>
+            <div class="hero__call">
+              <div class="b hot"><span data-i18n="s1.mycall">Мой call-time</span><b>08:00</b></div>
+              <div class="b"><span data-i18n="s1.wrap">Отбой</span><b>20:00</b></div>
+              <div class="hero__wx"><span data-i18n="s1.weather">Облачно</span><br><b>+18°</b></div>
+            </div>
+          </div>
+
+          <div class="confirm" id="confirmCard">
+            <div class="confirm__q" data-i18n="s1.confirm.q">Подтвердите участие в смене</div>
+            <div class="confirm__s" data-i18n="s1.confirm.s">Продюсер ждёт вашего ответа с утра</div>
+            <div class="confirm__btns">
+              <button class="mbtn mbtn--ghost" id="declineBtn" data-i18n="s1.decline">Не смогу</button>
+              <button class="mbtn mbtn--ok" id="confirmBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="s1.confirm">Подтверждаю</span></button>
+            </div>
+          </div>
+
+          <div class="mcard">
+            <div class="mcard__h"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span data-i18n="s1.tasks">Мои задачи сегодня</span><span class="link">2</span></div>
+            <div class="mtask" onclick="this.classList.toggle('on')"><div class="chk__box"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></div><div class="mtask__t" data-i18n="s1.task1">Проверить комплект оптики</div><span class="mtask__tag" data-i18n="s1.dept.cam">Камера</span></div>
+            <div class="mtask" onclick="this.classList.toggle('on')"><div class="chk__box"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></div><div class="mtask__t" data-i18n="s1.task2">Зарядить аккумуляторы</div><span class="mtask__tag" data-i18n="s1.dept.cam">Камера</span></div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="tab is-active"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg><span data-i18n="tab.today">Сегодня</span></div>
+          <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg><span data-i18n="tab.shifts">Смены</span></div>
+          <div class="tab" style="position:relative"><span class="badge">2</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span data-i18n="tab.tasks">Задачи</span></div>
+          <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span data-i18n="tab.chat">Чат</span></div>
+          <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span data-i18n="tab.profile">Профиль</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="plabel"><b>1 · <span data-i18n="lbl.today">Сегодня</span></b> — <span data-i18n="lbl.today.d">пуш, моя смена, подтверждение участия</span></div>
+  </div>
+
+  <!-- ==================== SCREEN 2 — SHIFT DETAIL ==================== -->
+  <div class="phone">
+    <div class="device">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="statusbar__ic">
+          <svg width="17" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4" y="5" width="3" height="7" rx="1"/><rect x="8" y="3" width="3" height="9" rx="1"/><rect x="12" y="1" width="3" height="11" rx="1"/></svg>
+          <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="1" y="1.5" width="19" height="9" rx="2.5" stroke="currentColor"/><rect x="2.5" y="3" width="15" height="6" rx="1.5" fill="currentColor"/><rect x="21" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg>
+        </span></div>
+        <div class="scroll">
+          <div class="mback">
+            <div class="mback__btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></div>
+            <div class="mback__t" data-i18n="s2.title">Смена 1<span data-i18n="s2.date">Nike лукбук · Чт, 8 мая</span></div>
+          </div>
+
+          <div class="msum">
+            <span class="msum__c">P-241</span>
+            <div class="msum__m"><div class="msum__t" data-i18n="s2.role">1-й ассистент оператора</div><div class="msum__s" data-i18n="s2.dept">Камера · Артём Волков (DoP)</div></div>
+            <div class="msum__call"><b>08:00</b><span data-i18n="s2.call">мой call</span></div>
+          </div>
+
+          <div class="mcard">
+            <div class="mcard__h"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span data-i18n="s2.loc">Локация</span></div>
+            <div class="mmap"><div class="mmap__r1"></div><div class="mmap__r2"></div><div class="mmap__pin"></div></div>
+            <div class="addr"><b>Студия «Ангар», зал B</b><br><span class="muted">ул. Электрозаводская, 21, Москва</span><br><span class="muted" data-i18n="s2.metro">м. Электрозаводская · 8 мин пешком</span></div>
+            <button class="mbtn mbtn--dark mbtn--full" style="margin-top:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l19-9-9 19-2-8z"/></svg><span data-i18n="s2.route">Проложить маршрут</span></button>
+          </div>
+
+          <div class="mcard">
+            <div class="mcard__h"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 12l2 2 4-4"/></svg><span data-i18n="s2.bring">Что взять с собой</span></div>
+            <div class="chk on" onclick="this.classList.toggle('on')"><div class="chk__box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></div><div class="chk__t" data-i18n="s2.bring1">Паспорт и пропуск</div></div>
+            <div class="chk" onclick="this.classList.toggle('on')"><div class="chk__box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></div><div class="chk__t" data-i18n="s2.bring2">Чёрный верх (дресс-код)</div></div>
+            <div class="chk" onclick="this.classList.toggle('on')"><div class="chk__box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></div><div class="chk__t" data-i18n="s2.bring3">Тёплая одежда — съёмка у окна</div></div>
+          </div>
+
+          <div class="mcard">
+            <div class="mcard__h"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span data-i18n="s2.timing">Тайминг дня</span></div>
+            <div class="mtl hot"><span class="t">08:00</span><span class="dt"></span><span class="l" data-i18n="s2.t1">Общий сбор, завтрак</span></div>
+            <div class="mtl"><span class="t">10:00</span><span class="dt"></span><span class="l" data-i18n="s2.t2">Съёмочный блок 1</span></div>
+            <div class="mtl meal"><span class="t">13:00</span><span class="dt"></span><span class="l" data-i18n="s2.t3">Обед</span></div>
+            <div class="mtl"><span class="t">14:00</span><span class="dt"></span><span class="l" data-i18n="s2.t4">Съёмочный блок 2</span></div>
+            <div class="mtl"><span class="t">19:00</span><span class="dt"></span><span class="l" data-i18n="s2.t5">Отбой</span></div>
+          </div>
+
+          <div class="mcard">
+            <div class="mcard__h"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6z"/></svg><span data-i18n="s2.contacts">Контакты</span></div>
+            <div class="mct"><div class="mct__ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div><div class="mct__m"><div class="mct__n">Екатерина Р.</div><div class="mct__r" data-i18n="s2.producer">Продюсер</div></div><div class="mct__call"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></div></div>
+            <div class="mct"><div class="mct__ic sos"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></div><div class="mct__m"><div class="mct__n" data-i18n="s2.hosp">Ближайшая больница</div><div class="mct__r">ГКБ №29 · 3.2 км</div></div><div class="mct__call"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></div></div>
+          </div>
+        </div>
+        <div class="stickyact">
+          <button class="mbtn mbtn--dark mbtn--full" data-i18n="s2.status">Отметить статус →</button>
+        </div>
+      </div>
+    </div>
+    <div class="plabel"><b>2 · <span data-i18n="lbl.shift">Смена</span></b> — <span data-i18n="lbl.shift.d">call sheet моими глазами: карта, что взять, тайминг</span></div>
+  </div>
+
+  <!-- ==================== SCREEN 3 — STATUS ==================== -->
+  <div class="phone">
+    <div class="device">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="statusbar__ic">
+          <svg width="17" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4" y="5" width="3" height="7" rx="1"/><rect x="8" y="3" width="3" height="9" rx="1"/><rect x="12" y="1" width="3" height="11" rx="1"/></svg>
+          <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="1" y="1.5" width="19" height="9" rx="2.5" stroke="currentColor"/><rect x="2.5" y="3" width="15" height="6" rx="1.5" fill="currentColor"/><rect x="21" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg>
+        </span></div>
+        <div class="scroll">
+          <div class="mback">
+            <div class="mback__btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></div>
+            <div class="mback__t" data-i18n="s3.title">Мой статус<span data-i18n="s3.date">Nike лукбук · Смена 1</span></div>
+          </div>
+
+          <div class="confirmed-badge"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="s3.confirmed">Участие подтверждено · 07:12</span></div>
+
+          <div class="mcard">
+            <div class="mcard__h"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4"/></svg><span data-i18n="s3.progress">Статус смены</span></div>
+            <div class="vstep">
+              <div class="vstep__i done"><div class="vstep__dot"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></div><div><div class="vstep__t" data-i18n="s3.st1">Подтверждено</div><div class="vstep__s">07:12</div></div></div>
+              <div class="vstep__i current"><div class="vstep__dot">•</div><div><div class="vstep__t" data-i18n="s3.st2">В пути</div><div class="vstep__s" data-i18n="s3.st2s">отмечено 07:40 · ~20 мин до места</div></div></div>
+              <div class="vstep__i"><div class="vstep__dot"></div><div><div class="vstep__t" data-i18n="s3.st3">На месте</div></div></div>
+              <div class="vstep__i"><div class="vstep__dot"></div><div><div class="vstep__t" data-i18n="s3.st4">Смена завершена</div></div></div>
+            </div>
+          </div>
+
+          <div class="mcard">
+            <div class="mcard__h"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span data-i18n="s3.route">В пути на площадку</span></div>
+            <div class="mmap" style="height:120px"><div class="mmap__r1"></div><div class="mmap__r2"></div><div class="mmap__pin"></div></div>
+            <div class="mnote" data-i18n="s3.eta">Студия «Ангар» · прибытие ~08:00, к call-time</div>
+          </div>
+
+          <p class="mnote" data-i18n="s3.hint" style="text-align:center;padding:0 12px">Координатор видит ваш статус на дашборде студии в реальном времени.</p>
+        </div>
+        <div class="stickyact">
+          <button class="mbtn mbtn--acc mbtn--full" id="statusBtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span data-i18n="s3.mark">Отметить: На месте</span></button>
+          <div class="hint" data-i18n="s3.markhint">Свайп, когда доберётесь до площадки</div>
+        </div>
+      </div>
+    </div>
+    <div class="plabel"><b>3 · <span data-i18n="lbl.status">Статус</span></b> — <span data-i18n="lbl.status.d">в пути → на месте, видно координатору</span></div>
+  </div>
+
+</div>
+
+<script>
+const MI18N={
+ ru:{
+  "head.sub":"Съёмочный день глазами фрилансера · Денис, 1-й ассистент оператора",
+  "tab.today":"Сегодня","tab.shifts":"Смены","tab.tasks":"Задачи","tab.chat":"Чат","tab.profile":"Профиль",
+  "lbl.today":"Сегодня","lbl.today.d":"пуш, моя смена, подтверждение участия",
+  "lbl.shift":"Смена","lbl.shift.d":"call sheet моими глазами: карта, что взять, тайминг",
+  "lbl.status":"Статус","lbl.status.d":"в пути → на месте, видно координатору",
+  "s1.hi":"Привет, Денис","s1.date":"Чт, 8 мая · 1 смена сегодня",
+  "s1.push.t":"Call-time сдвинут на 30 мин раньше","s1.push.s":"Новый общий сбор — 08:00",
+  "s1.today":"Сегодня · Смена 1","s1.mycall":"Мой call-time","s1.wrap":"Отбой","s1.weather":"Облачно",
+  "s1.confirm.q":"Подтвердите участие в смене","s1.confirm.s":"Продюсер ждёт вашего ответа с утра",
+  "s1.decline":"Не смогу","s1.confirm":"Подтверждаю",
+  "s1.tasks":"Мои задачи сегодня","s1.task1":"Проверить комплект оптики","s1.task2":"Зарядить аккумуляторы","s1.dept.cam":"Камера",
+  "s1.confirmed":"Участие подтверждено","s1.enroute":"В пути","s1.onsite":"На месте",
+  "s2.title":"Смена 1","s2.date":"Nike лукбук · Чт, 8 мая","s2.role":"1-й ассистент оператора","s2.dept":"Камера · Артём Волков (DoP)","s2.call":"мой call",
+  "s2.loc":"Локация","s2.metro":"м. Электрозаводская · 8 мин пешком","s2.route":"Проложить маршрут",
+  "s2.bring":"Что взять с собой","s2.bring1":"Паспорт и пропуск","s2.bring2":"Чёрный верх (дресс-код)","s2.bring3":"Тёплая одежда — съёмка у окна",
+  "s2.timing":"Тайминг дня","s2.t1":"Общий сбор, завтрак","s2.t2":"Съёмочный блок 1","s2.t3":"Обед","s2.t4":"Съёмочный блок 2","s2.t5":"Отбой",
+  "s2.contacts":"Контакты","s2.producer":"Продюсер","s2.hosp":"Ближайшая больница","s2.status":"Отметить статус →",
+  "s3.title":"Мой статус","s3.date":"Nike лукбук · Смена 1","s3.confirmed":"Участие подтверждено · 07:12","s3.progress":"Статус смены",
+  "s3.st1":"Подтверждено","s3.st2":"В пути","s3.st2s":"отмечено 07:40 · ~20 мин до места","s3.st3":"На месте","s3.st4":"Смена завершена",
+  "s3.route":"В пути на площадку","s3.eta":"Студия «Ангар» · прибытие ~08:00, к call-time",
+  "s3.hint":"Координатор видит ваш статус на дашборде студии в реальном времени.","s3.mark":"Отметить: На месте","s3.markhint":"Свайп, когда доберётесь до площадки",
+  "s3.arrived":"Вы на месте · 07:58"
+ },
+ en:{
+  "head.sub":"A shoot day from the freelancer's side · Denis, 1st AC",
+  "tab.today":"Today","tab.shifts":"Shifts","tab.tasks":"Tasks","tab.chat":"Chat","tab.profile":"Profile",
+  "lbl.today":"Today","lbl.today.d":"push, my shift, confirm attendance",
+  "lbl.shift":"Shift","lbl.shift.d":"call sheet in my view: map, what to bring, schedule",
+  "lbl.status":"Status","lbl.status.d":"en route → on set, visible to coordinator",
+  "s1.hi":"Hi, Denis","s1.date":"Thu, May 8 · 1 shift today",
+  "s1.push.t":"Call time moved 30 min earlier","s1.push.s":"New general call — 08:00",
+  "s1.today":"Today · Day 1","s1.mycall":"My call time","s1.wrap":"Wrap","s1.weather":"Cloudy",
+  "s1.confirm.q":"Confirm your attendance","s1.confirm.s":"The producer is waiting for your reply",
+  "s1.decline":"Can't make it","s1.confirm":"Confirm",
+  "s1.tasks":"My tasks today","s1.task1":"Check the lens kit","s1.task2":"Charge the batteries","s1.dept.cam":"Camera",
+  "s1.confirmed":"Attendance confirmed","s1.enroute":"En route","s1.onsite":"On set",
+  "s2.title":"Day 1","s2.date":"Nike lookbook · Thu, May 8","s2.role":"1st AC","s2.dept":"Camera · Artyom Volkov (DoP)","s2.call":"my call",
+  "s2.loc":"Location","s2.metro":"Elektrozavodskaya metro · 8 min walk","s2.route":"Get directions",
+  "s2.bring":"What to bring","s2.bring1":"Passport & pass","s2.bring2":"Black top (dress code)","s2.bring3":"Warm clothing — window shots",
+  "s2.timing":"Day schedule","s2.t1":"General call, breakfast","s2.t2":"Shooting block 1","s2.t3":"Lunch","s2.t4":"Shooting block 2","s2.t5":"Wrap",
+  "s2.contacts":"Contacts","s2.producer":"Producer","s2.hosp":"Nearest hospital","s2.status":"Update status →",
+  "s3.title":"My status","s3.date":"Nike lookbook · Day 1","s3.confirmed":"Attendance confirmed · 07:12","s3.progress":"Shift status",
+  "s3.st1":"Confirmed","s3.st2":"En route","s3.st2s":"marked 07:40 · ~20 min away","s3.st3":"On set","s3.st4":"Shift wrapped",
+  "s3.route":"On the way to set","s3.eta":"«Angar» studio · arriving ~08:00, by call time",
+  "s3.hint":"The coordinator sees your status on the studio dashboard in real time.","s3.mark":"Mark: On set","s3.markhint":"Swipe when you reach the set",
+  "s3.arrived":"You're on set · 07:58"
+ }
+};
+let MLANG=new URLSearchParams(location.search).get('lang')||localStorage.getItem('crew-lang')||'ru';
+function mApply(l){
+  MLANG=l; document.documentElement.lang=l;
+  const d=MI18N[l];
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n'); if(d[k]!=null) el.textContent=d[k];});
+  document.querySelectorAll('.lang button').forEach(b=>b.classList.toggle('is-active',b.dataset.lang===l));
+}
+document.querySelectorAll('.lang button').forEach(b=>b.addEventListener('click',()=>{localStorage.setItem('crew-lang',b.dataset.lang);mApply(b.dataset.lang);}));
+/* live avatars */
+document.querySelectorAll('.mtop__ava,.cmt__ava').forEach(el=>{
+  const AVA={'ДК':'men/51','ЕР':'women/65','ИС':'women/12'};
+  const p=AVA[el.textContent.trim()]; if(!p||el.querySelector('svg,img')) return;
+  const img=new Image(); img.className='avaimg'; img.alt=''; img.referrerPolicy='no-referrer';
+  img.onload=()=>{ el.textContent=''; el.style.background='none'; el.style.color='transparent'; el.appendChild(img); };
+  img.src='https://randomuser.me/api/portraits/'+p+'.jpg';
+});
+
+/* screen 1: confirm attendance micro-interaction */
+document.getElementById('confirmBtn').addEventListener('click',()=>{
+  const card=document.getElementById('confirmCard');
+  card.style.boxShadow='inset 0 0 0 1.5px var(--st-ok)';
+  card.innerHTML='<div class="confirmed-badge" style="margin:0 0 12px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>'+MI18N[MLANG]['s1.confirmed']+' · 07:12</div><div class="statusrow" style="margin:0"><button class="mbtn mbtn--acc">'+MI18N[MLANG]['s1.enroute']+'</button><button class="mbtn mbtn--ghost">'+MI18N[MLANG]['s1.onsite']+'</button></div>';
+});
+
+/* screen 3: mark on-site */
+document.getElementById('statusBtn').addEventListener('click',function(){
+  const steps=document.querySelectorAll('#statusBtn')[0].closest('.screen').querySelectorAll('.vstep__i');
+  steps[1].classList.remove('current'); steps[1].classList.add('done');
+  steps[1].querySelector('.vstep__dot').innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>';
+  steps[2].classList.add('current'); steps[2].querySelector('.vstep__dot').textContent='•';
+  this.querySelector('span').textContent=MI18N[MLANG]['s3.arrived'];
+  this.classList.remove('mbtn--acc'); this.classList.add('mbtn--ok');
+});
+
+mApply(MLANG);
+</script>
+</body>
+</html>

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CREW OS — Operating system for a production studio · Case study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Tektur:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EAE7E0; --surface:#FFFFFF; --surface-2:#F1EEE9; --surface-3:#E3DED5;
+  --panel:#33322E; --panel-2:#403F39;
+  --ink:#2B2A26; --ink-soft:#6E6A62; --ink-faint:#9E9A90; --ink-ghost:#C0BBB0;
+  --line:rgba(43,42,38,.10); --line-strong:rgba(43,42,38,.16);
+  --acc:#F0C74E; --acc-soft:rgba(240,199,78,.18); --grad:linear-gradient(105deg,#F8DE86,#EFC64C);
+  --st-ok:#3E9B6E; --st-bad:#EC4B3B; --st-info:#2C7A93; --st-warn:#C07A1E;
+  --head:'Tektur','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --sans:'Golos Text',-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --mono:'Golos Text',ui-monospace,Menlo,monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;font-size:17px;line-height:1.65;}
+img{display:block;max-width:100%;} a{color:inherit;text-decoration:none;}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+.wrap{max-width:1120px;margin:0 auto;padding:0 32px;}
+.sec{padding:78px 0;border-top:1px solid var(--line);}
+h1,h2,h3{font-family:var(--head);letter-spacing:-.015em;line-height:1.06;font-weight:600;}
+h2{font-size:clamp(28px,3.9vw,42px);margin-top:14px;}
+h3{font-size:20px;letter-spacing:-.01em;line-height:1.2;margin-bottom:6px;}
+p{color:var(--ink-soft);} b,strong{color:var(--ink);font-weight:600;}
+.lead{font-size:clamp(18px,2vw,22px);line-height:1.5;color:var(--ink);}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#8a6d16;}
+.snum{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink-faint);}
+.sec-head{display:flex;gap:16px;align-items:baseline;margin-bottom:34px;}
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
+.col2-13{display:grid;grid-template-columns:.82fr 1.18fr;gap:48px;align-items:start;}
+@media(max-width:820px){.col2,.col2-13{grid-template-columns:1fr;gap:28px;}}
+
+/* nav */
+.topnav{position:sticky;top:0;z-index:50;background:rgba(234,231,224,.82);backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--line);}
+.topnav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px;}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--head);font-weight:700;letter-spacing:.06em;font-size:14px;}
+.brand .lg{width:24px;height:24px;border-radius:7px;background:var(--grad);display:grid;place-items:center;color:#2B2A26;font-weight:800;font-size:13px;}
+.brand b{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.topnav nav{display:flex;gap:22px;font-size:13.5px;font-weight:500;}
+.topnav nav a{color:var(--ink-soft);} .topnav nav a:hover{color:var(--ink);}
+@media(max-width:820px){.topnav nav{display:none;}}
+.pill{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 16px;border-radius:999px;background:var(--panel);color:#fff;font-size:13.5px;font-weight:600;}
+.pill:hover{background:var(--panel-2);}
+.pill svg{width:15px;height:15px;stroke:currentColor;fill:none;}
+
+/* hero */
+.hero{padding:64px 0 8px;}
+.hero__code{font-family:var(--mono);font-size:13px;font-weight:600;color:#8a6d16;background:var(--acc-soft);padding:3px 11px;border-radius:20px;display:inline-block;}
+.hero h1{font-size:clamp(48px,9vw,104px);letter-spacing:-.02em;line-height:.95;margin-top:22px;}
+.hero h1 b{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-weight:600;}
+.hero .tag{margin-top:24px;max-width:640px;}
+.metarow{display:flex;flex-wrap:wrap;gap:34px;margin-top:36px;padding-top:24px;border-top:1px solid var(--line);}
+.metarow div span{display:block;font-size:11.5px;color:var(--ink-faint);font-weight:600;letter-spacing:.05em;text-transform:uppercase;}
+.metarow div b{font-weight:600;font-size:15px;}
+
+/* browser-chrome shot with live scaled iframe */
+.shot{border-radius:16px;overflow:hidden;background:var(--surface);box-shadow:0 1px 2px rgba(43,42,38,.05),0 40px 80px -40px rgba(43,42,38,.4);border:1px solid var(--line);}
+.shot__bar{display:flex;align-items:center;gap:8px;padding:11px 15px;background:var(--surface-2);border-bottom:1px solid var(--line);}
+.shot__dots{display:flex;gap:6px;} .shot__dots i{width:11px;height:11px;border-radius:50%;background:var(--surface-3);}
+.shot__url{font-family:var(--mono);font-size:11.5px;color:var(--ink-faint);background:var(--surface);padding:4px 12px;border-radius:7px;margin:0 auto;}
+.shot__vp{position:relative;width:100%;overflow:hidden;background:var(--paper);}
+.shot__vp iframe{position:absolute;top:0;left:0;border:0;transform-origin:top left;background:var(--paper);}
+figure{margin:0;} figcaption{font-size:13px;color:var(--ink-faint);margin-top:12px;padding:0 2px;}
+figcaption b{color:var(--ink-soft);font-weight:600;}
+
+/* solution blocks */
+.solution{padding:26px 0;border-top:1px solid var(--line);}
+.solution:first-child{border-top:0;}
+.solution .tags{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--surface);color:var(--ink-soft);border:1px solid var(--line);}
+.tag--p{background:var(--st-bad);color:#fff;border-color:transparent;}
+.tag--s{background:var(--st-ok);color:#fff;border-color:transparent;}
+.pline{display:flex;gap:10px;font-size:15px;margin-bottom:7px;}
+.pline b{flex:none;width:74px;color:var(--ink-faint);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;padding-top:3px;}
+
+/* chips grid (design system) */
+.dsgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px;}
+@media(max-width:820px){.dsgrid{grid-template-columns:1fr 1fr;}}
+.dscard{background:var(--surface);border-radius:14px;padding:16px 17px;border:1px solid var(--line);}
+.dscard h3{font-size:15px;margin-bottom:5px;}
+.dscard p{font-size:13.5px;line-height:1.5;}
+.dschips{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px;}
+.dschip{font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;}
+.b-ok{background:#E0F1E8;color:#26694a;} .b-info{background:#E0EEF2;color:#1d5a6d;}
+.b-warn{background:#F8EBD3;color:#8a5710;} .b-bad{background:#FBE3DF;color:#a5322a;}
+.b-draft{background:#ECE9E3;color:#6c665c;} .b-acc{background:var(--acc-soft);color:#8a6d16;}
+
+/* gallery */
+.gallery{display:flex;flex-direction:column;gap:52px;}
+
+/* cta */
+.cta{background:var(--panel);color:#fff;border-radius:20px;padding:44px 40px;text-align:center;}
+.cta h2{color:#fff;} .cta p{color:#c9c3b8;max-width:560px;margin:12px auto 24px;}
+.cta__btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.pill--acc{background:var(--grad);color:#2B2A26;} .pill--acc:hover{filter:brightness(1.04);}
+.pill--ghost{background:rgba(255,255,255,.1);color:#fff;} .pill--ghost:hover{background:rgba(255,255,255,.18);}
+
+.foot{padding:40px 0 60px;color:var(--ink-faint);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+ul.clean{list-style:none;} ul.clean li{position:relative;padding-left:20px;margin-bottom:9px;color:var(--ink-soft);font-size:15px;}
+ul.clean li::before{content:"";position:absolute;left:0;top:9px;width:7px;height:7px;border-radius:2px;background:var(--acc);}
+</style>
+</head>
+<body>
+
+<header class="topnav">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="lg">C</span>CREW&nbsp;<b>OS</b></a>
+    <nav>
+      <a href="#context">Context</a>
+      <a href="#roles">Roles</a>
+      <a href="#ia">Architecture</a>
+      <a href="#decisions">UX decisions</a>
+      <a href="#system">Design system</a>
+      <a href="#screens">Screens</a>
+    </nav>
+    <a class="pill" href="prototype.html" target="_blank">Open prototype <svg viewBox="0 0 24 24" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+  </div>
+</header>
+
+<a id="top"></a>
+<section class="wrap hero">
+  <span class="hero__code">B2B · SaaS concept</span>
+  <h1>CREW&nbsp;<b>OS</b></h1>
+  <p class="lead tag">The operating system for a commercial production studio — where projects, crew, gear, budgets, approvals and client access finally live in one place.</p>
+  <div class="metarow">
+    <div><span>Role</span><b>Product &amp; visual design</b></div>
+    <div><span>Platforms</span><b>Web (HQ) + Mobile (field)</b></div>
+    <div><span>Scope</span><b>10 hi-fi · ~43 in IA</b></div>
+    <div><span>Language</span><b>RU-first · EN toggle</b></div>
+    <div><span>Year</span><b>2026</b></div>
+  </div>
+</section>
+
+<section class="wrap" style="padding-top:22px;padding-bottom:20px;">
+  <figure class="shot">
+    <div class="shot__bar"><span class="shot__dots"><i></i><i></i><i></i></span><span class="shot__url">crew-os / dashboard</span></div>
+    <div class="shot__vp" data-base="1440" data-h="900"><iframe loading="lazy" src="prototype.html?lang=en#dash"></iframe></div>
+  </figure>
+  <figcaption><b>Studio dashboard</b> — the operational home: active projects, resource conflicts, what's awaiting your approval, money, and the next shifts. Every widget links straight into the screen behind it.</figcaption>
+</section>
+
+<!-- 01 -->
+<section class="sec" id="context">
+  <div class="wrap">
+    <div class="sec-head"><span class="snum">01</span><span class="eyebrow">Context &amp; positioning</span></div>
+    <div class="col2-13">
+      <h2>Not a tool for the director. A tool for the producer.</h2>
+      <div>
+        <p class="lead" style="margin-bottom:18px">The market leaders — StudioBinder, Yamdu, Celtx — are built for <b>film</b>: script → breakdown → stripboard → call sheet. Heavy, "from-the-screenplay" instruments.</p>
+        <p style="margin-bottom:16px">But commercial production — ad shoots, brand content, events, photo — has a different pain. Not <em>"how do I break down a script,"</em> but <b>"how do I run many client projects in parallel without losing money, people and gear."</b></p>
+        <p>CREW OS is positioned as the <b>studio's operating system</b>: the place where projects, the team, equipment, estimates, approvals and client access all live. Software for the producer and the production manager who hold the business together.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-head"><span class="snum">02</span><span class="eyebrow">Problem &amp; hypothesis</span></div>
+    <div class="col2">
+      <div>
+        <h3>Today</h3>
+        <p>The producer lives in Excel + Google Sheets + messengers. An operator gets double-booked across two shoots. The budget quietly drifts from the plan. A client's rejection is buried three chat threads deep. Nothing is a system — everything is a copy-paste.</p>
+      </div>
+      <div>
+        <h3>Hypothesis</h3>
+        <p>A single operational surface — with <b>multi-project resource management and conflict detection</b>, <b>real-time plan-vs-actual budgets</b>, and <b>versioned client approvals</b> — turns that chaos into a system the studio can actually run on.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 -->
+<section class="sec" id="roles">
+  <div class="wrap">
+    <div class="sec-head"><span class="snum">03</span><span class="eyebrow">Roles &amp; permissions</span></div>
+    <h2 style="max-width:760px;margin-bottom:26px">One project screen looks different to seven roles.</h2>
+    <div class="col2-13">
+      <div>
+        <p style="margin-bottom:16px">From Owner to Client, everyone touches the same project — but sees a different slice of it. So RBAC is designed as a <b>system</b>, not as "hide a button."</p>
+        <p style="margin-bottom:16px">The matrix maps <b>entity × role × permission</b> — view / comment / edit / approve / no-access — across 12 entities and 7 roles. Cells are editable; the same budget line renders four different ways depending on who's looking, down to a real 403 state.</p>
+        <ul class="clean">
+          <li>Owner / Admin — the whole studio</li>
+          <li>Producer — own projects, end to end</li>
+          <li>Coordinator, Dept head — scoped down</li>
+          <li>Freelancer, Vendor — only their part</li>
+          <li>Client — the portal, nothing internal</li>
+        </ul>
+      </div>
+      <figure class="shot">
+        <div class="shot__bar"><span class="shot__dots"><i></i><i></i><i></i></span><span class="shot__url">crew-os / settings / roles</span></div>
+        <div class="shot__vp" data-base="1440" data-h="940"><iframe loading="lazy" src="prototype.html?lang=en#settings"></iframe></div>
+        <figcaption><b>RBAC matrix</b> — 84 permission cells + a live "one component, four permission states" preview.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 04 -->
+<section class="sec" id="ia">
+  <div class="wrap">
+    <div class="sec-head"><span class="snum">04</span><span class="eyebrow">Architecture &amp; platform strategy</span></div>
+    <div class="col2-13">
+      <h2>Web is the HQ.<br>Mobile is the field.</h2>
+      <div>
+        <p style="margin-bottom:16px"><b>Web (desktop)</b> is where the heavy work happens — planning, estimates, resources, dense tables, approvals, analytics. The producer spends the day here.</p>
+        <p style="margin-bottom:16px"><b>Mobile</b> is the shoot day — see your call sheet, confirm attendance, snap the set, mark "en route / on set." Minimum input, maximum "glanced → got it → confirmed."</p>
+        <p>The principle that ties them: <b>same data, a different slice per context.</b> A shift is a row in the web timeline — and a "today" card on the phone. One object, two representations.</p>
+      </div>
+    </div>
+    <figure class="shot" style="margin-top:36px">
+      <div class="shot__bar"><span class="shot__dots"><i></i><i></i><i></i></span><span class="shot__url">crew-os / mobile — the field app</span></div>
+      <div class="shot__vp" data-base="1340" data-h="860"><iframe loading="lazy" src="mobile.html?lang=en"></iframe></div>
+      <figcaption><b>Mobile "field" app</b> — today, the shift call-sheet in my view, and attendance / status. The freelancer's status is visible to the coordinator on the studio dashboard in real time.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 05 -->
+<section class="sec" id="decisions">
+  <div class="wrap">
+    <div class="sec-head"><span class="snum">05</span><span class="eyebrow">Key UX decisions</span></div>
+    <h2 style="max-width:640px;margin-bottom:30px">Four problems, four systemic answers.</h2>
+
+    <div class="solution">
+      <div class="tags"><span class="tag tag--p">Problem</span><span class="tag tag--s">Solution</span></div>
+      <div class="col2-13">
+        <div>
+          <div class="pline"><b>Problem</b><span>People and gear are shared across projects — and get double-booked with no warning.</span></div>
+          <div class="pline"><b>Solution</b><span>A shared resource pool with an occupancy timeline that <b>detects overlaps</b> and offers a fix: reschedule the shift, find a replacement, or request from the other project's producer. Overlap days are hatched red; each conflict card shows the exact clashing interval.</span></div>
+        </div>
+        <figure class="shot">
+          <div class="shot__bar"><span class="shot__dots"><i></i><i></i><i></i></span><span class="shot__url">crew-os / resources</span></div>
+          <div class="shot__vp" data-base="1440" data-h="900"><iframe loading="lazy" src="prototype.html?lang=en#resources"></iframe></div>
+        </figure>
+      </div>
+    </div>
+
+    <div class="solution">
+      <div class="col2-13">
+        <div>
+          <div class="pline"><b>Problem</b><span>Budgets drift from the plan and no one notices until it's too late.</span></div>
+          <div class="pline"><b>Solution</b><span>A dense <b>estimate → committed → actual</b> table with variance highlighted per line, grouped by department, with drill-down to <em>why</em> a line went over — tied back to the very schedule conflict that caused it.</span></div>
+        </div>
+        <figure class="shot">
+          <div class="shot__bar"><span class="shot__dots"><i></i><i></i><i></i></span><span class="shot__url">crew-os / project / budget</span></div>
+          <div class="shot__vp" data-base="1440" data-h="900"><iframe loading="lazy" src="prototype.html?lang=en&tab=budget#project"></iframe></div>
+        </figure>
+      </div>
+    </div>
+
+    <div class="solution">
+      <div class="col2-13">
+        <div>
+          <div class="pline"><b>Problem</b><span>Client approvals get lost in chat; nobody knows which version was signed off.</span></div>
+          <div class="pline"><b>Solution</b><span>A versioned approval flow — <b>draft → sent → in review → changes → approved</b> — with a <b>diff</b> that shows exactly what changed between v1 and v2, and a threaded discussion pinned to the line in question.</span></div>
+        </div>
+        <figure class="shot">
+          <div class="shot__bar"><span class="shot__dots"><i></i><i></i><i></i></span><span class="shot__url">crew-os / project / approvals</span></div>
+          <div class="shot__vp" data-base="1440" data-h="940"><iframe loading="lazy" src="prototype.html?lang=en&tab=approvals#project"></iframe></div>
+        </figure>
+      </div>
+    </div>
+
+    <div class="solution">
+      <div class="col2-13">
+        <div>
+          <div class="pline"><b>Problem</b><span>Call sheets are static PDFs — no one knows who actually got it or confirmed.</span></div>
+          <div class="pline"><b>Solution</b><span>A call sheet with a builder/preview toggle, <b>personal call times</b> per crew member, and live <b>delivery &amp; confirmation status</b> — 9 of 14 confirmed, one declined and flagged for replacement.</span></div>
+        </div>
+        <figure class="shot">
+          <div class="shot__bar"><span class="shot__dots"><i></i><i></i><i></i></span><span class="shot__url">crew-os / project / call sheet</span></div>
+          <div class="shot__vp" data-base="1440" data-h="940"><iframe loading="lazy" src="prototype.html?lang=en&tab=schedule#project"></iframe></div>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 -->
+<section class="sec" id="system">
+  <div class="wrap">
+    <div class="sec-head"><span class="snum">06</span><span class="eyebrow">Design system</span></div>
+    <h2 style="max-width:720px;margin-bottom:14px">A system that keeps clarity in a dense interface.</h2>
+    <p class="lead" style="max-width:760px;margin-bottom:30px">Ashy-paper canvas, Helvetica headers over Inter data type with tabular figures, one soft-yellow accent, glass where it earns it, and — deliberately — no dividers: separation by fills, not lines.</p>
+    <div class="dsgrid">
+      <div class="dscard"><h3>Status language</h3><p>One badge vocabulary across projects, shifts, approvals, payments and resources.</p><div class="dschips"><span class="dschip b-draft">Draft</span><span class="dschip b-info">In review</span><span class="dschip b-warn">Changes</span><span class="dschip b-ok">Approved</span><span class="dschip b-bad">Conflict</span></div></div>
+      <div class="dscard"><h3>The table as a system</h3><p>Sort, filter, inline edit, bulk-select, density, sticky headers — plus empty / loading / error states.</p><div class="dschips"><span class="dschip b-draft">Comfortable</span><span class="dschip b-acc">Compact</span></div></div>
+      <div class="dscard"><h3>Access &amp; 403</h3><p>A permission chip vocabulary and a real no-access pattern, driven by the RBAC matrix.</p><div class="dschips"><span class="dschip b-ok">Edit</span><span class="dschip" style="background:#EEE4FA;color:#6b3fa8">Approve</span><span class="dschip b-info">Comment</span><span class="dschip b-draft">View</span></div></div>
+      <div class="dscard"><h3>Diff component</h3><p>Added / removed / changed rows with old → new values and a delta chip — for approval versions.</p><div class="dschips"><span class="dschip b-ok">+ added</span><span class="dschip b-bad">− removed</span><span class="dschip b-warn">~ changed</span></div></div>
+      <div class="dscard"><h3>Status-flow stepper</h3><p>A reusable pipeline used for approvals and for the mobile attendance flow.</p><div class="dschips"><span class="dschip b-ok">done</span><span class="dschip b-acc">current</span><span class="dschip b-draft">upcoming</span></div></div>
+      <div class="dscard"><h3>Web ↔ mobile</h3><p>The same "shift" object: a row in the desktop timeline, a "today" card on the phone.</p><div class="dschips"><span class="dschip b-draft">1 object</span><span class="dschip b-acc">2 views</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 07 -->
+<section class="sec" id="screens">
+  <div class="wrap">
+    <div class="sec-head"><span class="snum">07</span><span class="eyebrow">Hi-fi screens</span></div>
+    <h2 style="margin-bottom:32px">The full contour, live.</h2>
+    <div class="gallery">
+      <figure class="shot">
+        <div class="shot__bar"><span class="shot__dots"><i></i><i></i><i></i></span><span class="shot__url">crew-os / client portal</span></div>
+        <div class="shot__vp" data-base="1440" data-h="940"><iframe loading="lazy" src="prototype.html?lang=en#client"></iframe></div>
+        <figcaption><b>Client portal</b> — a separate, stripped-down contour. Approvals to sign off, the approved estimate (only agreed figures — no internal actuals or margin), milestones and deliverables. A live demonstration of the "Client" RBAC slice.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 08 -->
+<section class="sec">
+  <div class="wrap">
+    <div class="cta">
+      <span class="eyebrow" style="color:var(--acc)">Live &amp; interactive</span>
+      <h2>Walk through it yourself.</h2>
+      <p>The whole thing is a working, self-contained prototype — bilingual (RU / EN), clickable end to end. Happy path: launch a project → approve the estimate → generate the call sheet. Sad path: a resource conflict to resolve.</p>
+      <div class="cta__btns">
+        <a class="pill pill--acc" href="prototype.html" target="_blank">Open web prototype <svg viewBox="0 0 24 24" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+        <a class="pill pill--ghost" href="mobile.html" target="_blank">Open mobile "field" <svg viewBox="0 0 24 24" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 09 -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-head"><span class="snum">09</span><span class="eyebrow">Reflection</span></div>
+    <div class="col2">
+      <div>
+        <h3>What the case set out to prove</h3>
+        <p>That a B2B product can carry genuinely complex logic — multi-role permissions, dense data, live states, versioned approvals, plan-vs-actual — and still stay legible. The through-line helps: one story (a gaffer's extra day) travels from a resource conflict, into a budget overrun, into an approval diff, to the client, onto a call sheet, and back to the coordinator's dashboard.</p>
+      </div>
+      <div>
+        <h3>Where I'd push further</h3>
+        <ul class="clean">
+          <li>Real finance visualization on the studio level (cashflow, P&amp;L per project)</li>
+          <li>An offline field mode — shoots happen in basements and forests</li>
+          <li>A designed notification system across web and mobile</li>
+          <li>Template libraries for estimates and call sheets</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap foot">
+  <span>CREW OS — B2B production-management concept · design case, 2026</span>
+  <span><a href="prototype.html" style="color:var(--ink-soft)">Prototype ↗</a> &nbsp;·&nbsp; <a href="mobile.html" style="color:var(--ink-soft)">Mobile ↗</a></span>
+</div>
+
+<script>
+function scaleShots(){
+  document.querySelectorAll('.shot__vp').forEach(vp=>{
+    const base=+vp.dataset.base, h=+vp.dataset.h, w=vp.clientWidth, s=w/base;
+    vp.style.height=(h*s)+'px';
+    const f=vp.querySelector('iframe');
+    f.style.width=base+'px'; f.style.height=h+'px'; f.style.transform='scale('+s+')';
+  });
+}
+window.addEventListener('resize',scaleShots);
+window.addEventListener('load',scaleShots);
+document.addEventListener('DOMContentLoaded',scaleShots);
+requestAnimationFrame(scaleShots);
+setTimeout(scaleShots,150);
+setTimeout(scaleShots,600);
+</script>
+</body>
+</html>
