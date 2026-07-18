@@ -2,7 +2,8 @@
 .claude/
 
 # Font source files — the font is already embedded in index.html as base64
-fonts/
+# (root only: kern/fonts/ must be published)
+/fonts/
 
 # In-Between case — publish only case.html + prototype.html + img/.
 # Exclude heavy Behance export and internal working files.
