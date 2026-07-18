@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KERN&nbsp;— кейс · Natalya Valkova</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400..800;1,400..600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFFFFF; --paper:#F4F2ED; --ink:#131211; --ink-soft:#5C5950; --ink-faint:#9A968C;
+  --line:rgba(19,18,17,.10);
+  --acc:#4B4DED; --acc-deep:#3336C8; --acc-soft:#EDEEFD;
+  --acid:#D8F34E;
+  --display:'Neue Haas Grotesk Display Pro','NeueHaasGroteskDisplayPro','Hanken Grotesk',sans-serif;
+  --sans:'Inter',-apple-system,'Helvetica Neue',Arial,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;overflow-x:clip;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;
+  font-size:17px;line-height:1.7;}
+img{display:block;max-width:100%;}
+a{color:inherit;}
+
+.wrap{max-width:1120px;margin:0 auto;padding:0 clamp(20px,4.5vw,32px);}
+.sec{padding-top:84px;padding-bottom:84px;}
+.eyebrow{font-family:var(--display);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--acc-deep);}
+.snum{font-family:var(--display);font-size:14px;font-weight:600;color:var(--ink-faint);letter-spacing:.04em;}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.03em;line-height:1.02;font-weight:600;}
+h2{font-size:clamp(30px,4.4vw,50px);margin-top:14px;}
+h3{font-size:22px;letter-spacing:-.02em;line-height:1.15;}
+p{color:var(--ink-soft);}
+p b{color:var(--ink);font-weight:600;}
+.lead{font-size:clamp(19px,2.1vw,23px);line-height:1.55;color:var(--ink);}
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;}
+.col2-13{display:grid;grid-template-columns:0.85fr 1.15fr;gap:60px;align-items:start;}
+.sec-head{display:flex;gap:16px;align-items:baseline;border-top:1.5px solid var(--ink);padding-top:18px;margin-bottom:40px;}
+
+.topnav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.86);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);}
+.topnav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px;gap:20px;}
+.crumbs{display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:13px;font-weight:500;white-space:nowrap;}
+.crumbs a{text-decoration:none;color:var(--ink-soft);transition:color .2s;}
+.crumbs a:hover{color:var(--ink);}
+.crumbs .sep{color:var(--ink-faint);}
+.crumbs b{font-weight:600;color:var(--ink);}
+.crumbs .home{font-weight:700;letter-spacing:-.01em;color:var(--ink);}
+.topnav nav{display:flex;gap:22px;font-family:var(--display);font-size:13px;font-weight:500;}
+.topnav nav a{color:var(--ink-soft);text-decoration:none;}
+.topnav nav a:hover{color:var(--ink);}
+.nav-right{display:flex;align-items:center;gap:16px;}
+.lang-pill{display:flex;gap:6px;}
+.lang-btn{font-family:var(--display);font-size:11px;font-weight:600;letter-spacing:.08em;
+  background:none;border:none;cursor:pointer;color:var(--ink-faint);transition:color .15s;padding:4px 2px;}
+.lang-btn.active{color:var(--ink);text-decoration:underline;text-underline-offset:4px;}
+.pill{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 18px;border-radius:999px;
+  background:var(--ink);color:#fff;font-family:var(--display);font-size:14px;font-weight:600;text-decoration:none;}
+.pill--acid{background:var(--acid);color:var(--ink);}
+.pill svg{width:16px;height:16px;stroke:currentColor;fill:none;}
+
+.hero{padding-top:70px;padding-bottom:64px;}
+.hero h1{font-size:clamp(42px,7.4vw,92px);letter-spacing:-.045em;line-height:.94;font-weight:650;}
+.hero h1 em{font-style:normal;color:var(--acc-deep);}
+.hero .tag{margin-top:26px;max-width:680px;}
+.metarow{display:flex;flex-wrap:wrap;gap:38px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);}
+.metarow div span{display:block;font-family:var(--display);font-size:13px;color:var(--ink-faint);font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+.metarow div b{font-weight:600;font-size:16px;}
+.heroshot{margin:50px 0 0;}
+.shotimg{width:100%;border-radius:20px;box-shadow:0 30px 64px rgba(0,0,0,.14);border:1px solid var(--line);}
+figure{margin:0;}
+figcaption{font-size:14px;color:var(--ink-faint);margin-top:14px;}
+figcaption b{color:var(--ink-soft);font-weight:600;}
+
+.band{background:var(--ink);color:#fff;}
+.band .eyebrow{color:var(--acid);}
+.band p{color:rgba(255,255,255,.66);}
+.band p b{color:#fff;}
+.band h2,.band h3{color:#fff;}
+.band .sec-head{border-top-color:rgba(255,255,255,.3);}
+.band figcaption{color:rgba(255,255,255,.45);}
+.band figcaption b{color:rgba(255,255,255,.75);}
+.statbig{font-family:var(--display);font-size:clamp(46px,7vw,86px);font-weight:650;letter-spacing:-.04em;line-height:.95;}
+.statbig em{font-style:normal;color:var(--acid);}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;margin-top:50px;}
+.statgrid .k{font-size:14px;color:rgba(255,255,255,.6);margin-top:10px;max-width:250px;}
+
+.quote{font-family:var(--display);font-size:clamp(26px,3.6vw,42px);font-weight:600;letter-spacing:-.025em;line-height:1.18;color:var(--ink);}
+.quote em{font-style:normal;color:var(--acc-deep);}
+
+.cs{display:grid;grid-template-columns:0.9fr 1.1fr;gap:56px;align-items:center;padding:56px 0;border-top:1px solid var(--line);}
+.cs:first-of-type{border-top:0;}
+.cs .tag-chal{display:inline-block;font-family:var(--display);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--acc-deep);background:var(--acc-soft);padding:4px 11px;border-radius:7px;margin-bottom:16px;}
+.cs h3{font-size:27px;margin-bottom:14px;}
+.cs--rev{direction:rtl;}
+.cs--rev>*{direction:ltr;}
+.band .cs{border-top-color:rgba(255,255,255,.14);}
+.band .cs .tag-chal{background:rgba(216,243,78,.16);color:var(--acid);}
+
+.tokens{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;}
+.swatch{display:flex;flex-direction:column;gap:8px;}
+.swatch .chip{width:84px;height:64px;border-radius:12px;border:1px solid var(--line);}
+.swatch span{font-size:12px;color:var(--ink-faint);font-weight:500;}
+.dscols{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:36px;}
+.dscol{background:var(--paper);border-radius:18px;padding:22px;}
+.dscol h3{font-size:16px;margin-bottom:12px;}
+.dscol ul{list-style:none;font-size:14px;color:var(--ink-soft);line-height:1.9;}
+.dscol li{padding-left:18px;position:relative;}
+.dscol li::before{content:"";position:absolute;left:0;top:11px;width:6px;height:6px;border-radius:50%;background:var(--acc);}
+
+.gallery{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px;}
+
+.proto{display:grid;grid-template-columns:1fr 1.1fr;gap:56px;align-items:center;}
+.proto .btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px;}
+
+.refl{display:grid;grid-template-columns:1fr 1fr;gap:48px;}
+.refl ul{list-style:none;}
+.refl li{padding:16px 0;border-top:1px solid var(--line);font-size:16px;color:var(--ink-soft);}
+.refl li b{color:var(--ink);font-weight:600;}
+.band .refl li{color:rgba(255,255,255,.66);border-top-color:rgba(255,255,255,.14);}
+.band .refl li b{color:#fff;}
+
+footer{background:var(--ink);color:#fff;padding:70px 0;}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px;}
+footer h2{color:#fff;font-size:34px;}
+footer a{color:rgba(255,255,255,.7);text-decoration:none;font-size:15px;}
+
+@media (max-width:860px){
+  body{font-size:16px;}
+  .col2,.col2-13,.cs,.proto,.refl{grid-template-columns:1fr;gap:34px;}
+  .cs--rev{direction:ltr;}
+  .statgrid{grid-template-columns:repeat(2,1fr);}
+  .gallery{grid-template-columns:1fr;}
+  .dscols{grid-template-columns:1fr;}
+  .topnav nav{display:none;}
+  .crumbs .crumb-mid{display:none;}
+}
+@media (max-width:700px){
+  .topnav .pill{display:none;}
+  .topnav .wrap{gap:10px;}
+  .crumbs{gap:6px;font-size:12px;}
+  .statgrid{grid-template-columns:1fr!important;}
+}
+</style>
+</head>
+<body id="top">
+
+<div class="topnav"><div class="wrap">
+  <div class="crumbs">
+    <a class="home" href="../index.html">NV.</a>
+    <span class="sep">/</span>
+    <a href="../index.html" data-ru="Главная" data-en="Home">Главная</a>
+    <span class="sep crumb-mid">/</span>
+    <a class="crumb-mid" href="../index.html#sections" data-ru="Работы" data-en="Work">Работы</a>
+    <span class="sep">/</span>
+    <b>KERN</b>
+  </div>
+  <nav>
+    <a href="#context" data-ru="Контекст" data-en="Context">Контекст</a>
+    <a href="#brand" data-ru="Бренд-язык" data-en="Brand language">Бренд-язык</a>
+    <a href="#platform" data-ru="Платформа" data-en="Platform">Платформа</a>
+    <a href="#system" data-ru="Дизайн-система" data-en="Design system">Дизайн-система</a>
+    <a href="#live" data-ru="Живое" data-en="Live">Живое</a>
+  </nav>
+  <div class="nav-right">
+    <div class="lang-pill">
+      <button class="lang-btn active" data-lang="ru" onclick="setLang('ru')">RU</button>
+      <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+    </div>
+    <a class="pill pill--acid" href="landing.html" target="_blank"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg><span data-ru="Лендинг" data-en="Landing">Лендинг</span></a>
+  </div>
+</div></div>
+
+<!-- hero -->
+<header class="wrap hero">
+  <div class="eyebrow" data-ru="KERN · Кейс&nbsp;— продукт, бренд и&nbsp;типографика · SaaS / Design Ops" data-en="KERN · Case study&nbsp;— product, brand &amp; typography · SaaS / Design Ops">KERN · Кейс&nbsp;— продукт, бренд и&nbsp;типографика · SaaS / Design Ops</div>
+  <h1 data-ru="Типографика как <em>система</em>, а&nbsp;не&nbsp;как получится." data-en="Typography as a&nbsp;<em>system</em>, not a&nbsp;guess.">Типографика как <em>система</em>, а&nbsp;не&nbsp;как получится.</h1>
+  <p class="lead tag" data-ru="KERN&nbsp;— концепт SaaS-платформы, где бренд-команды собирают и&nbsp;версионируют свою типографику: шкалы, токены, адаптивные правила, проверки читаемости и&nbsp;экспорт прямо в&nbsp;код. Кейс сделан <b>кодом, а&nbsp;не&nbsp;картинками</b>: лендинг и&nbsp;девять экранов платформы работают в&nbsp;браузере, на&nbsp;двух языках." data-en="KERN is a&nbsp;concept for a&nbsp;SaaS platform where brand teams build and&nbsp;version their typography: scales, tokens, responsive rules, readability checks and&nbsp;export straight to&nbsp;code. The&nbsp;case is built <b>in&nbsp;code, not mockups</b>: the&nbsp;landing page and&nbsp;nine platform screens run in&nbsp;the&nbsp;browser, in&nbsp;two languages.">KERN&nbsp;— концепт SaaS-платформы, где бренд-команды собирают и&nbsp;версионируют свою типографику: шкалы, токены, адаптивные правила, проверки читаемости и&nbsp;экспорт прямо в&nbsp;код. Кейс сделан <b>кодом, а&nbsp;не&nbsp;картинками</b>: лендинг и&nbsp;девять экранов платформы работают в&nbsp;браузере, на&nbsp;двух языках.</p>
+  <div class="metarow">
+    <div><span data-ru="Роль" data-en="Role">Роль</span><b data-ru="Концепция, дизайн, вёрстка" data-en="Concept, design, build">Концепция, дизайн, вёрстка</b></div>
+    <div><span data-ru="Формат" data-en="Format">Формат</span><b data-ru="Лендинг + платформа, живой код" data-en="Landing + platform, live code">Лендинг + платформа, живой код</b></div>
+    <div><span data-ru="Объём" data-en="Scope">Объём</span><b data-ru="Лендинг · 9 экранов · RU/EN" data-en="Landing · 9 screens · RU/EN">Лендинг · 9 экранов · RU/EN</b></div>
+    <div><span data-ru="Год" data-en="Year">Год</span><b>2026</b></div>
+  </div>
+  <figure class="heroshot">
+    <img class="shotimg" src="img/hero.png" alt="KERN&nbsp;— hero лендинга">
+    <figcaption data-ru="<b>Hero лендинга.</b> Слоган набран per-letter: вес каждой буквы&nbsp;— живая ось variable-шрифта, реагирующая на&nbsp;курсор. Сквозь набор проходят UI-примитивы продукта: линейка кернинга, плашка токена, ползунок ratio, каретка." data-en="<b>The&nbsp;landing hero.</b> The&nbsp;slogan is set per-letter: each glyph's weight is a&nbsp;live variable-font axis reacting to&nbsp;the&nbsp;cursor. The&nbsp;product's own UI primitives run through the&nbsp;type: a&nbsp;kerning ruler, a&nbsp;token chip, a&nbsp;ratio slider, a&nbsp;caret."><b>Hero лендинга.</b> Слоган набран per-letter: вес каждой буквы&nbsp;— живая ось variable-шрифта, реагирующая на&nbsp;курсор. Сквозь набор проходят UI-примитивы продукта: линейка кернинга, плашка токена, ползунок ratio, каретка.</figcaption>
+  </figure>
+</header>
+
+<!-- 01 context -->
+<section class="band" id="context">
+  <div class="wrap sec">
+    <div class="sec-head"><span class="snum">01</span><div><div class="eyebrow" data-ru="Контекст" data-en="Context">Контекст</div></div></div>
+    <div class="col2-13">
+      <h2 data-ru="Design Ops для&nbsp;букв" data-en="Design Ops, but for&nbsp;letters">Design Ops для&nbsp;букв</h2>
+      <div>
+        <p data-ru="У&nbsp;дизайн-токенов уже есть инфраструктура: Figma Variables, style-dictionary, целые пайплайны. Но&nbsp;типографика в&nbsp;этих системах&nbsp;— просто набор значений. <b>Правила, по&nbsp;которым эти значения построены, нигде не&nbsp;живут</b>: ratio шкалы, поведение между брейкпоинтами, ограничения читаемости." data-en="Design tokens already have infrastructure: Figma Variables, style-dictionary, whole pipelines. But typography inside those systems is just a&nbsp;bag of&nbsp;values. <b>The&nbsp;rules those values come from live nowhere</b>: the&nbsp;scale's ratio, behaviour across breakpoints, readability constraints.">У&nbsp;дизайн-токенов уже есть инфраструктура: Figma Variables, style-dictionary, целые пайплайны. Но&nbsp;типографика в&nbsp;этих системах&nbsp;— просто набор значений. <b>Правила, по&nbsp;которым эти значения построены, нигде не&nbsp;живут</b>: ratio шкалы, поведение между брейкпоинтами, ограничения читаемости.</p>
+        <p style="margin-top:18px" data-ru="KERN занимает эту нишу: <b>single source of truth для&nbsp;типографики бренда</b>. Аудитория&nbsp;— четыре роли: design ops настраивают систему, дизайнеры сверяются с&nbsp;ней, разработчики забирают токены в&nbsp;код, бренд-менеджеры следят за&nbsp;консистентностью." data-en="KERN takes that spot: <b>a&nbsp;single source of&nbsp;truth for&nbsp;brand typography</b>. Four roles use it: design ops set the&nbsp;system up, designers check against it, developers pull tokens into code, brand managers watch consistency.">KERN занимает эту нишу: <b>single source of truth для&nbsp;типографики бренда</b>. Аудитория&nbsp;— четыре роли: design ops настраивают систему, дизайнеры сверяются с&nbsp;ней, разработчики забирают токены в&nbsp;код, бренд-менеджеры следят за&nbsp;консистентностью.</p>
+      </div>
+    </div>
+    <div class="statgrid">
+      <div><div class="statbig"><em>9</em></div><div class="k" data-ru="экранов платформы&nbsp;— от&nbsp;онбординга до&nbsp;экспорта, все кликабельны" data-en="platform screens&nbsp;— onboarding to&nbsp;export, all clickable">экранов платформы&nbsp;— от&nbsp;онбординга до&nbsp;экспорта, все кликабельны</div></div>
+      <div><div class="statbig"><em>4</em></div><div class="k" data-ru="формата экспорта: CSS, SCSS, Figma Tokens, Tailwind&nbsp;— генерируются из&nbsp;живой шкалы" data-en="export formats: CSS, SCSS, Figma Tokens, Tailwind&nbsp;— generated from the&nbsp;live scale">формата экспорта: CSS, SCSS, Figma Tokens, Tailwind&nbsp;— генерируются из&nbsp;живой шкалы</div></div>
+      <div><div class="statbig">RU<em>/</em>EN</div><div class="k" data-ru="полный паритет: ни&nbsp;одного непереведённого фрагмента, вёрстка держит обе локали" data-en="full parity: not a&nbsp;single untranslated string, the&nbsp;layout holds both locales">полный паритет: ни&nbsp;одного непереведённого фрагмента, вёрстка держит обе локали</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 problem -->
+<section class="wrap sec" id="problem">
+  <div class="sec-head"><span class="snum">02</span><div><div class="eyebrow" data-ru="Проблема и&nbsp;гипотеза" data-en="Problem &amp; hypothesis">Проблема и&nbsp;гипотеза</div></div></div>
+  <div class="col2">
+    <div>
+      <h2 data-ru="Типографика бренда живёт в&nbsp;14 файлах." data-en="Brand typography lives in&nbsp;14 files.">Типографика бренда живёт в&nbsp;14 файлах.</h2>
+    </div>
+    <div>
+      <p data-ru="Брендбук 2019 года, styleguide_v3_FINAL(2).fig, устаревший tokens.scss и&nbsp;«какой кегль у&nbsp;H2?» в&nbsp;чате. Размеры расходятся, вес подбирается на&nbsp;глаз, кириллица ломает макеты, а&nbsp;правда о&nbsp;системе хранится в&nbsp;голове арт-директора." data-en="A&nbsp;2019 brand book, styleguide_v3_FINAL(2).fig, a&nbsp;stale tokens.scss and&nbsp;a&nbsp;«what size is H2 again?» in&nbsp;the&nbsp;chat. Sizes drift, weights are eyeballed, Cyrillic breaks layouts, and&nbsp;the&nbsp;truth about the&nbsp;system lives in&nbsp;the&nbsp;art director's head.">Брендбук 2019 года, styleguide_v3_FINAL(2).fig, устаревший tokens.scss и&nbsp;«какой кегль у&nbsp;H2?» в&nbsp;чате. Размеры расходятся, вес подбирается на&nbsp;глаз, кириллица ломает макеты, а&nbsp;правда о&nbsp;системе хранится в&nbsp;голове арт-директора.</p>
+      <p style="margin-top:20px" data-ru="<b>Гипотеза:</b> типографике нужен тот же цикл, что и&nbsp;коду&nbsp;— <b>правила → значения → проверки → версии → экспорт</b>. Тогда «как&nbsp;получится» превращается в&nbsp;систему, которую можно поддерживать командой." data-en="<b>The&nbsp;hypothesis:</b> typography needs the&nbsp;same cycle code has&nbsp;— <b>rules → values → checks → versions → export</b>. Then «however it turns out» becomes a&nbsp;system a&nbsp;team can maintain."><b>Гипотеза:</b> типографике нужен тот же цикл, что и&nbsp;коду&nbsp;— <b>правила → значения → проверки → версии → экспорт</b>. Тогда «как&nbsp;получится» превращается в&nbsp;систему, которую можно поддерживать командой.</p>
+    </div>
+  </div>
+  <p class="quote" style="margin-top:60px;max-width:900px" data-ru="Шрифт&nbsp;— не&nbsp;картинка.<br><em>Шрифт&nbsp;— это данные.</em>" data-en="Type isn't a&nbsp;picture.<br><em>Type is data.</em>">Шрифт&nbsp;— не&nbsp;картинка.<br><em>Шрифт&nbsp;— это данные.</em></p>
+</section>
+
+<!-- 03 brand language -->
+<section class="wrap sec" id="brand" style="padding-top:0">
+  <div class="sec-head"><span class="snum">03</span><div><div class="eyebrow" data-ru="Бренд-язык" data-en="Brand language">Бренд-язык</div></div></div>
+  <div class="col2-13">
+    <h2 data-ru="Шрифт&nbsp;— герой и&nbsp;интерфейс одновременно." data-en="Type is the&nbsp;hero and&nbsp;the&nbsp;interface at&nbsp;once.">Шрифт&nbsp;— герой и&nbsp;интерфейс одновременно.</h2>
+    <div>
+      <p data-ru="Формула главного экрана: сверхкрупный набор + плоский яркий цвет + объекты, взаимодействующие с&nbsp;буквами + утилитарная навигация по&nbsp;краям. Отличие от&nbsp;референсов в&nbsp;том, что сквозь буквы проходят не&nbsp;абстрактные формы, а&nbsp;<b>UI-примитивы самого продукта</b>&nbsp;— линейка кернинга, плашка токена, ползунок шкалы." data-en="The&nbsp;hero formula: oversized type + flat loud colour + objects interacting with letters + utilitarian navigation at&nbsp;the&nbsp;edges. The&nbsp;twist on&nbsp;the&nbsp;references: what runs through the&nbsp;letters isn't abstract shapes but <b>the&nbsp;product's own UI primitives</b>&nbsp;— a&nbsp;kerning ruler, a&nbsp;token chip, a&nbsp;scale slider.">Формула главного экрана: сверхкрупный набор + плоский яркий цвет + объекты, взаимодействующие с&nbsp;буквами + утилитарная навигация по&nbsp;краям. Отличие от&nbsp;референсов в&nbsp;том, что сквозь буквы проходят не&nbsp;абстрактные формы, а&nbsp;<b>UI-примитивы самого продукта</b>&nbsp;— линейка кернинга, плашка токена, ползунок шкалы.</p>
+      <p style="margin-top:18px" data-ru="Ключевая механика: буквы hero <b>реально дышат весом</b>&nbsp;— ось wght variable-шрифта следует за&nbsp;курсором с&nbsp;гауссовым спадом. Продукт про&nbsp;шрифт демонстрирует себя сам, без единой картинки." data-en="The&nbsp;key mechanic: the&nbsp;hero letters <b>literally breathe weight</b>&nbsp;— the&nbsp;variable font's wght axis follows the&nbsp;cursor with a&nbsp;Gaussian falloff. A&nbsp;product about type demos itself, without a&nbsp;single image.">Ключевая механика: буквы hero <b>реально дышат весом</b>&nbsp;— ось wght variable-шрифта следует за&nbsp;курсором с&nbsp;гауссовым спадом. Продукт про&nbsp;шрифт демонстрирует себя сам, без единой картинки.</p>
+    </div>
+  </div>
+  <div class="gallery">
+    <figure>
+      <img class="shotimg" src="img/hero-en.png" alt="Hero, английская версия" loading="lazy">
+      <figcaption data-ru="<b>EN-версия hero.</b> Слоган перенабирается по&nbsp;строкам, кегль каждой строки JS подгоняет под&nbsp;ширину&nbsp;— вёрстка держит обе локали." data-en="<b>The&nbsp;EN hero.</b> The&nbsp;slogan is re-set line by&nbsp;line; JS fits each line's size to&nbsp;the&nbsp;width&nbsp;— the&nbsp;layout holds in&nbsp;either locale."><b>EN-версия hero.</b> Слоган перенабирается по&nbsp;строкам, кегль каждой строки JS подгоняет под&nbsp;ширину&nbsp;— вёрстка держит обе локали.</figcaption>
+    </figure>
+    <figure>
+      <img class="shotimg" src="img/l-problem.png" alt="Секция «Проблема»" loading="lazy">
+      <figcaption data-ru="<b>Секция «Проблема»</b>&nbsp;— Klein-поле и&nbsp;те самые 14 файлов: от&nbsp;brandbook_2019_final.pdf до&nbsp;«в&nbsp;голове у&nbsp;арт-директора»." data-en="<b>The&nbsp;problem section</b>&nbsp;— a&nbsp;Klein field and&nbsp;those 14 files: from brandbook_2019_final.pdf to&nbsp;«in&nbsp;the&nbsp;art director's head»."><b>Секция «Проблема»</b>&nbsp;— Klein-поле и&nbsp;те самые 14 файлов: от&nbsp;brandbook_2019_final.pdf до&nbsp;«в&nbsp;голове у&nbsp;арт-директора».</figcaption>
+    </figure>
+  </div>
+  <div class="gallery">
+    <figure>
+      <img class="shotimg" src="img/l-modules.png" alt="Модули продукта" loading="lazy">
+      <figcaption data-ru="<b>Модули.</b> Каждой карточке&nbsp;— типографический виз вместо иконки: растущие Aa, clamp(), плашки проверок, дифф с&nbsp;зачёркиванием." data-en="<b>Modules.</b> Every card gets a&nbsp;typographic viz instead of&nbsp;an&nbsp;icon: growing Aa's, clamp(), check pills, a&nbsp;strikethrough diff."><b>Модули.</b> Каждой карточке&nbsp;— типографический виз вместо иконки: растущие Aa, clamp(), плашки проверок, дифф с&nbsp;зачёркиванием.</figcaption>
+    </figure>
+    <figure>
+      <img class="shotimg" src="img/l-footer.png" alt="Футер с обрезанным wordmark" loading="lazy">
+      <figcaption data-ru="<b>Футер.</b> Гигантский wordmark уходит в&nbsp;обрез нижнего края; строкой выше&nbsp;— рекурсия: «шкала этого сайта собрана в&nbsp;KERN»." data-en="<b>The&nbsp;footer.</b> A&nbsp;giant wordmark crops off the&nbsp;bottom edge; one line above it, the&nbsp;recursion: «this site's scale was built in&nbsp;KERN»."><b>Футер.</b> Гигантский wordmark уходит в&nbsp;обрез нижнего края; строкой выше&nbsp;— рекурсия: «шкала этого сайта собрана в&nbsp;KERN».</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 04 platform -->
+<section class="band" id="platform">
+  <div class="wrap sec">
+    <div class="sec-head"><span class="snum">04</span><div><div class="eyebrow" data-ru="Платформа" data-en="The&nbsp;platform">Платформа</div></div></div>
+    <div class="col2-13">
+      <h2 data-ru="Смелость&nbsp;— на&nbsp;лендинге. Внутри&nbsp;— дисциплина." data-en="Boldness on&nbsp;the&nbsp;landing. Discipline inside.">Смелость&nbsp;— на&nbsp;лендинге. Внутри&nbsp;— дисциплина.</h2>
+      <div>
+        <p data-ru="Платформа собрана на&nbsp;привычном из&nbsp;Figma паттерне: сайдбар навигации, рабочее полотно, справа&nbsp;— инспектор выбранного токена. Сетка 8&nbsp;pt, плотные таблицы, моно-шрифт для&nbsp;всех значений." data-en="The&nbsp;platform sits on&nbsp;a&nbsp;pattern familiar from Figma: a&nbsp;navigation sidebar, the&nbsp;working canvas, and&nbsp;an&nbsp;inspector for&nbsp;the&nbsp;selected token on&nbsp;the&nbsp;right. An&nbsp;8pt grid, dense tables, mono for&nbsp;every value.">Платформа собрана на&nbsp;привычном из&nbsp;Figma паттерне: сайдбар навигации, рабочее полотно, справа&nbsp;— инспектор выбранного токена. Сетка 8&nbsp;pt, плотные таблицы, моно-шрифт для&nbsp;всех значений.</p>
+        <p style="margin-top:18px" data-ru="Все девять экранов&nbsp;— один живой прототип с&nbsp;общим состоянием: base, ratio и&nbsp;количество ступеней из&nbsp;Scale Builder питают токены, адаптивные правила и&nbsp;экспорт. <b>Меняешь шкалу&nbsp;— меняется всё.</b>" data-en="All nine screens are one live prototype with shared state: the&nbsp;base, ratio and&nbsp;step count from the&nbsp;Scale Builder feed the&nbsp;tokens, the&nbsp;responsive rules and&nbsp;the&nbsp;export. <b>Change the&nbsp;scale&nbsp;— everything changes.</b>">Все девять экранов&nbsp;— один живой прототип с&nbsp;общим состоянием: base, ratio и&nbsp;количество ступеней из&nbsp;Scale Builder питают токены, адаптивные правила и&nbsp;экспорт. <b>Меняешь шкалу&nbsp;— меняется всё.</b></p>
+      </div>
+    </div>
+    <figure style="margin-top:40px">
+      <img class="shotimg" src="img/scale.png" alt="Type Scale Builder" loading="lazy" style="box-shadow:0 30px 64px rgba(0,0,0,.4)">
+      <figcaption data-ru="<b>Type Scale Builder&nbsp;— главный рабочий экран.</b> Слева параметры шкалы, в&nbsp;центре ступени на&nbsp;живых панграммах, справа инспектор: интерлиньяж и&nbsp;вес правятся и&nbsp;тут же меняют превью. WCAG-статус&nbsp;— прямо на&nbsp;токене." data-en="<b>The&nbsp;Type Scale Builder&nbsp;— the&nbsp;main working screen.</b> Scale parameters on&nbsp;the&nbsp;left, steps set in&nbsp;live pangrams in&nbsp;the&nbsp;middle, the&nbsp;inspector on&nbsp;the&nbsp;right: leading and&nbsp;weight edits update the&nbsp;preview instantly. The&nbsp;WCAG status sits right on&nbsp;the&nbsp;token."><b>Type Scale Builder&nbsp;— главный рабочий экран.</b> Слева параметры шкалы, в&nbsp;центре ступени на&nbsp;живых панграммах, справа инспектор: интерлиньяж и&nbsp;вес правятся и&nbsp;тут же меняют превью. WCAG-статус&nbsp;— прямо на&nbsp;токене.</figcaption>
+    </figure>
+    <div class="gallery">
+      <figure>
+        <img class="shotimg" src="img/onboarding.png" alt="Онбординг" loading="lazy">
+        <figcaption data-ru="<b>Онбординг</b>&nbsp;— три шага: импорт из&nbsp;Figma / CSS / с&nbsp;нуля, шрифтовая пара со&nbsp;спесименом сразу на&nbsp;двух языках, первая шкала и&nbsp;приглашение команды." data-en="<b>Onboarding</b>&nbsp;— three steps: import from Figma / CSS / scratch, a&nbsp;font pair with a&nbsp;bilingual specimen, the&nbsp;first scale and&nbsp;team invites."><b>Онбординг</b>&nbsp;— три шага: импорт из&nbsp;Figma / CSS / с&nbsp;нуля, шрифтовая пара со&nbsp;спесименом сразу на&nbsp;двух языках, первая шкала и&nbsp;приглашение команды.</figcaption>
+      </figure>
+      <figure>
+        <img class="shotimg" src="img/dashboard.png" alt="Дашборд" loading="lazy">
+        <figcaption data-ru="<b>Дашборд</b>&nbsp;— проекты со&nbsp;статусами проверок и&nbsp;лента активности, в&nbsp;которой видно диффы: 88/96&nbsp;→ 96/104." data-en="<b>The&nbsp;dashboard</b>&nbsp;— projects with check statuses and&nbsp;an&nbsp;activity feed where the&nbsp;diffs show: 88/96&nbsp;→ 96/104."><b>Дашборд</b>&nbsp;— проекты со&nbsp;статусами проверок и&nbsp;лента активности, в&nbsp;которой видно диффы: 88/96&nbsp;→ 96/104.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cs" style="margin-top:26px">
+      <div>
+        <span class="tag-chal" data-ru="Решение · доверие" data-en="Decision · trust">Решение · доверие</span>
+        <h3 data-ru="Даже fail&nbsp;— дизайн" data-en="Even fail is designed">Даже fail&nbsp;— дизайн</h3>
+        <p data-ru="Продукт про&nbsp;читаемость не&nbsp;имеет права пугать красными баннерами. Провал проверки показан спокойно: образец в&nbsp;реальных цветах, точное значение контраста и&nbsp;конкретная подсказка&nbsp;— «поднимите цвет до&nbsp;Paper (5.5:1) или&nbsp;кегль до&nbsp;14px semibold»." data-en="A&nbsp;product about readability has no right to&nbsp;panic in&nbsp;red banners. A&nbsp;failed check is shown calmly: a&nbsp;sample in&nbsp;the&nbsp;real colours, the&nbsp;exact contrast value and&nbsp;a&nbsp;concrete suggestion&nbsp;— «raise the&nbsp;colour to&nbsp;Paper (5.5:1) or&nbsp;the&nbsp;size to&nbsp;14px semibold».">Продукт про&nbsp;читаемость не&nbsp;имеет права пугать красными баннерами. Провал проверки показан спокойно: образец в&nbsp;реальных цветах, точное значение контраста и&nbsp;конкретная подсказка&nbsp;— «поднимите цвет до&nbsp;Paper (5.5:1) или&nbsp;кегль до&nbsp;14px semibold».</p>
+      </div>
+      <figure><img class="shotimg" src="img/check.png" alt="Проверки читаемости" loading="lazy"></figure>
+    </div>
+
+    <div class="cs cs--rev">
+      <div>
+        <span class="tag-chal" data-ru="Решение · эволюция" data-en="Decision · evolution">Решение · эволюция</span>
+        <h3 data-ru="Дифф как редакторская правка" data-en="A&nbsp;diff like an&nbsp;editor's markup">Дифф как редакторская правка</h3>
+        <p data-ru="Версии сравниваются на&nbsp;живом тексте: переключатель «было/стало» реально перенабирает строку старым и&nbsp;новым кеглем. Старое значение зачёркнуто, новое&nbsp;— на&nbsp;кислотном маркере. Changelog хранит, кто, что и&nbsp;зачем поменял; откат&nbsp;— одна кнопка." data-en="Versions are compared on&nbsp;live text: the&nbsp;before/after toggle literally re-sets the&nbsp;line in&nbsp;the&nbsp;old and&nbsp;new size. The&nbsp;old value is struck through, the&nbsp;new one sits on&nbsp;an&nbsp;acid highlight. The&nbsp;changelog keeps who changed what and&nbsp;why; rollback is one button.">Версии сравниваются на&nbsp;живом тексте: переключатель «было/стало» реально перенабирает строку старым и&nbsp;новым кеглем. Старое значение зачёркнуто, новое&nbsp;— на&nbsp;кислотном маркере. Changelog хранит, кто, что и&nbsp;зачем поменял; откат&nbsp;— одна кнопка.</p>
+      </div>
+      <figure><img class="shotimg" src="img/diff.png" alt="Версии и диффы" loading="lazy"></figure>
+    </div>
+
+    <div class="cs">
+      <div>
+        <span class="tag-chal" data-ru="Решение · хендофф" data-en="Decision · handoff">Решение · хендофф</span>
+        <h3 data-ru="Экспорт, который не&nbsp;устаревает" data-en="An&nbsp;export that can't go stale">Экспорт, который не&nbsp;устаревает</h3>
+        <p data-ru="CSS variables, SCSS, Figma Tokens JSON и&nbsp;Tailwind-конфиг генерируются из&nbsp;текущего состояния шкалы&nbsp;— в&nbsp;кейсе это настоящий код, который можно скопировать. Для&nbsp;CI&nbsp;— строка CLI: типографический линт падает, если кто-то захардкодил 17px." data-en="CSS variables, SCSS, Figma Tokens JSON and&nbsp;a&nbsp;Tailwind config are generated from the&nbsp;scale's current state&nbsp;— in&nbsp;this case study it's real code you can copy. For&nbsp;CI there's a&nbsp;CLI one-liner: the&nbsp;typography lint fails when someone hardcodes 17px.">CSS variables, SCSS, Figma Tokens JSON и&nbsp;Tailwind-конфиг генерируются из&nbsp;текущего состояния шкалы&nbsp;— в&nbsp;кейсе это настоящий код, который можно скопировать. Для&nbsp;CI&nbsp;— строка CLI: типографический линт падает, если кто-то захардкодил 17px.</p>
+      </div>
+      <figure><img class="shotimg" src="img/export.png" alt="Экспорт" loading="lazy"></figure>
+    </div>
+
+    <div class="gallery">
+      <figure>
+        <img class="shotimg" src="img/rules.png" alt="Адаптивные правила" loading="lazy">
+        <figcaption data-ru="<b>Адаптивность.</b> Слайдер вьюпорта 360–1920: заголовок реально «течёт» по&nbsp;clamp(), у&nbsp;каждого токена&nbsp;— формула и&nbsp;полоса диапазона." data-en="<b>Responsive rules.</b> A&nbsp;360–1920 viewport slider: the&nbsp;heading actually flows along its clamp(); every token gets its formula and&nbsp;a&nbsp;range bar."><b>Адаптивность.</b> Слайдер вьюпорта 360–1920: заголовок реально «течёт» по&nbsp;clamp(), у&nbsp;каждого токена&nbsp;— формула и&nbsp;полоса диапазона.</figcaption>
+      </figure>
+      <figure>
+        <img class="shotimg" src="img/tokens.png" alt="Токены" loading="lazy">
+        <figcaption data-ru="<b>Токены.</b> Таблица с&nbsp;семейством, кеглем/интерлиньяжем, трекингом, весом и&nbsp;статусом проверки у&nbsp;каждой строки." data-en="<b>Tokens.</b> A&nbsp;table with family, size/leading, tracking, weight and&nbsp;a&nbsp;check status on&nbsp;every row."><b>Токены.</b> Таблица с&nbsp;семейством, кеглем/интерлиньяжем, трекингом, весом и&nbsp;статусом проверки у&nbsp;каждой строки.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 05 design system -->
+<section class="wrap sec" id="system">
+  <div class="sec-head"><span class="snum">05</span><div><div class="eyebrow" data-ru="Дизайн-система" data-en="Design system">Дизайн-система</div></div></div>
+  <div class="col2-13">
+    <h2 data-ru="KERN builds KERN." data-en="KERN builds KERN.">KERN builds KERN.</h2>
+    <div>
+      <p data-ru="Шкала самого сайта собрана по&nbsp;логике продукта: base 18, ratio 1.25, display-слой до&nbsp;24vw. Палитра&nbsp;— один активный цвет-поле плюс чёрный и&nbsp;два акцента, плоско и&nbsp;без градиентов. Бренд-гротеск&nbsp;— variable Onest (кириллица + ось веса для&nbsp;hero), инженерный слой&nbsp;— JetBrains Mono." data-en="The&nbsp;site's own scale follows the&nbsp;product's logic: base 18, ratio 1.25, a&nbsp;display layer up to&nbsp;24vw. The&nbsp;palette is one active colour field plus black and&nbsp;two accents, flat, no gradients. The&nbsp;brand grotesque is variable Onest (Cyrillic + a&nbsp;weight axis for&nbsp;the&nbsp;hero); the&nbsp;engineering layer is JetBrains Mono.">Шкала самого сайта собрана по&nbsp;логике продукта: base 18, ratio 1.25, display-слой до&nbsp;24vw. Палитра&nbsp;— один активный цвет-поле плюс чёрный и&nbsp;два акцента, плоско и&nbsp;без градиентов. Бренд-гротеск&nbsp;— variable Onest (кириллица + ось веса для&nbsp;hero), инженерный слой&nbsp;— JetBrains Mono.</p>
+      <p style="margin-top:18px" data-ru="Сайт обязан проходить собственные проверки: все цветовые пары&nbsp;— WCAG AA, полная клавиатурная навигация, prefers-reduced-motion выключает интерактив, шрифты self-hosted woff2 c&nbsp;subsets latin+cyrillic." data-en="The&nbsp;site has to&nbsp;pass its own checks: every colour pair is WCAG AA, keyboard navigation is complete, prefers-reduced-motion kills the&nbsp;interactive, fonts are self-hosted woff2 with latin+cyrillic subsets.">Сайт обязан проходить собственные проверки: все цветовые пары&nbsp;— WCAG AA, полная клавиатурная навигация, prefers-reduced-motion выключает интерактив, шрифты self-hosted woff2 c&nbsp;subsets latin+cyrillic.</p>
+    </div>
+  </div>
+  <div class="tokens">
+    <div class="swatch"><div class="chip" style="background:#111111"></div><span>Ink</span></div>
+    <div class="swatch"><div class="chip" style="background:#F4F1EA"></div><span>Paper</span></div>
+    <div class="swatch"><div class="chip" style="background:#4B4DED"></div><span>Klein</span></div>
+    <div class="swatch"><div class="chip" style="background:#D8F34E"></div><span>Acid</span></div>
+    <div class="swatch"><div class="chip" style="background:#1F9D55"></div><span>pass</span></div>
+    <div class="swatch"><div class="chip" style="background:#E8A13C"></div><span>warn</span></div>
+    <div class="swatch"><div class="chip" style="background:#D6453D"></div><span>fail</span></div>
+  </div>
+  <div class="dscols">
+    <div class="dscol"><h3 data-ru="Типографика" data-en="Typography">Типографика</h3><ul>
+      <li data-ru="Onest variable 100–900, latin + cyrillic" data-en="Onest variable 100–900, latin + cyrillic">Onest variable 100–900, latin + cyrillic</li>
+      <li data-ru="JetBrains Mono&nbsp;— токены, значения, код" data-en="JetBrains Mono&nbsp;— tokens, values, code">JetBrains Mono&nbsp;— токены, значения, код</li>
+      <li data-ru="Display: lh 0.84, ls −1.5%; лейблы: caps +7%" data-en="Display: lh 0.84, ls −1.5%; labels: caps +7%">Display: lh 0.84, ls −1.5%; лейблы: caps +7%</li>
+    </ul></div>
+    <div class="dscol"><h3 data-ru="Микро-интеракции" data-en="Micro-interactions">Микро-интеракции</h3><ul>
+      <li data-ru="Буквы hero дышат весом за&nbsp;курсором" data-en="Hero letters breathe weight after the&nbsp;cursor">Буквы hero дышат весом за&nbsp;курсором</li>
+      <li data-ru="Цифры шкалы-разделителя жирнеют при&nbsp;скролле" data-en="Scale-strip digits embolden on&nbsp;scroll">Цифры шкалы-разделителя жирнеют при&nbsp;скролле</li>
+      <li data-ru="Дифф: зачёркнуто → вкатилось, как&nbsp;правка" data-en="Diff: struck out → rolled in, like an&nbsp;edit">Дифф: зачёркнуто → вкатилось, как&nbsp;правка</li>
+    </ul></div>
+    <div class="dscol"><h3 data-ru="Инженерное" data-en="Engineering">Инженерное</h3><ul>
+      <li data-ru="Ноль зависимостей: ванильный JS, без&nbsp;CDN" data-en="Zero dependencies: vanilla JS, no CDN">Ноль зависимостей: ванильный JS, без&nbsp;CDN</li>
+      <li data-ru="Экспорт-код генерируется из&nbsp;живого стейта" data-en="Export code generated from live state">Экспорт-код генерируется из&nbsp;живого стейта</li>
+      <li data-ru="RU/EN: словари в&nbsp;data-атрибутах, ?lang= в&nbsp;URL" data-en="RU/EN: dictionaries in&nbsp;data attributes, ?lang= in&nbsp;the&nbsp;URL">RU/EN: словари в&nbsp;data-атрибутах, ?lang= в&nbsp;URL</li>
+    </ul></div>
+  </div>
+  <figure style="margin-top:40px">
+    <img class="shotimg" src="img/l-demo.png" alt="Живое демо шкалы на лендинге" loading="lazy">
+    <figcaption data-ru="<b>Демо прямо на&nbsp;лендинге</b>&nbsp;— мини-версия Scale Builder: слайдер кегля, выбор ratio, живой пересчёт ступеней и&nbsp;копирование готовых CSS variables." data-en="<b>The&nbsp;demo right on&nbsp;the&nbsp;landing</b>&nbsp;— a&nbsp;mini Scale Builder: a&nbsp;size slider, ratio picker, live step recalculation and&nbsp;copyable CSS variables."><b>Демо прямо на&nbsp;лендинге</b>&nbsp;— мини-версия Scale Builder: слайдер кегля, выбор ratio, живой пересчёт ступеней и&nbsp;копирование готовых CSS variables.</figcaption>
+  </figure>
+</section>
+
+<!-- 06 live -->
+<section class="band" id="live">
+  <div class="wrap sec">
+    <div class="sec-head"><span class="snum">06</span><div><div class="eyebrow" data-ru="Живое" data-en="Live">Живое</div></div></div>
+    <div class="proto">
+      <div>
+        <h2 data-ru="Потрогайте буквы." data-en="Go touch the&nbsp;letters.">Потрогайте буквы.</h2>
+        <p style="margin-top:18px" data-ru="Лендинг и&nbsp;платформа открываются прямо из&nbsp;кейса. Поводите мышью по&nbsp;hero, соберите шкалу в&nbsp;демо, пройдите онбординг, поменяйте ratio в&nbsp;Scale Builder и&nbsp;посмотрите, как пересобирается экспорт. Языки переключаются на&nbsp;любом экране." data-en="The&nbsp;landing and&nbsp;the&nbsp;platform open right from the&nbsp;case. Sweep the&nbsp;hero with your cursor, build a&nbsp;scale in&nbsp;the&nbsp;demo, run the&nbsp;onboarding, change the&nbsp;ratio in&nbsp;the&nbsp;Scale Builder and&nbsp;watch the&nbsp;export rebuild. Languages switch on&nbsp;every screen.">Лендинг и&nbsp;платформа открываются прямо из&nbsp;кейса. Поводите мышью по&nbsp;hero, соберите шкалу в&nbsp;демо, пройдите онбординг, поменяйте ratio в&nbsp;Scale Builder и&nbsp;посмотрите, как пересобирается экспорт. Языки переключаются на&nbsp;любом экране.</p>
+        <div class="btns">
+          <a class="pill pill--acid" href="landing.html" target="_blank"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg><span data-ru="Открыть лендинг" data-en="Open the&nbsp;landing">Открыть лендинг</span></a>
+          <a class="pill" style="background:rgba(255,255,255,.12)" href="app.html" target="_blank"><span data-ru="Открыть платформу" data-en="Open the&nbsp;platform">Открыть платформу</span></a>
+        </div>
+      </div>
+      <figure><img class="shotimg" src="img/l-pricing.png" alt="Тарифы" loading="lazy" style="box-shadow:0 30px 64px rgba(0,0,0,.4)"></figure>
+    </div>
+  </div>
+</section>
+
+<!-- 07 reflection -->
+<section class="band" style="border-top:1px solid rgba(255,255,255,.12)">
+  <div class="wrap sec">
+    <div class="sec-head"><span class="snum">07</span><div><div class="eyebrow" data-ru="Рефлексия" data-en="Reflection">Рефлексия</div></div></div>
+    <div class="refl">
+      <div>
+        <h3 data-ru="Что&nbsp;кейс должен был доказать" data-en="What the&nbsp;case set out to&nbsp;prove">Что&nbsp;кейс должен был доказать</h3>
+        <p style="margin-top:14px;font-size:16px" data-ru="Что&nbsp;я думаю системами: в&nbsp;кейсе виден весь путь <b>от&nbsp;принципа к&nbsp;токену и&nbsp;от&nbsp;токена к&nbsp;коду</b>&nbsp;— ratio превращается в&nbsp;шкалу, шкала в&nbsp;токены, токены в&nbsp;CSS, и&nbsp;всё это с&nbsp;версиями, проверками и&nbsp;двумя языками. И&nbsp;что смелая типографика и&nbsp;рабочая дисциплина продукта не&nbsp;противоречат друг другу&nbsp;— просто живут на&nbsp;разных слоях." data-en="That I think in&nbsp;systems: the&nbsp;case shows the&nbsp;whole path <b>from principle to&nbsp;token and&nbsp;from token to&nbsp;code</b>&nbsp;— a&nbsp;ratio becomes a&nbsp;scale, the&nbsp;scale becomes tokens, tokens become CSS, all of&nbsp;it versioned, checked and&nbsp;bilingual. And&nbsp;that bold typography and&nbsp;a&nbsp;product's working discipline don't contradict&nbsp;— they just live on&nbsp;different layers.">Что&nbsp;я думаю системами: в&nbsp;кейсе виден весь путь <b>от&nbsp;принципа к&nbsp;токену и&nbsp;от&nbsp;токена к&nbsp;коду</b>&nbsp;— ratio превращается в&nbsp;шкалу, шкала в&nbsp;токены, токены в&nbsp;CSS, и&nbsp;всё это с&nbsp;версиями, проверками и&nbsp;двумя языками. И&nbsp;что смелая типографика и&nbsp;рабочая дисциплина продукта не&nbsp;противоречат друг другу&nbsp;— просто живут на&nbsp;разных слоях.</p>
+      </div>
+      <div>
+        <h3 data-ru="Куда развивать дальше" data-en="Where to&nbsp;push next">Куда развивать дальше</h3>
+        <ul style="margin-top:6px">
+          <li data-ru="<b>Figma-плагин</b>&nbsp;— двусторонняя синхронизация токенов" data-en="<b>A&nbsp;Figma plugin</b>&nbsp;— two-way token sync"><b>Figma-плагин</b>&nbsp;— двусторонняя синхронизация токенов</li>
+          <li data-ru="<b>CI-линт типографики</b>&nbsp;— проверка кеглей в&nbsp;пул-реквестах" data-en="<b>A&nbsp;typography CI lint</b>&nbsp;— size checks in&nbsp;pull requests"><b>CI-линт типографики</b>&nbsp;— проверка кеглей в&nbsp;пул-реквестах</li>
+          <li data-ru="<b>Экспорт iOS/Android</b>&nbsp;— UIFont и&nbsp;TextAppearance" data-en="<b>iOS/Android export</b>&nbsp;— UIFont and&nbsp;TextAppearance"><b>Экспорт iOS/Android</b>&nbsp;— UIFont и&nbsp;TextAppearance</li>
+          <li data-ru="<b>Библиотека шкал</b>&nbsp;— готовые системы от&nbsp;студий + AI-подбор пар с&nbsp;фильтром по&nbsp;кириллице" data-en="<b>A&nbsp;scale library</b>&nbsp;— ready-made systems from studios + AI pairing with a&nbsp;Cyrillic filter"><b>Библиотека шкал</b>&nbsp;— готовые системы от&nbsp;студий + AI-подбор пар с&nbsp;фильтром по&nbsp;кириллице</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <h2 data-ru="Спасибо, что&nbsp;досмотрели." data-en="Thanks for&nbsp;scrolling this far.">Спасибо, что&nbsp;досмотрели.</h2>
+    <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+      <a href="../index.html" data-ru="← На&nbsp;главную" data-en="← Back home">← На&nbsp;главную</a>
+      <a class="pill" href="landing.html" target="_blank" style="background:var(--acid);color:var(--ink)"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg><span data-ru="Лендинг" data-en="Landing">Лендинг</span></a>
+    </div>
+  </div>
+</footer>
+
+<script>
+function setLang(l) {
+  document.querySelectorAll('.lang-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.lang === l);
+  });
+  document.querySelectorAll('[data-ru]').forEach(function(el) {
+    var t = el.dataset[l];
+    if (!t) return;
+    if (t.indexOf('<') !== -1) { el.innerHTML = t; }
+    else { el.textContent = t; }
+  });
+  document.documentElement.lang = l;
+  document.title = l === 'en' ? 'KERN — case study · Natalya Valkova' : 'KERN — кейс · Natalya Valkova';
+  try { localStorage.setItem('nv-lang', l); } catch (e) {}
+}
+try { if (localStorage.getItem('nv-lang') === 'en') setLang('en'); } catch (e) {}
+</script>
+
+</body>
+</html>

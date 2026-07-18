@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="ru" data-lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KERN — типографика как система</title>
+<meta name="description" content="KERN — single source of truth для типографики бренда: шкалы, токены, проверки, экспорт в код.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%234B4DED'/%3E%3Ctext x='16' y='23' font-family='Arial,sans-serif' font-size='20' font-weight='800' fill='%23F4F1EA' text-anchor='middle'%3EK%3C/text%3E%3C/svg%3E">
+<style>
+/* ---------- fonts (self-hosted, variable) ---------- */
+@font-face{
+  font-family:'Onest';
+  src:url('fonts/onest-cyr.woff2') format('woff2');
+  font-weight:100 900;font-display:swap;
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+@font-face{
+  font-family:'Onest';
+  src:url('fonts/onest-lat.woff2') format('woff2');
+  font-weight:100 900;font-display:swap;
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2212,U+FEFF;
+}
+@font-face{
+  font-family:'JetBrains Mono';
+  src:url('fonts/jbmono-cyr.woff2') format('woff2');
+  font-weight:100 800;font-display:swap;
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+@font-face{
+  font-family:'JetBrains Mono';
+  src:url('fonts/jbmono-lat.woff2') format('woff2');
+  font-weight:100 800;font-display:swap;
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2212,U+FEFF;
+}
+
+/* ---------- tokens: KERN builds KERN ---------- */
+:root{
+  --ink:#111111;
+  --paper:#F4F1EA;
+  --klein:#4B4DED;
+  --acid:#D8F34E;
+  --tangerine:#F5A623;
+  --pass:#1F9D55;
+  --warn:#E8A13C;
+  --fail:#D6453D;
+
+  --font-brand:'Onest',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+
+  /* type scale: base 18, ratio 1.25 */
+  --text-s:  0.7778rem;  /* 14 */
+  --text-m:  1rem;       /* 18 */
+  --text-l:  1.25rem;    /* 22.5 */
+  --label-tracking:0.07em;
+
+  --margin:clamp(20px,4.45vw,64px);
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:18px}
+body{
+  font-family:var(--font-brand);
+  background:var(--paper);
+  color:var(--ink);
+  overflow-x:hidden;
+  min-height:100vh;min-height:100svh;
+  display:flex;flex-direction:column;
+}
+::selection{background:var(--acid);color:var(--ink)}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--klein);outline-offset:3px}
+
+.mono{font-family:var(--font-mono)}
+
+/* ---------- utility bar ---------- */
+.bar{
+  display:flex;align-items:baseline;justify-content:space-between;gap:24px;
+  padding:20px var(--margin) 0;
+}
+.brand{font-weight:800;font-size:var(--text-l);letter-spacing:-0.02em}
+.brand sup{font-size:0.45em;font-weight:500;letter-spacing:0;vertical-align:super}
+.bar nav{display:flex;gap:28px}
+.bar nav a,.bar .signin{
+  font-family:var(--font-mono);font-size:12px;text-transform:uppercase;
+  letter-spacing:var(--label-tracking);text-decoration:none;
+  border-bottom:1px solid transparent;padding-bottom:2px;
+}
+.bar nav a:hover,.bar .signin:hover{border-bottom-color:var(--ink)}
+.bar-right{display:flex;align-items:baseline;gap:24px}
+.lang{display:flex;gap:2px;font-family:var(--font-mono);font-size:12px;letter-spacing:var(--label-tracking)}
+.lang button{padding:2px 6px;text-transform:uppercase;color:var(--ink);opacity:.6}
+.lang button[aria-pressed="true"]{opacity:1;background:var(--ink);color:var(--paper)}
+.lang button:hover{opacity:1}
+
+/* ---------- hero ---------- */
+.hero{
+  flex:1;min-height:0;
+  display:flex;flex-direction:column;
+  padding:0 var(--margin) 18px;
+  position:relative;
+}
+.hero-top{
+  display:flex;justify-content:space-between;align-items:flex-end;gap:32px;
+  padding:34px 0 10px;
+}
+.sub{
+  max-width:38ch;font-size:var(--text-m);line-height:1.55;font-weight:450;
+}
+.sub mark{background:var(--acid);color:var(--ink);padding:0 .15em}
+.cta{
+  flex:none;
+  display:inline-block;background:var(--ink);color:var(--paper);
+  font-weight:600;font-size:var(--text-m);letter-spacing:0.01em;
+  padding:16px 30px;border-radius:999px;text-decoration:none;
+  transition:background .25s var(--ease),transform .25s var(--ease);
+}
+.cta:hover{background:var(--klein);transform:translateY(-2px)}
+
+/* ---------- headline ---------- */
+.headline{
+  position:relative;flex:1 0 auto;
+  display:flex;flex-direction:column;justify-content:center;
+  gap:0.6vw;
+  margin:8px 0 14px;
+  user-select:none;
+}
+.hl-line{
+  display:flex;justify-content:space-between;align-items:baseline;
+  line-height:0.84;font-weight:800;letter-spacing:-0.015em;
+  white-space:nowrap;
+}
+.hl-line .ltr{
+  display:inline-block;
+  font-variation-settings:'wght' 800;
+  will-change:font-variation-settings;
+}
+.hl-line .ltr.outline{
+  -webkit-text-stroke:max(2px,0.012em) var(--ink);
+  color:transparent;
+}
+.hl-line .sp{display:inline-block;width:0.38em}
+
+/* ---------- product UI primitives, anchored to letters by JS ---------- */
+.ov{position:absolute;z-index:3}
+.ov-ruler{width:0;border-left:1.5px dashed var(--ink)}
+.ov-ruler::before,.ov-ruler::after{
+  content:'';position:absolute;left:-7px;width:13px;height:1.5px;background:var(--ink);
+}
+.ov-ruler::before{top:0}
+.ov-ruler::after{bottom:0}
+.ov-ruler .tag{
+  position:absolute;top:18%;left:6px;
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.03em;
+  background:var(--acid);padding:3px 7px;white-space:nowrap;
+}
+.ov-token{
+  background:var(--klein);color:#fff;
+  font-family:var(--font-mono);font-size:12px;letter-spacing:.02em;
+  padding:9px 13px;border-radius:6px;
+  transform:rotate(-3.5deg);
+  display:flex;align-items:center;gap:9px;white-space:nowrap;
+  box-shadow:0 0 0 3px var(--paper);
+}
+.ov-token .swatch{width:10px;height:10px;background:var(--acid);flex:none}
+.ov-slider{height:0;display:flex;align-items:center}
+.ov-slider .track{
+  position:absolute;left:0;right:0;top:-0.75px;height:1.5px;background:var(--ink);
+}
+.ov-slider .tick{position:absolute;top:-5px;width:1.5px;height:11px;background:var(--ink)}
+.ov-slider .handle{
+  position:absolute;top:-9px;width:18px;height:18px;background:var(--klein);
+  border:2.5px solid var(--paper);border-radius:50%;
+}
+.ov-slider .bubble{
+  position:absolute;top:-42px;transform:translateX(-50%);
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.03em;
+  background:var(--paper);border:1.5px solid var(--ink);padding:3px 8px;white-space:nowrap;
+}
+.ov-caret{width:3px;background:var(--klein);animation:blink 1.05s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* ---------- bottom functional strip ---------- */
+.strip{
+  display:flex;justify-content:space-between;align-items:center;gap:20px;
+  border-top:1.5px solid var(--ink);
+  padding-top:12px;
+  font-family:var(--font-mono);font-size:11px;
+  text-transform:uppercase;letter-spacing:var(--label-tracking);
+}
+.strip .chip{display:flex;align-items:center;gap:8px}
+.strip .dot{width:8px;height:8px;border-radius:50%;background:var(--pass);flex:none}
+
+/* ---------- sections shared ---------- */
+html{scroll-behavior:smooth}
+.sec{padding:96px var(--margin)}
+.sec-label{
+  display:flex;align-items:center;gap:16px;
+  font-family:var(--font-mono);font-size:11px;text-transform:uppercase;
+  letter-spacing:var(--label-tracking);margin-bottom:44px;
+}
+.sec-label::after{content:'';flex:1;height:1.5px;background:currentColor}
+.sec h2{
+  font-size:clamp(34px,5vw,72px);font-weight:800;line-height:1.02;
+  letter-spacing:-0.02em;max-width:18ch;margin-bottom:28px;
+}
+.sec .lead{font-size:var(--text-l);line-height:1.55;font-weight:450;max-width:56ch}
+
+/* ---------- problem (Klein field) ---------- */
+.problem{background:var(--klein);color:var(--paper)}
+.problem .lead{color:var(--paper)}
+.files{display:flex;flex-wrap:wrap;gap:12px 14px;margin:40px 0 44px;max-width:900px}
+.file{
+  font-family:var(--font-mono);font-size:12.5px;letter-spacing:.01em;
+  background:var(--paper);color:var(--ink);padding:9px 14px;border-radius:6px;
+  white-space:nowrap;
+}
+.file.ghost{background:transparent;border:1.5px dashed var(--paper);color:var(--paper)}
+.files .file:nth-child(3n){transform:rotate(-2deg)}
+.files .file:nth-child(4n+1){transform:rotate(1.6deg)}
+.problem .solution{
+  display:flex;align-items:center;gap:22px;flex-wrap:wrap;
+  font-family:var(--font-mono);font-size:13px;
+}
+.problem .solution .arrow{font-size:34px;line-height:1;font-family:var(--font-brand);font-weight:300}
+.token-final{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--paper);color:var(--ink);padding:11px 16px;border-radius:6px;
+  font-family:var(--font-mono);font-size:13px;
+}
+.token-final .dot{width:8px;height:8px;border-radius:50%;background:var(--pass)}
+
+/* ---------- how it works ---------- */
+.steps{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:24px;
+  border-top:1.5px solid var(--ink);padding-top:32px;
+}
+.step .n{
+  display:inline-block;font-family:var(--font-mono);font-size:12px;
+  background:var(--acid);padding:4px 9px;margin-bottom:18px;
+}
+.step h3{font-size:clamp(22px,1.9vw,28px);font-weight:700;letter-spacing:-0.01em;margin-bottom:12px}
+.step p{font-size:15px;line-height:1.55;max-width:38ch}
+
+/* ---------- scale strip divider ---------- */
+.scalestrip{
+  display:flex;align-items:baseline;justify-content:space-between;gap:2vw;
+  padding:34px var(--margin);border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink);
+  overflow:hidden;white-space:nowrap;user-select:none;
+}
+.scalestrip span{
+  font-weight:700;letter-spacing:-0.02em;line-height:1;
+  font-variation-settings:'wght' 700;will-change:font-variation-settings;
+}
+.scalestrip .cap{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:var(--label-tracking);align-self:center}
+
+/* ---------- modules ---------- */
+.mods{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.mod{
+  border:1.5px solid var(--ink);padding:26px 26px 22px;min-height:240px;
+  display:flex;flex-direction:column;gap:13px;background:var(--paper);
+  transition:box-shadow .25s var(--ease),transform .25s var(--ease);
+}
+.mod:hover{box-shadow:6px 6px 0 var(--ink);transform:translate(-2px,-2px)}
+.mod .tag{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:var(--label-tracking);color:var(--klein)}
+.mod h3{font-size:22px;font-weight:700;letter-spacing:-0.01em}
+.mod p{font-size:14.5px;line-height:1.5}
+.mod .viz{margin-top:auto;padding-top:18px;font-family:var(--font-mono);font-size:12.5px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.viz .aa{font-family:var(--font-brand);font-weight:800;line-height:1}
+.viz .pill{
+  padding:4px 10px;border-radius:999px;white-space:nowrap;border:1.5px solid;
+  display:inline-flex;align-items:center;gap:7px;color:var(--ink);
+}
+.viz .pill::before{content:'';width:7px;height:7px;border-radius:50%;flex:none}
+.viz .p-pass{border-color:var(--pass)}
+.viz .p-pass::before{background:var(--pass)}
+.viz .p-warn{border-color:var(--warn)}
+.viz .p-warn::before{background:var(--warn)}
+.viz .p-fail{border-color:var(--fail)}
+.viz .p-fail::before{background:var(--fail)}
+.viz .old{text-decoration:line-through;opacity:.55}
+.viz .new{background:var(--acid);padding:2px 6px}
+.viz .kchip{background:var(--klein);color:#fff;padding:4px 9px;border-radius:5px}
+
+/* ---------- live demo ---------- */
+.demo-controls{
+  display:flex;align-items:flex-end;gap:36px;flex-wrap:wrap;
+  margin:12px 0 36px;
+}
+.dc{display:flex;flex-direction:column;gap:10px}
+.dc label{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:var(--label-tracking)}
+.dc .val{font-family:var(--font-mono);font-size:13px}
+.dc input[type=range]{width:220px;accent-color:var(--klein)}
+.dc select{
+  font-family:var(--font-mono);font-size:13px;color:var(--ink);
+  background:var(--paper);border:1.5px solid var(--ink);border-radius:6px;padding:9px 12px;
+}
+.btn-ghost{
+  font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:var(--label-tracking);
+  border:1.5px solid var(--ink);border-radius:999px;padding:12px 22px;
+  transition:background .2s var(--ease),color .2s var(--ease);
+}
+.btn-ghost:hover{background:var(--ink);color:var(--paper)}
+.btn-ghost.done{background:var(--acid);border-color:var(--acid);color:var(--ink)}
+.demo-rows{border-top:1.5px solid var(--ink);margin-bottom:36px}
+.drow{
+  display:grid;grid-template-columns:230px 1fr;gap:24px;align-items:baseline;
+  border-bottom:1px solid rgba(17,17,17,.22);padding:12px 0;overflow:hidden;
+}
+.drow .meta{font-family:var(--font-mono);font-size:11.5px;white-space:nowrap}
+.drow .prev{white-space:nowrap;overflow:hidden;letter-spacing:-0.01em}
+.democode{
+  background:var(--ink);color:var(--paper);border-radius:8px;
+  padding:26px 28px;font-family:var(--font-mono);font-size:12.5px;line-height:1.7;
+  overflow-x:auto;max-width:640px;
+}
+.democode .c{opacity:.5}
+
+/* ---------- pricing ---------- */
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.plan{
+  border:1.5px solid var(--ink);padding:30px 28px;display:flex;flex-direction:column;gap:0;
+}
+.plan .pname{display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:var(--label-tracking);margin-bottom:22px}
+.plan .pop{background:var(--acid);color:var(--ink);padding:3px 8px}
+.plan .price{font-size:clamp(44px,3.8vw,60px);font-weight:800;letter-spacing:-0.02em;line-height:1}
+.plan .per{font-family:var(--font-mono);font-size:11.5px;margin:10px 0 26px;opacity:.75}
+.plan ul{list-style:none;margin-bottom:30px}
+.plan li{font-size:14.5px;line-height:1.45;padding:10px 0;border-top:1px dashed currentColor}
+.plan .cta2{
+  margin-top:auto;text-align:center;text-decoration:none;
+  font-weight:600;font-size:15px;padding:13px 20px;border-radius:999px;
+  border:1.5px solid currentColor;transition:background .2s var(--ease),color .2s var(--ease);
+}
+.plan .cta2:hover{background:var(--ink);color:var(--paper)}
+.plan.pro{background:var(--ink);color:var(--paper)}
+.plan.pro .cta2{background:var(--acid);border-color:var(--acid);color:var(--ink)}
+.plan.pro .cta2:hover{background:var(--paper);border-color:var(--paper)}
+
+/* ---------- faq ---------- */
+.faq-list{max-width:860px}
+.faq-list details{border-top:1.5px solid var(--ink)}
+.faq-list details:last-child{border-bottom:1.5px solid var(--ink)}
+.faq-list summary{
+  list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:24px;align-items:baseline;
+  padding:20px 0;font-weight:600;font-size:clamp(17px,1.5vw,21px);letter-spacing:-0.01em;
+}
+.faq-list summary::-webkit-details-marker{display:none}
+.faq-list summary::after{content:'+';font-family:var(--font-mono);font-size:20px;font-weight:400;flex:none}
+.faq-list details[open] summary::after{content:'−'}
+.faq-list details p{padding:0 0 24px;font-size:15.5px;line-height:1.6;max-width:64ch}
+
+/* ---------- footer ---------- */
+footer{background:var(--ink);color:var(--paper);padding:80px 0 0;overflow:hidden}
+.f-grid{
+  display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap;
+  padding:0 var(--margin) 64px;
+}
+.f-brand{max-width:30ch}
+.f-brand .fb-name{font-weight:800;font-size:var(--text-l);margin-bottom:12px}
+.f-brand p{font-size:14px;line-height:1.5;opacity:.8}
+.f-col{display:flex;flex-direction:column;gap:12px}
+.f-col .fh{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:var(--label-tracking);opacity:.55;margin-bottom:6px}
+.f-col a{
+  font-family:var(--font-mono);font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;
+  text-decoration:none;width:fit-content;border-bottom:1px solid transparent;padding-bottom:1px;
+}
+.f-col a:hover{color:var(--acid);border-bottom-color:var(--acid)}
+.f-meta{
+  display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  padding:0 var(--margin) 26px;
+  font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:var(--label-tracking);
+  opacity:.75;
+}
+.wordmark{
+  font-weight:800;font-size:29vw;line-height:.72;letter-spacing:-0.02em;
+  text-align:center;white-space:nowrap;user-select:none;
+  transform:translateY(20%);
+}
+footer :focus-visible{outline-color:var(--acid)}
+
+/* ---------- reveal on scroll ---------- */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.rv.in{opacity:1;transform:none}
+
+/* ---------- responsive ---------- */
+@media (max-width:1100px){
+  .mods{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:900px){
+  .sec{padding:64px var(--margin)}
+  .steps,.plans,.mods{grid-template-columns:1fr}
+  .drow{grid-template-columns:1fr;gap:4px}
+  .scalestrip span:nth-child(n+8){display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .rv{opacity:1;transform:none;transition:none}
+  .mod,.mod:hover{transition:none;transform:none}
+}
+@media (max-width:900px){
+  .bar nav{display:none}
+  .hero-top{flex-direction:column;align-items:flex-start;gap:20px;padding-top:24px}
+  .ov-slider .bubble{display:none}
+}
+@media (max-width:560px){
+  .ov-token{font-size:10px;padding:7px 9px}
+  .ov-ruler .tag{font-size:9px}
+  .strip{flex-wrap:wrap;row-gap:6px}
+}
+@media (prefers-reduced-motion:reduce){
+  .ov-caret{animation:none}
+  .cta{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="brand">KERN<sup>®</sup></div>
+  <nav aria-label="Sections">
+    <a href="#product"  data-ru="Продукт" data-en="Product">Продукт</a>
+    <a href="#modules"  data-ru="Модули" data-en="Modules">Модули</a>
+    <a href="#demo"     data-ru="Демо" data-en="Demo">Демо</a>
+    <a href="#pricing"  data-ru="Тарифы" data-en="Pricing">Тарифы</a>
+  </nav>
+  <div class="bar-right">
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-setlang="ru" aria-pressed="true">RU</button>
+      <button type="button" data-setlang="en" aria-pressed="false">EN</button>
+    </div>
+    <a class="signin" href="app.html" data-ru="Войти" data-en="Sign in">Войти</a>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="hero-top">
+    <p class="sub"
+       data-ru="KERN — <mark>единый источник правды</mark> для типографики бренда: шкалы, токены, адаптивные правила, проверки читаемости и экспорт прямо в код."
+       data-en="KERN is the <mark>single source of truth</mark> for your brand typography: scales, tokens, responsive rules, readability checks and export straight to code."></p>
+    <a class="cta" href="#pricing" data-ru="Начать бесплатно" data-en="Start free">Начать бесплатно</a>
+  </div>
+
+  <div class="headline" id="headline" role="img" aria-label="Типографика как система, а не как получится">
+    <!-- lines are built by JS from HEADLINE dict -->
+    <div class="ov ov-ruler" id="ovRuler" aria-hidden="true"><span class="tag">kern −12</span></div>
+    <div class="ov ov-token mono" id="ovToken" aria-hidden="true"><span class="swatch"></span>heading/xl · 96/104</div>
+    <div class="ov ov-slider" id="ovSlider" aria-hidden="true">
+      <span class="track"></span>
+      <span class="tick" style="left:0%"></span>
+      <span class="tick" style="left:25%"></span>
+      <span class="tick" style="left:50%"></span>
+      <span class="tick" style="left:75%"></span>
+      <span class="tick" style="left:100%"></span>
+      <span class="handle" style="left:calc(62% - 9px)"></span>
+      <span class="bubble" style="left:62%">ratio 1.25</span>
+    </div>
+    <div class="ov ov-caret" id="ovCaret" aria-hidden="true"></div>
+  </div>
+
+  <div class="strip">
+    <span data-ru="base 18 · ratio 1.25 · 9 ступеней" data-en="base 18 · ratio 1.25 · 9 steps">base 18 · ratio 1.25 · 9 ступеней</span>
+    <span class="chip"><span class="dot"></span><span>WCAG AA · pass</span></span>
+    <span data-ru="v0.1.0 · черновик" data-en="v0.1.0 · draft">v0.1.0 · черновик</span>
+  </div>
+</section>
+
+<!-- ---------- 01 · problem ---------- -->
+<section class="sec problem" id="product">
+  <div class="sec-label rv"><span data-ru="01 · Проблема" data-en="01 · The problem">01 · Проблема</span></div>
+  <h2 class="rv" data-ru="Типографика бренда живёт в&nbsp;14 файлах" data-en="Brand typography lives in&nbsp;14 files">Типографика бренда живёт в&nbsp;14 файлах</h2>
+  <div class="files rv" aria-hidden="true">
+    <span class="file">brandbook_2019_final.pdf</span>
+    <span class="file">styleguide_v3_FINAL(2).fig</span>
+    <span class="file">tokens-old.scss</span>
+    <span class="file ghost" data-ru="«какой кегль у H2?»" data-en="“what size is H2 again?”">«какой кегль у H2?»</span>
+    <span class="file">type-rules.docx</span>
+    <span class="file">do-not-touch.sketch</span>
+    <span class="file ghost" data-ru="в голове у арт-директора" data-en="in the art director’s head">в голове у арт-директора</span>
+    <span class="file">landing-typography-copy.css</span>
+  </div>
+  <p class="lead rv"
+     data-ru="Размеры расходятся, вес подбирается на глаз, кириллица ломает макеты. KERN сводит всё в одну систему: шкалы, токены и правила — с версиями, проверками и экспортом прямо в код."
+     data-en="Sizes drift, weights are eyeballed, Cyrillic breaks the layout. KERN folds it all into one system: scales, tokens and rules — versioned, checked and exported straight to code.">Размеры расходятся, вес подбирается на глаз, кириллица ломает макеты. KERN сводит всё в одну систему: шкалы, токены и правила — с версиями, проверками и экспортом прямо в код.</p>
+  <div class="solution rv" style="margin-top:36px">
+    <span class="arrow" aria-hidden="true">→</span>
+    <span class="token-final"><span class="dot"></span>brand-system · v2.4.0</span>
+  </div>
+</section>
+
+<!-- ---------- 02 · how it works ---------- -->
+<section class="sec" id="how">
+  <div class="sec-label rv"><span data-ru="02 · Как это работает" data-en="02 · How it works">02 · Как это работает</span></div>
+  <h2 class="rv" data-ru="Три шага до системы" data-en="Three steps to a system">Три шага до системы</h2>
+  <div class="steps">
+    <div class="step rv">
+      <span class="n">01</span>
+      <h3 data-ru="Импортируйте" data-en="Import">Импортируйте</h3>
+      <p data-ru="Из Figma, CSS или вручную: KERN подхватывает существующие стили и сразу показывает расхождения."
+         data-en="From Figma, CSS or by hand: KERN picks up your existing styles and instantly shows the drift.">Из Figma, CSS или вручную: KERN подхватывает существующие стили и сразу показывает расхождения.</p>
+    </div>
+    <div class="step rv">
+      <span class="n">02</span>
+      <h3 data-ru="Систематизируйте" data-en="Systemize">Систематизируйте</h3>
+      <p data-ru="Шкала по ratio, семантические токены, адаптивные правила и проверки читаемости — в одном месте."
+         data-en="A ratio-driven scale, semantic tokens, responsive rules and readability checks — in one place.">Шкала по ratio, семантические токены, адаптивные правила и проверки читаемости — в одном месте.</p>
+    </div>
+    <div class="step rv">
+      <span class="n">03</span>
+      <h3 data-ru="Экспортируйте" data-en="Ship">Экспортируйте</h3>
+      <p data-ru="CSS variables, Figma Tokens, Tailwind — одна кнопка, всегда актуальная версия."
+         data-en="CSS variables, Figma Tokens, Tailwind — one click, always the current version.">CSS variables, Figma Tokens, Tailwind — одна кнопка, всегда актуальная версия.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- scale strip divider ---------- -->
+<div class="scalestrip" aria-hidden="true">
+  <span class="cap">base 18 · ratio 1.25</span>
+  <span style="font-size:15px">12</span>
+  <span style="font-size:18px">14</span>
+  <span style="font-size:23px">18</span>
+  <span style="font-size:29px">23</span>
+  <span style="font-size:35px">28</span>
+  <span style="font-size:44px">35</span>
+  <span style="font-size:55px">44</span>
+  <span style="font-size:69px">55</span>
+  <span style="font-size:86px">69</span>
+  <span style="font-size:107px">86</span>
+</div>
+
+<!-- ---------- 03 · modules ---------- -->
+<section class="sec" id="modules">
+  <div class="sec-label rv"><span data-ru="03 · Модули" data-en="03 · Modules">03 · Модули</span></div>
+  <h2 class="rv" data-ru="Один инструмент — вся система" data-en="One tool, the whole system">Один инструмент — вся система</h2>
+  <div class="mods">
+    <div class="mod rv">
+      <span class="tag">Scale Builder</span>
+      <h3 data-ru="Шкала по ratio" data-en="Ratio-driven scale">Шкала по ratio</h3>
+      <p data-ru="От minor third до собственного коэффициента. Живой превью на реальном тексте — RU и EN."
+         data-en="From minor third to a custom ratio. Live preview on real copy — both RU and EN.">От minor third до собственного коэффициента. Живой превью на реальном тексте — RU и EN.</p>
+      <div class="viz" aria-hidden="true">
+        <span class="aa" style="font-size:14px">Aa</span>
+        <span class="aa" style="font-size:20px">Aa</span>
+        <span class="aa" style="font-size:28px">Aa</span>
+        <span class="aa" style="font-size:38px">Aa</span>
+      </div>
+    </div>
+    <div class="mod rv">
+      <span class="tag">Tokens</span>
+      <h3 data-ru="Семантические токены" data-en="Semantic tokens">Семантические токены</h3>
+      <p data-ru="heading/xl вместо «тот большой». Нейминг-конвенции настраиваются под команду."
+         data-en="heading/xl instead of “the big one”. Naming conventions bend to your team.">heading/xl вместо «тот большой». Нейминг-конвенции настраиваются под команду.</p>
+      <div class="viz" aria-hidden="true"><span class="kchip">heading/xl · 96/104</span></div>
+    </div>
+    <div class="mod rv">
+      <span class="tag">Responsive Rules</span>
+      <h3 data-ru="Fluid-типографика" data-en="Fluid typography">Fluid-типографика</h3>
+      <p data-ru="Брейкпоинты и clamp(): видно, как размер течёт между вьюпортами."
+         data-en="Breakpoints and clamp(): watch the size flow between viewports.">Брейкпоинты и clamp(): видно, как размер течёт между вьюпортами.</p>
+      <div class="viz" aria-hidden="true"><span>clamp(24px, 2.4vw + 12px, 96px)</span></div>
+    </div>
+    <div class="mod rv">
+      <span class="tag">Check</span>
+      <h3 data-ru="Проверки читаемости" data-en="Readability checks">Проверки читаемости</h3>
+      <p data-ru="WCAG-контраст, длина строки, минимальные кегли. Статусы прямо на токенах."
+         data-en="WCAG contrast, line length, minimum sizes. Statuses right on the tokens.">WCAG-контраст, длина строки, минимальные кегли. Статусы прямо на токенах.</p>
+      <div class="viz" aria-hidden="true">
+        <span class="pill p-pass">pass 7.2:1</span>
+        <span class="pill p-warn">warn 3.9:1</span>
+        <span class="pill p-fail">fail 1.8:1</span>
+      </div>
+    </div>
+    <div class="mod rv">
+      <span class="tag">Export</span>
+      <h3 data-ru="Экспорт в код" data-en="Export to code">Экспорт в код</h3>
+      <p data-ru="CSS, SCSS, Figma Tokens, Tailwind. Копируйте или синхронизируйте через API."
+         data-en="CSS, SCSS, Figma Tokens, Tailwind. Copy it or sync through the API.">CSS, SCSS, Figma Tokens, Tailwind. Копируйте или синхронизируйте через API.</p>
+      <div class="viz" aria-hidden="true"><span>--heading-xl: 96px/104px;</span></div>
+    </div>
+    <div class="mod rv">
+      <span class="tag">Diffs</span>
+      <h3 data-ru="Версии и диффы" data-en="Versions &amp; diffs">Версии и диффы</h3>
+      <p data-ru="Semver, визуальный дифф «было/стало», кто и когда поменял. Откат в один клик."
+         data-en="Semver, a visual before/after diff, who changed what and when. One-click rollback.">Semver, визуальный дифф «было/стало», кто и когда поменял. Откат в один клик.</p>
+      <div class="viz" aria-hidden="true"><span class="old">88/96</span><span>→</span><span class="new">96/104</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- 04 · live demo ---------- -->
+<section class="sec" id="demo">
+  <div class="sec-label rv"><span data-ru="04 · Живое демо" data-en="04 · Live demo">04 · Живое демо</span></div>
+  <h2 class="rv" data-ru="Соберите шкалу прямо здесь" data-en="Build a scale right here">Соберите шкалу прямо здесь</h2>
+  <p class="lead rv"
+     data-ru="Мини-версия Scale Builder. Настоящий работает с вашими шрифтами, брейкпоинтами и проверками."
+     data-en="A mini Scale Builder. The real one runs on your fonts, breakpoints and checks.">Мини-версия Scale Builder. Настоящий работает с вашими шрифтами, брейкпоинтами и проверками.</p>
+
+  <div class="demo-controls">
+    <div class="dc">
+      <label for="dBase" data-ru="Базовый кегль" data-en="Base size">Базовый кегль</label>
+      <input type="range" id="dBase" min="14" max="22" step="1" value="18">
+      <span class="val" id="dBaseVal">18 px</span>
+    </div>
+    <div class="dc">
+      <label for="dRatio">Ratio</label>
+      <select id="dRatio">
+        <option value="1.2"   data-ru="1.2 — минорная терция" data-en="1.2 — minor third">1.2 — минорная терция</option>
+        <option value="1.25"  data-ru="1.25 — мажорная терция" data-en="1.25 — major third" selected>1.25 — мажорная терция</option>
+        <option value="1.333" data-ru="1.333 — кварта" data-en="1.333 — perfect fourth">1.333 — кварта</option>
+        <option value="1.414" data-ru="1.414 — увеличенная кварта" data-en="1.414 — augmented fourth">1.414 — увеличенная кварта</option>
+        <option value="1.5"   data-ru="1.5 — квинта" data-en="1.5 — perfect fifth">1.5 — квинта</option>
+      </select>
+    </div>
+    <button type="button" class="btn-ghost" id="dCopy" data-ru="Скопировать CSS" data-en="Copy CSS">Скопировать CSS</button>
+  </div>
+
+  <div class="demo-rows" id="demoRows"></div>
+  <pre class="democode" id="demoCode"></pre>
+</section>
+
+<!-- ---------- 05 · pricing ---------- -->
+<section class="sec" id="pricing">
+  <div class="sec-label rv"><span data-ru="05 · Тарифы" data-en="05 · Pricing">05 · Тарифы</span></div>
+  <h2 class="rv" data-ru="Просто, как хорошая шкала" data-en="Simple, like a good scale">Просто, как хорошая шкала</h2>
+  <div class="plans">
+    <div class="plan rv">
+      <div class="pname"><span>Free</span></div>
+      <div class="price">$0</div>
+      <div class="per" data-ru="навсегда" data-en="forever">навсегда</div>
+      <ul>
+        <li data-ru="1 проект" data-en="1 project">1 проект</li>
+        <li data-ru="1 шрифтовая пара" data-en="1 font pair">1 шрифтовая пара</li>
+        <li data-ru="Экспорт CSS variables" data-en="CSS variables export">Экспорт CSS variables</li>
+      </ul>
+      <a class="cta2" href="app.html" data-ru="Начать" data-en="Start">Начать</a>
+    </div>
+    <div class="plan pro rv">
+      <div class="pname"><span>Pro</span><span class="pop" data-ru="Популярный" data-en="Popular">Популярный</span></div>
+      <div class="price">$15</div>
+      <div class="per" data-ru="за редактора в месяц" data-en="per editor / month">за редактора в месяц</div>
+      <ul>
+        <li data-ru="Безлимит проектов" data-en="Unlimited projects">Безлимит проектов</li>
+        <li data-ru="Все форматы экспорта" data-en="Every export format">Все форматы экспорта</li>
+        <li data-ru="Версии и changelog" data-en="Versions &amp; changelog">Версии и changelog</li>
+      </ul>
+      <a class="cta2" href="app.html" data-ru="14 дней бесплатно" data-en="14 days free">14 дней бесплатно</a>
+    </div>
+    <div class="plan rv">
+      <div class="pname"><span>Team</span></div>
+      <div class="price">$39</div>
+      <div class="per" data-ru="за редактора в месяц" data-en="per editor / month">за редактора в месяц</div>
+      <ul>
+        <li data-ru="Роли и права доступа" data-en="Roles &amp; permissions">Роли и права доступа</li>
+        <li data-ru="Визуальные диффы" data-en="Visual diffs">Визуальные диффы</li>
+        <li data-ru="API + CLI" data-en="API + CLI">API + CLI</li>
+        <li data-ru="SSO" data-en="SSO">SSO</li>
+      </ul>
+      <a class="cta2" href="app.html" data-ru="Связаться" data-en="Talk to us">Связаться</a>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- 06 · faq ---------- -->
+<section class="sec" id="faq">
+  <div class="sec-label rv"><span>06 · FAQ</span></div>
+  <div class="faq-list rv">
+    <details>
+      <summary><span data-ru="Чем KERN отличается от стилей в Figma?" data-en="How is KERN different from Figma styles?">Чем KERN отличается от стилей в Figma?</span></summary>
+      <p data-ru="Figma хранит значения. KERN хранит систему: правила, по которым значения построены, проверки, версии и экспорт в любые форматы — от CSS до Tailwind."
+         data-en="Figma stores values. KERN stores the system: the rules those values come from, plus checks, versions and export to any format — from CSS to Tailwind.">Figma хранит значения. KERN хранит систему: правила, по которым значения построены, проверки, версии и экспорт в любые форматы — от CSS до Tailwind.</p>
+    </details>
+    <details>
+      <summary><span data-ru="Нужно ли загружать шрифты в KERN?" data-en="Do I need to upload fonts to KERN?">Нужно ли загружать шрифты в KERN?</span></summary>
+      <p data-ru="Подключаете свои: self-hosted файлы или ссылки на библиотеки. KERN работает с метриками шрифта, лицензии остаются вашими."
+         data-en="You bring your own: self-hosted files or library links. KERN works with the font’s metrics; licences stay yours.">Подключаете свои: self-hosted файлы или ссылки на библиотеки. KERN работает с метриками шрифта, лицензии остаются вашими.</p>
+    </details>
+    <details>
+      <summary><span data-ru="Что происходит, когда я меняю шкалу?" data-en="What happens when I change the scale?">Что происходит, когда я меняю шкалу?</span></summary>
+      <p data-ru="Создаётся новая версия по semver. Дифф показывает, что изменилось — на живом тексте, было/стало. Откат в один клик."
+         data-en="A new semver version is created. The diff shows what changed — on live text, before and after. Rollback is one click.">Создаётся новая версия по semver. Дифф показывает, что изменилось — на живом тексте, было/стало. Откат в один клик.</p>
+    </details>
+    <details>
+      <summary><span data-ru="Есть ли API?" data-en="Is there an API?">Есть ли API?</span></summary>
+      <p data-ru="В тарифе Team: REST API и CLI. Можно линтить типографику в пул-реквестах — CI падает, если кто-то захардкодил 17px."
+         data-en="On the Team plan: REST API and CLI. Lint typography in pull requests — CI fails when someone hardcodes 17px.">В тарифе Team: REST API и CLI. Можно линтить типографику в пул-реквестах — CI падает, если кто-то захардкодил 17px.</p>
+    </details>
+    <details>
+      <summary><span data-ru="Кириллица поддерживается?" data-en="Is Cyrillic supported?">Кириллица поддерживается?</span></summary>
+      <p data-ru="Полностью. Превью и проверки читаемости работают на русском и английском тексте параллельно — вёрстка не сломается ни в одной локали."
+         data-en="Fully. Previews and readability checks run on Russian and English copy side by side — the layout holds in either locale.">Полностью. Превью и проверки читаемости работают на русском и английском тексте параллельно — вёрстка не сломается ни в одной локали.</p>
+    </details>
+  </div>
+</section>
+</main>
+
+<!-- ---------- footer ---------- -->
+<footer>
+  <div class="f-grid">
+    <div class="f-brand">
+      <div class="fb-name">KERN<sup>®</sup></div>
+      <p data-ru="Типографика как система, а не как получится." data-en="Typography as a system, not a guess.">Типографика как система, а не как получится.</p>
+    </div>
+    <div class="f-col">
+      <span class="fh" data-ru="Разделы" data-en="Sections">Разделы</span>
+      <a href="#product" data-ru="Проблема" data-en="Problem">Проблема</a>
+      <a href="#modules" data-ru="Модули" data-en="Modules">Модули</a>
+      <a href="#demo" data-ru="Демо" data-en="Demo">Демо</a>
+      <a href="#pricing" data-ru="Тарифы" data-en="Pricing">Тарифы</a>
+    </div>
+    <div class="f-col">
+      <span class="fh" data-ru="Соцсети" data-en="Elsewhere">Соцсети</span>
+      <a href="#">Behance</a>
+      <a href="#">GitHub</a>
+      <a href="#">X</a>
+    </div>
+    <div class="f-col">
+      <span class="fh" data-ru="Контакты" data-en="Contact">Контакты</span>
+      <a href="#">usekern.com</a>
+      <a href="#">hi@usekern.com</a>
+    </div>
+  </div>
+  <div class="f-meta">
+    <span>© 2026 KERN</span>
+    <span data-ru="Шкала этого сайта собрана в KERN · base 18 · ratio 1.25" data-en="This site’s scale was built in KERN · base 18 · ratio 1.25">Шкала этого сайта собрана в KERN · base 18 · ratio 1.25</span>
+  </div>
+  <div class="wordmark" aria-hidden="true">KERN</div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+
+  var HEADLINE = {
+    ru: [
+      {t:'ТИПОГРАФИКА'},
+      {t:'КАК СИСТЕМА,', outline:[4,10]},
+      {t:'А НЕ КАК'},
+      {t:'ПОЛУЧИТСЯ'}
+    ],
+    en: [
+      {t:'TYPOGRAPHY'},
+      {t:'AS A SYSTEM,', outline:[5,10]},
+      {t:'NOT A'},
+      {t:'GUESS.'}
+    ]
+  };
+  var ARIA = {
+    ru:'Типографика как система, а не как получится',
+    en:'Typography as a system, not a guess'
+  };
+  var BASE_W = 800, MIN_W = 300, SIGMA = 150;
+
+  var headline = document.getElementById('headline');
+  var ovRuler  = document.getElementById('ovRuler');
+  var ovToken  = document.getElementById('ovToken');
+  var ovSlider = document.getElementById('ovSlider');
+  var ovCaret  = document.getElementById('ovCaret');
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var letters = [];   // {el, w:current weight}
+  var lineEls = [];
+
+  /* ---------- i18n ---------- */
+  function setLang(lang){
+    document.documentElement.lang = lang;
+    document.documentElement.dataset.lang = lang;
+    document.title = lang === 'ru' ? 'KERN — типографика как система' : 'KERN — typography as a system';
+    document.querySelectorAll('[data-ru]').forEach(function(el){
+      el.innerHTML = el.dataset[lang];
+    });
+    document.querySelectorAll('[data-setlang]').forEach(function(b){
+      b.setAttribute('aria-pressed', String(b.dataset.setlang === lang));
+    });
+    headline.setAttribute('aria-label', ARIA[lang]);
+    try{ localStorage.setItem('kern-lang', lang); }catch(e){}
+    buildHeadline(lang);
+    layout();
+    renderDemo();
+  }
+
+  /* ---------- headline construction ---------- */
+  function buildHeadline(lang){
+    lineEls.forEach(function(l){ l.remove(); });
+    lineEls = []; letters = [];
+    var firstOv = headline.querySelector('.ov');
+    HEADLINE[lang].forEach(function(spec){
+      var line = document.createElement('div');
+      line.className = 'hl-line';
+      line.setAttribute('aria-hidden','true');
+      spec.t.split('').forEach(function(ch, i){
+        var s = document.createElement('span');
+        if(ch === ' '){ s.className = 'sp'; }
+        else{
+          s.className = 'ltr';
+          s.textContent = ch;
+          if(spec.outline && i >= spec.outline[0] && i <= spec.outline[1]) s.classList.add('outline');
+          letters.push({el:s, w:BASE_W});
+        }
+        line.appendChild(s);
+      });
+      headline.insertBefore(line, firstOv);
+      lineEls.push(line);
+    });
+  }
+
+  /* ---------- fit lines to container width, then to available height ---------- */
+  function layout(){
+    var W = headline.clientWidth;
+    if(!W) return;
+    // hero owns exactly the first viewport
+    var barEl = document.querySelector('.bar');
+    document.querySelector('.hero').style.minHeight =
+      (window.innerHeight - barEl.offsetHeight) + 'px';
+    // measure natural letter widths at 100px / base weight
+    lineEls.forEach(function(line){
+      line.style.fontSize = '100px';
+    });
+    lineEls.forEach(function(line){
+      var sum = 0;
+      Array.prototype.forEach.call(line.children, function(ch){
+        sum += ch.getBoundingClientRect().width;
+      });
+      var fs = 100 * (W / sum) * 0.995;
+      fs = Math.min(fs, W * 0.26);           // cap ~24vw per ТЗ
+      line.style.fontSize = fs + 'px';
+    });
+    // scale everything down if headline won't fit in the first viewport
+    var bar   = document.querySelector('.bar');
+    var top   = document.querySelector('.hero-top');
+    var strip = document.querySelector('.strip');
+    var avail = window.innerHeight
+              - bar.offsetHeight - top.offsetHeight - strip.offsetHeight
+              - 18 /* hero bottom pad */ - 22 /* headline margins */;
+    var need = 0;
+    lineEls.forEach(function(line){ need += line.offsetHeight; });
+    need += (lineEls.length - 1) * (W * 0.006);
+    if(need > avail){
+      var k = avail / need;
+      lineEls.forEach(function(line){
+        line.style.fontSize = (parseFloat(line.style.fontSize) * k) + 'px';
+      });
+    }
+    positionOverlays();
+  }
+
+  /* ---------- anchor product primitives to real letter boxes ---------- */
+  function rel(r, base){
+    return {left:r.left - base.left, top:r.top - base.top, right:r.right - base.left,
+            bottom:r.bottom - base.top, width:r.width, height:r.height};
+  }
+  function positionOverlays(){
+    if(!lineEls.length) return;
+    var base = headline.getBoundingClientRect();
+    var l0 = lineEls[0], l1 = lineEls[1], last = lineEls[lineEls.length - 1];
+
+    // kerning ruler: between 3rd and 4th letter of line 1
+    var a = rel(l0.children[2].getBoundingClientRect(), base);
+    var b = rel(l0.children[3].getBoundingClientRect(), base);
+    var x = (a.right + b.left) / 2;
+    var lineBox = rel(l0.getBoundingClientRect(), base);
+    ovRuler.style.left   = x + 'px';
+    ovRuler.style.top    = (lineBox.top - lineBox.height * 0.10) + 'px';
+    ovRuler.style.height = (lineBox.height * 1.24) + 'px';
+
+    // token chip: overlaps the right end of line 2
+    var l1box = rel(l1.getBoundingClientRect(), base);
+    ovToken.style.left = '';
+    ovToken.style.right = '-6px';
+    ovToken.style.top = (l1box.bottom - ovToken.offsetHeight * 0.62) + 'px';
+
+    // ratio slider: runs through the last line
+    var lastBox = rel(last.getBoundingClientRect(), base);
+    ovSlider.style.left  = (lastBox.width * 0.06) + 'px';
+    ovSlider.style.width = (lastBox.width * 0.55) + 'px';
+    ovSlider.style.top   = (lastBox.top + lastBox.height * 0.52) + 'px';
+
+    // caret after the last letter
+    var lastLtr = last.children[last.children.length - 1];
+    var lr = rel(lastLtr.getBoundingClientRect(), base);
+    ovCaret.style.left   = (lr.right + 6) + 'px';
+    ovCaret.style.top    = lr.top + 'px';
+    ovCaret.style.height = lr.height + 'px';
+  }
+
+  /* ---------- variable-weight interaction ---------- */
+  var mx = -1e4, my = -1e4, raf = null, idleFrames = 0;
+  function tick(){
+    var active = false;
+    for(var i = 0; i < letters.length; i++){
+      var L = letters[i];
+      var r = L.el.getBoundingClientRect();
+      var dx = (r.left + r.width/2) - mx;
+      var dy = (r.top + r.height/2) - my;
+      var g = Math.exp(-(dx*dx + dy*dy) / (2 * SIGMA * SIGMA));
+      var target = BASE_W - (BASE_W - MIN_W) * g;
+      var next = L.w + (target - L.w) * 0.16;
+      if(Math.abs(next - L.w) > 0.5){
+        L.w = next;
+        L.el.style.fontVariationSettings = "'wght' " + Math.round(next);
+        active = true;
+      }
+    }
+    if(active){ idleFrames = 0; } else { idleFrames++; }
+    if(idleFrames < 30){ raf = requestAnimationFrame(tick); }
+    else { raf = null; }
+  }
+  function wake(){ if(!raf) raf = requestAnimationFrame(tick); }
+
+  if(!reduceMotion){
+    window.addEventListener('pointermove', function(e){
+      mx = e.clientX; my = e.clientY; wake();
+    }, {passive:true});
+    window.addEventListener('pointerleave', function(){
+      mx = -1e4; my = -1e4; wake();
+    });
+  }
+
+  /* ---------- live scale demo ---------- */
+  var STEPS = [
+    {name:'caption',    n:-2, head:false},
+    {name:'body/s',     n:-1, head:false},
+    {name:'body/m',     n: 0, head:false},
+    {name:'heading/s',  n: 1, head:true},
+    {name:'heading/m',  n: 2, head:true},
+    {name:'heading/l',  n: 3, head:true},
+    {name:'heading/xl', n: 4, head:true}
+  ];
+  var PANGRAM = {
+    ru:'Съешь ещё этих мягких французских булок, да выпей же чаю',
+    en:'The quick brown fox jumps over the lazy dog'
+  };
+  var dBase    = document.getElementById('dBase');
+  var dRatio   = document.getElementById('dRatio');
+  var dBaseVal = document.getElementById('dBaseVal');
+  var dCopy    = document.getElementById('dCopy');
+  var demoRows = document.getElementById('demoRows');
+  var demoCode = document.getElementById('demoCode');
+
+  function calcScale(){
+    var base = parseFloat(dBase.value), ratio = parseFloat(dRatio.value);
+    return STEPS.map(function(s){
+      var px = Math.round(base * Math.pow(ratio, s.n) * 100) / 100;
+      return {name:s.name, px:px, lh:px >= 28 ? 1.1 : 1.5, head:s.head};
+    });
+  }
+  function buildCSS(rows){
+    var out = ':root {\n  /* KERN · base ' + dBase.value + ' · ratio ' + dRatio.value + ' · v0.1.0 */\n';
+    rows.forEach(function(r){
+      out += '  --type-' + r.name.replace('/', '-') + ': ' + r.px + 'px;\n';
+    });
+    return out + '}';
+  }
+  function renderDemo(){
+    if(!demoRows) return;
+    var lang = document.documentElement.dataset.lang || 'ru';
+    dBaseVal.textContent = dBase.value + ' px';
+    var rows = calcScale();
+    demoRows.innerHTML = '';
+    rows.slice().reverse().forEach(function(r){
+      var d = document.createElement('div'); d.className = 'drow';
+      var m = document.createElement('div'); m.className = 'meta';
+      m.textContent = r.name + ' · ' + r.px + 'px / ' + r.lh;
+      var p = document.createElement('div'); p.className = 'prev';
+      p.style.fontSize   = r.px + 'px';
+      p.style.lineHeight = r.lh;
+      p.style.fontWeight = r.head ? 700 : 450;
+      p.textContent = PANGRAM[lang];
+      d.appendChild(m); d.appendChild(p);
+      demoRows.appendChild(d);
+    });
+    demoCode.textContent = buildCSS(rows);
+  }
+  if(dBase){
+    dBase.addEventListener('input', renderDemo);
+    dRatio.addEventListener('change', renderDemo);
+    dCopy.addEventListener('click', function(){
+      var lang = document.documentElement.dataset.lang || 'ru';
+      var css = buildCSS(calcScale());
+      var ok = function(){
+        dCopy.classList.add('done');
+        dCopy.textContent = lang === 'ru' ? 'Скопировано ✓' : 'Copied ✓';
+        setTimeout(function(){
+          dCopy.classList.remove('done');
+          dCopy.textContent = dCopy.dataset[document.documentElement.dataset.lang || 'ru'];
+        }, 1600);
+      };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(css).then(ok, ok);
+      } else { ok(); }
+    });
+  }
+
+  /* ---------- reveal on scroll ---------- */
+  var rvEls = document.querySelectorAll('.rv');
+  if(!reduceMotion && 'IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, {threshold:0.12});
+    rvEls.forEach(function(el){ io.observe(el); });
+  } else {
+    rvEls.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  /* ---------- scale strip breathes with scroll ---------- */
+  var ssSpans = document.querySelectorAll('.scalestrip span:not(.cap)');
+  if(!reduceMotion && ssSpans.length){
+    var ssRaf = null;
+    var ssTick = function(){
+      ssRaf = null;
+      var mid = window.innerHeight / 2;
+      ssSpans.forEach(function(s, i){
+        var r = s.getBoundingClientRect();
+        if(r.bottom < -60 || r.top > window.innerHeight + 60) return;
+        var d = Math.abs((r.top + r.height / 2) - mid + (i - ssSpans.length / 2) * 36);
+        var w = Math.round(900 - 520 * Math.min(d / mid, 1));
+        s.style.fontVariationSettings = "'wght' " + w;
+      });
+    };
+    window.addEventListener('scroll', function(){
+      if(!ssRaf) ssRaf = requestAnimationFrame(ssTick);
+    }, {passive:true});
+  }
+
+  /* ---------- boot ---------- */
+  window.addEventListener('error', function(e){
+    console.error('kern:', e.message, e.filename + ':' + e.lineno);
+  });
+  window.__kern = {
+    setLang: setLang, layout: layout,
+    debug: function(){ return {letters: letters.length, raf: raf !== null, mx: mx, my: my}; },
+    step: tick
+  };
+  document.querySelectorAll('[data-setlang]').forEach(function(b){
+    b.addEventListener('click', function(){ setLang(b.dataset.setlang); });
+  });
+  var saved = 'ru';
+  try{ saved = localStorage.getItem('kern-lang') || 'ru'; }catch(e){}
+  try{
+    var qp = new URLSearchParams(location.search).get('lang');
+    if(qp === 'ru' || qp === 'en') saved = qp;
+  }catch(e){}
+
+  var kick = function(){ setLang(saved); };
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(function(){ setLang(saved); });
+    kick();                       // build immediately, refit when fonts land
+  } else {
+    kick();
+  }
+  window.addEventListener('resize', layout);
+
+  // asset mode: ?shot=<selector> renders a single section for screenshots
+  try{
+    var shot = new URLSearchParams(location.search).get('shot');
+    if(shot){
+      document.querySelectorAll('.bar, main > *, footer').forEach(function(el){
+        if(!el.matches(shot)) el.style.display = 'none';
+      });
+      document.querySelectorAll('.rv').forEach(function(el){ el.classList.add('in'); });
+      window.scrollTo(0, 0);
+    }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

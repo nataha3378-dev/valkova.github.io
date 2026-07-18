@@ -272,6 +272,37 @@ body {
   width: 100%; height: 100%;
   object-fit: cover;
 }
+/* KERN cover — flat brand blue, wordmark + blinking caret */
+.card-kern {
+  position: absolute; inset: 0;
+  background: #4B4DED;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 12px;
+}
+.ck-name {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(32px, 4.6vw, 64px);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: #F4F2ED;
+  display: flex; align-items: center;
+}
+.ck-caret {
+  display: inline-block;
+  width: 0.09em; height: 0.82em;
+  margin-left: 0.14em;
+  background: #D8F34E;
+  animation: ckBlink 1.1s steps(1) infinite;
+}
+@keyframes ckBlink { 50% { opacity: 0; } }
+.ck-sub {
+  font-family: var(--mono);
+  font-size: clamp(8px, 0.8vw, 11px);
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: rgba(244,242,237,0.72);
+}
 .card-num {
   font-family: var(--display);
   font-weight: 800;
@@ -923,6 +954,7 @@ body {
   .rv, .sg,
   .disc-ghost, .disc-title, .disc-projects li { opacity: 1 !important; transform: none !important; transition: none; }
   .orbit-ring-inner, .orbit-ring2-inner { transform: none !important; }
+  .ck-caret { animation: none; }
   .pill { position: static; display: inline-block; margin: 4px; }
   .orbit-ring, .orbit-ring2 { position: static; width: auto; height: auto; transform: none; text-align: center; }
   .orbit-ring::before, .orbit-ring2::before { display: none; }
@@ -976,7 +1008,7 @@ body {
       <ul class="disc-projects">
         <li><a href="in-between/case.html"><span class="dp-num">1.1</span><span class="dp-name">In-Between</span></a></li>
         <li><a href="crew-os/case.html"><span class="dp-num">1.2</span><span class="dp-name">CREW OS</span></a></li>
-        <li><a href="#"><span class="dp-num">1.3</span><span class="dp-name">Проект 3</span></a></li>
+        <li><a href="kern/case.html"><span class="dp-num">1.3</span><span class="dp-name">KERN</span></a></li>
         <li><a href="#"><span class="dp-num">1.4</span><span class="dp-name">Проект 4</span></a></li>
       </ul>
     </div>
@@ -1158,6 +1190,10 @@ for (var ci = 0; ci < N; ci++) {
     ccat = { ru: 'CREW OS', en: 'CREW OS' };
     chref = 'crew-os/case.html';
   }
+  if (ci === 2) {                        // third card → KERN case study
+    ccat = { ru: 'KERN', en: 'KERN' };
+    chref = 'kern/case.html';
+  }
   var ca = document.createElement('a');
   ca.className = 'card ' + COLORS[ci % COLORS.length];
   ca.href = chref;
@@ -1171,6 +1207,13 @@ for (var ci = 0; ci < N; ci++) {
   } else if (ci === 1) {
     // CREW OS: real project cover
     ca.innerHTML = '<img class="card-cover" src="crew-os/img/cover.jpg" alt="CREW OS — production management SaaS" draggable="false">';
+  } else if (ci === 2) {
+    // KERN: minimal flat cover — wordmark + blinking caret on brand blue
+    ca.innerHTML =
+      '<div class="card-kern">' +
+        '<span class="ck-name">KERN<span class="ck-caret"></span></span>' +
+        '<span class="ck-sub" data-ru="Типографика бренда" data-en="Brand typography">Типографика бренда</span>' +
+      '</div>';
   } else {
     ca.innerHTML =
       '<div class="card-inner">' +

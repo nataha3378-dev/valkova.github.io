@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="ru" data-lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KERN — платформа</title>
+<meta name="description" content="KERN app — прототип платформы управления типографикой бренда.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%234B4DED'/%3E%3Ctext x='16' y='23' font-family='Arial,sans-serif' font-size='20' font-weight='800' fill='%23F4F1EA' text-anchor='middle'%3EK%3C/text%3E%3C/svg%3E">
+<style>
+@font-face{
+  font-family:'Onest';
+  src:url('fonts/onest-cyr.woff2') format('woff2');
+  font-weight:100 900;font-display:swap;
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+@font-face{
+  font-family:'Onest';
+  src:url('fonts/onest-lat.woff2') format('woff2');
+  font-weight:100 900;font-display:swap;
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2212,U+FEFF;
+}
+@font-face{
+  font-family:'JetBrains Mono';
+  src:url('fonts/jbmono-cyr.woff2') format('woff2');
+  font-weight:100 800;font-display:swap;
+  unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+@font-face{
+  font-family:'JetBrains Mono';
+  src:url('fonts/jbmono-lat.woff2') format('woff2');
+  font-weight:100 800;font-display:swap;
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2212,U+FEFF;
+}
+:root{
+  /* palette: Dark Blue · Portland Orange · White Chocolate · June Bud */
+  --blue:#1A0089;
+  --blue-deep:#110061;
+  --blue-soft:#ECE9FB;
+  --orange:#FF5E39;
+  --orange-deep:#D64723;
+  --bud:#BDCF4F;
+  --ink:#1B1533;
+  --ink-2:#5E5876;
+  --line:rgba(26,0,137,.13);
+  --paper:#EFE7D9;
+  --card:#FFFFFF;
+  /* legacy aliases used across components */
+  --klein:#1A0089;
+  --klein-soft:#ECE9FB;
+  --acid:#BDCF4F;
+  --tangerine:#FF5E39;
+  --pass:#7A9210;
+  --warn:#B06A10;
+  --warn-bg:#D98324;
+  --fail:#C43A1B;
+  --font-brand:'Onest',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --r:14px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:var(--font-brand);font-size:14px;color:var(--ink);
+  background:var(--paper);overflow:hidden;
+}
+::selection{background:var(--acid);color:var(--ink)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--klein);outline-offset:2px}
+.mono{font-family:var(--font-mono)}
+.lbl{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-2)}
+
+/* ============ app frame ============ */
+.frame{display:flex;flex-direction:column;height:100vh;height:100svh;padding:14px;gap:14px}
+body.onb .frame{display:none}
+
+/* ---- app bar: floating dark-blue top panel ---- */
+.appbar{
+  flex:none;display:flex;align-items:center;gap:14px;
+  background:var(--blue);color:var(--paper);
+  border-radius:18px;padding:10px 14px;
+  box-shadow:0 18px 44px -18px rgba(26,0,137,.45);
+}
+.appbar .brand{
+  display:flex;align-items:center;gap:9px;
+  font-weight:800;font-size:17px;letter-spacing:-0.02em;color:#fff;
+  padding-right:2px;white-space:nowrap;
+}
+.appbar .brand .mark{
+  width:28px;height:28px;border-radius:8px;background:var(--orange);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:800;flex:none;
+}
+.appbar .brand sup{font-size:.45em;font-weight:500;vertical-align:super;opacity:.7}
+.proj{
+  display:flex;align-items:center;gap:9px;padding:6px 11px 6px 7px;
+  border-radius:12px;background:rgba(255,255,255,.09);
+  cursor:pointer;transition:background .2s var(--ease);white-space:nowrap;
+}
+.proj:hover{background:rgba(255,255,255,.16)}
+.proj .pv{width:27px;height:27px;border-radius:8px;background:var(--bud);color:var(--blue);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex:none}
+.proj .pd{display:flex;flex-direction:column;line-height:1.2}
+.proj .pn{font-weight:600;font-size:12.5px;color:#fff}
+.proj .pm{font-family:var(--font-mono);font-size:9px;color:rgba(239,231,217,.6)}
+.proj .chev{opacity:.55;font-size:10px}
+.appnav{display:flex;gap:2px;margin-left:6px;min-width:0;overflow-x:auto;scrollbar-width:none}
+.appnav::-webkit-scrollbar{display:none}
+.nv{
+  display:inline-flex;align-items:center;gap:8px;flex:none;
+  padding:8px 12px;border-radius:10px;font-size:13px;font-weight:500;
+  color:rgba(239,231,217,.88);white-space:nowrap;
+  transition:background .18s var(--ease),color .18s var(--ease);
+}
+.nv:hover{background:rgba(255,255,255,.10);color:#fff}
+.nv[aria-current="true"]{background:var(--orange);color:#fff;font-weight:600;
+  box-shadow:0 8px 18px -8px rgba(255,94,57,.7)}
+.nv .ic{width:18px;height:18px;flex:none;display:flex;align-items:center;justify-content:center}
+.nv .ic svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round}
+.nv .bdg{font-family:var(--font-mono);font-size:10px;padding:2px 6px;border-radius:99px}
+.bdg.b-fail{background:#fff;color:var(--orange-deep)}
+.nv:not([aria-current="true"]) .bdg.b-fail{background:var(--orange);color:#fff}
+.usr{margin-left:auto;flex:none}
+.usr .av{width:32px;height:32px;border-radius:50%;background:var(--bud);color:var(--blue);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12.5px;
+  border:2px solid rgba(255,255,255,.25);cursor:default}
+.onb-link{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--ink-2)}
+.onb-link:hover{color:var(--ink)}
+
+/* ---- canvas ---- */
+.canvas{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{
+  display:flex;align-items:center;gap:14px;
+  padding:8px 10px 18px;background:transparent;
+}
+.top h1{font-size:21px;font-weight:800;letter-spacing:-0.015em}
+.vchip{font-family:var(--font-mono);font-size:11px;background:var(--card);color:var(--blue);
+  border:1px solid var(--line);border-radius:99px;padding:5px 11px}
+.top .sp{flex:1}
+.lang{display:flex;gap:2px;font-family:var(--font-mono);font-size:11.5px}
+.lang button{padding:4px 8px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink);opacity:.55;border-radius:7px}
+.lang button[aria-pressed="true"]{opacity:1;background:var(--blue);color:var(--paper)}
+.btn{
+  font-weight:600;font-size:13px;padding:10px 18px;border-radius:99px;
+  background:var(--orange);color:#fff;
+  transition:background .2s var(--ease),transform .2s var(--ease);
+}
+.btn:hover{background:var(--blue);transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--blue)}
+.btn.ghost:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn.acid{background:var(--blue);color:#fff}
+.btn.acid:hover{background:var(--orange)}
+.work{flex:1;min-height:0;display:flex;gap:14px}
+.scr{flex:1;min-width:0;overflow:auto;padding:2px;display:none}
+.scr.on{display:block}
+
+/* ---- inspector 320: floating card ---- */
+.insp{
+  width:320px;flex:none;background:var(--card);
+  border:1px solid var(--line);border-radius:18px;
+  padding:20px;overflow:auto;display:none;
+}
+.insp.on{display:block}
+.insp h2{font-size:14px;font-weight:700;margin-bottom:4px}
+.insp .tokname{font-family:var(--font-mono);font-size:12px;background:var(--klein);color:#fff;border-radius:5px;padding:5px 9px;display:inline-block;margin:8px 0 18px}
+.fld{margin-bottom:14px}
+.fld label{display:block;margin-bottom:6px}
+.fld input,.fld select{
+  width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;
+  background:var(--paper);font-family:var(--font-mono);font-size:12.5px;
+}
+.insp .wcag{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:11.5px;
+  border:1px solid var(--line);border-radius:6px;padding:10px;margin:18px 0}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.dot.g{background:var(--pass)}.dot.o{background:var(--warn-bg)}.dot.r{background:var(--fail)}
+.cmt{border-top:1px solid var(--line);padding-top:16px;margin-top:6px}
+.cmt .c1{display:flex;gap:10px;margin-bottom:12px}
+.cmt .cav{width:24px;height:24px;border-radius:50%;background:var(--klein);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.cmt .cb{font-size:12.5px;line-height:1.45}
+.cmt .cm{font-family:var(--font-mono);font-size:10px;color:var(--ink-2);margin-top:3px}
+.cmt input{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);font-size:12.5px}
+
+/* ============ shared blocks ============ */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r)}
+.ph{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.ph h2{font-size:14px;font-weight:700}
+.controls{display:flex;gap:22px;align-items:flex-end;flex-wrap:wrap;padding:16px 18px;border-bottom:1px solid var(--line)}
+.ctl{display:flex;flex-direction:column;gap:7px}
+.ctl input[type=number],.ctl select,.ctl input[type=text]{
+  padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);
+  font-family:var(--font-mono);font-size:12.5px;min-width:90px;
+}
+.ctl input[type=range]{width:150px;accent-color:var(--klein)}
+.ctl .cv{font-family:var(--font-mono);font-size:11px;color:var(--ink-2)}
+
+.srow{
+  display:grid;grid-template-columns:150px minmax(0,1fr) 190px;gap:18px;align-items:baseline;
+  padding:11px 18px;border-bottom:1px solid var(--line);cursor:pointer;
+}
+.srow:last-child{border-bottom:0}
+.srow:hover{background:rgba(26,0,137,.035)}
+.srow[aria-selected="true"]{background:var(--blue-soft);box-shadow:inset 3px 0 0 var(--orange)}
+.srow .sn{font-family:var(--font-mono);font-size:11.5px}
+.srow .sx{white-space:nowrap;overflow:hidden;letter-spacing:-0.01em}
+.srow .sv{font-family:var(--font-mono);font-size:11px;color:var(--ink-2);text-align:right;white-space:nowrap}
+
+table.tt{width:100%;border-collapse:collapse;font-size:13px}
+.tt th{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--ink-2);text-align:left;font-weight:500;padding:12px 18px;border-bottom:1px solid var(--line)}
+.tt td{padding:11px 18px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tt tr:last-child td{border-bottom:0}
+.tt tbody tr{cursor:pointer}
+.tt tbody tr:hover{background:rgba(17,17,17,.03)}
+.tt .mono{font-size:12px}
+.st{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:11px;
+  border:1px solid var(--line);border-radius:99px;padding:4px 10px;white-space:nowrap;
+  background:var(--card);color:var(--ink)}
+button.st{cursor:pointer}
+button.st[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+
+/* ============ onboarding ============ */
+.onboard{display:none;height:100vh;height:100svh;overflow:auto;padding:32px}
+body.onb .onboard{display:block}
+.ob-bar{display:flex;justify-content:space-between;align-items:center;max-width:860px;margin:0 auto 40px}
+.ob-bar .brand{font-weight:800;font-size:22px;letter-spacing:-0.02em}
+.ob-skip{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-2)}
+.ob-skip:hover{color:var(--ink)}
+.ob{max-width:860px;margin:0 auto}
+.ob-steps{display:flex;gap:10px;margin-bottom:28px}
+.ob-steps .os{
+  flex:1;padding:10px 0 12px;border-top:3px solid var(--line);
+  font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-2);
+}
+.ob-steps .os.cur{border-top-color:var(--orange);color:var(--ink)}
+.ob-steps .os.done{border-top-color:var(--bud)}
+.ob h1{font-size:clamp(26px,3vw,38px);font-weight:800;letter-spacing:-0.02em;margin-bottom:10px}
+.ob .sub{font-size:15px;line-height:1.55;color:var(--ink-2);max-width:52ch;margin-bottom:28px}
+.ob-pane{display:none}
+.ob-pane.on{display:block}
+.src{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.src .sc{
+  border:1.5px solid var(--line);border-radius:var(--r);background:var(--card);
+  padding:20px;text-align:left;display:flex;flex-direction:column;gap:8px;
+  transition:border-color .15s var(--ease),box-shadow .15s var(--ease);
+}
+.src .sc:hover{border-color:var(--blue)}
+.src .sc[aria-pressed="true"]{border-color:var(--orange);box-shadow:0 0 0 1.5px var(--orange)}
+.src .si{font-family:var(--font-mono);font-size:11px;color:var(--klein)}
+.src .sc h3{font-size:16px;font-weight:700}
+.src .sc p{font-size:13px;line-height:1.45;color:var(--ink-2)}
+.ob .urlrow{display:flex;gap:12px;margin-bottom:32px}
+.ob .urlrow input{flex:1;padding:11px 14px;border:1px solid var(--line);border-radius:6px;background:var(--card);font-family:var(--font-mono);font-size:12.5px}
+.fontgrid{display:grid;grid-template-columns:260px 1fr;gap:24px;margin-bottom:32px}
+.fontgrid .fsel{display:flex;flex-direction:column;gap:16px}
+.spec{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px 28px;overflow:hidden}
+.spec .sp-h{font-weight:800;font-size:44px;letter-spacing:-0.02em;line-height:1.05;margin-bottom:10px}
+.spec .sp-b{font-size:15px;line-height:1.55;max-width:58ch;margin-bottom:14px}
+.spec .sp-m{font-family:var(--font-mono);font-size:12px;color:var(--ink-2)}
+.minirows{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin-bottom:24px}
+.invite{display:flex;gap:12px;margin-bottom:36px}
+.invite input{flex:1;padding:11px 14px;border:1px solid var(--line);border-radius:6px;background:var(--card);font-size:13.5px}
+.ob-nav{display:flex;justify-content:space-between;gap:16px;padding-bottom:48px}
+
+/* ============ dashboard ============ */
+.dash{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}
+.dash-head{margin-bottom:20px}
+.dash-head .scr-h{margin-bottom:4px}
+.dash-sub{font-size:13.5px;color:var(--ink-2)}
+.dash-sub b{color:var(--orange-deep);font-weight:600}
+.pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.pc{
+  border:1px solid var(--line);border-radius:18px;background:var(--card);
+  overflow:hidden;display:flex;flex-direction:column;cursor:pointer;
+  transition:box-shadow .25s var(--ease),transform .25s var(--ease);
+}
+.pc:hover{box-shadow:0 20px 40px -16px rgba(26,0,137,.28);transform:translateY(-3px)}
+.pc-swatch{
+  min-height:128px;padding:16px 18px;
+  display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+}
+.sw-blue{background:var(--blue);color:var(--paper)}
+.sw-orange{background:var(--orange);color:#fff}
+.sw-bud{background:var(--bud);color:var(--blue)}
+.pc .aa{font-weight:800;font-size:62px;line-height:.95;letter-spacing:-0.02em}
+.pc-specs{display:flex;flex-direction:column;gap:5px;align-items:stretch;text-align:left}
+.pc-specs span{
+  font-family:var(--font-mono);font-size:9.5px;letter-spacing:.02em;white-space:nowrap;
+  border:1px solid currentColor;border-radius:4px;padding:3px 8px;opacity:.9;
+}
+.pc-body{padding:14px 18px 16px;display:flex;flex-direction:column;gap:7px}
+.pc h3{font-size:16px;font-weight:700}
+.pc .pmeta{font-family:var(--font-mono);font-size:11px;color:var(--ink-2)}
+.pc .prow{display:flex;gap:8px;align-items:center;margin-top:3px;flex-wrap:wrap}
+.avs{display:flex}
+.avs span{width:22px;height:22px;border-radius:50%;border:2px solid var(--card);
+  display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;margin-left:-6px}
+.avs span:first-child{margin-left:0}
+.av1{background:var(--bud);color:var(--blue)}
+.av2{background:var(--blue);color:#fff}
+.av3{background:var(--orange);color:#fff}
+.feed{padding:4px 0}
+.fi{display:flex;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line);font-size:12.5px;line-height:1.45}
+.fi:last-child{border-bottom:0}
+.fi .fav{width:26px;height:26px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.fi .fm{font-family:var(--font-mono);font-size:10px;color:var(--ink-2);margin-top:3px}
+.fi .chg{font-family:var(--font-mono);font-size:11px}
+.fi .old{text-decoration:line-through;opacity:.55}
+.fi .new{background:var(--acid);padding:0 4px}
+
+/* ============ rules ============ */
+.bp-chips{display:flex;gap:8px;flex-wrap:wrap}
+.bp{font-family:var(--font-mono);font-size:11px;border:1px solid var(--line);border-radius:99px;padding:4px 10px;background:var(--card)}
+.bp.cur{background:var(--blue);color:#fff;border-color:var(--blue)}
+.fluid-prev{padding:26px 18px;border-bottom:1px solid var(--line);overflow:hidden}
+.fluid-prev .fp{font-weight:800;letter-spacing:-0.02em;line-height:1.02;white-space:nowrap}
+.fluid-prev .fm{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-2);margin-top:12px}
+.rbar{position:relative;height:8px;border-radius:99px;background:var(--paper);border:1px solid var(--line);overflow:hidden}
+.rbar i{position:absolute;top:0;bottom:0;background:var(--klein);border-radius:99px}
+
+/* ============ check ============ */
+.ck-stats{display:flex;gap:44px;padding:22px 18px 4px}
+.ck-stats b{display:block;font-size:44px;font-weight:800;line-height:1;letter-spacing:-0.02em}
+.ck-stats span{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-2)}
+.ck-stats .w b{color:var(--warn)}
+.ck-stats .f b{color:var(--fail)}
+.chips{display:flex;gap:8px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.fix{background:var(--paper);border:1px dashed var(--fail);border-radius:6px;
+  padding:10px 12px;font-size:12.5px;line-height:1.45;margin-top:8px}
+.fix .mono{font-size:11px}
+.csample{border-radius:6px;padding:6px 12px;display:inline-block}
+
+/* ============ diff ============ */
+.diffhead{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.diffhead select{padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);font-family:var(--font-mono);font-size:12px}
+.dseg{display:flex;border:1.5px solid var(--blue);border-radius:99px;overflow:hidden;margin-left:auto}
+.dseg button{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:7px 16px}
+.dseg button[aria-pressed="true"]{background:var(--blue);color:#fff}
+.dline{display:grid;grid-template-columns:150px minmax(0,1fr) 230px;gap:18px;align-items:baseline;
+  padding:12px 18px;border-bottom:1px solid var(--line)}
+.dline:last-child{border-bottom:0}
+.dline .dx{white-space:nowrap;overflow:hidden;letter-spacing:-0.01em;transition:font-size .3s var(--ease),font-weight .3s var(--ease),letter-spacing .3s var(--ease)}
+.dline .dv{font-family:var(--font-mono);font-size:11px;text-align:right;white-space:nowrap}
+.dline .old{text-decoration:line-through;opacity:.5}
+.dline .new{background:var(--acid);padding:1px 5px}
+.chlog .fi .fav{background:var(--blue-soft);color:var(--blue)}
+
+/* ============ team ============ */
+.rolesel{padding:6px 9px;border:1px solid var(--line);border-radius:6px;background:var(--paper);font-family:var(--font-mono);font-size:11.5px}
+.pend{font-family:var(--font-mono);font-size:10.5px;background:var(--warn-bg);color:var(--ink);border-radius:99px;padding:3px 9px}
+
+/* ============ export ============ */
+.xtabs{display:flex;gap:4px;padding:12px 18px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.xt{font-family:var(--font-mono);font-size:11.5px;padding:9px 14px;border-radius:8px 8px 0 0;border:1px solid transparent;border-bottom:0}
+.xt[aria-selected="true"]{background:var(--blue-deep);color:var(--paper)}
+.xcode{background:var(--blue-deep);color:var(--paper);font-family:var(--font-mono);font-size:12.5px;line-height:1.7;
+  padding:22px 24px;overflow:auto;max-height:420px;white-space:pre}
+.xfoot{display:flex;align-items:center;gap:14px;padding:14px 18px;flex-wrap:wrap}
+.xnote{font-family:var(--font-mono);font-size:11px;color:var(--ink-2)}
+
+.grid2{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;max-width:980px}
+h2.scr-h{font-size:20px;font-weight:800;letter-spacing:-0.01em;margin-bottom:16px}
+
+@media (max-width:1200px){.insp{display:none!important}}
+@media (max-width:1280px){
+  .appnav .nv .t{display:none}
+  .nv{padding:9px 11px}
+}
+@media (max-width:980px){
+  .proj .pd,.proj .chev{display:none}
+  .top .onb-link{display:none}
+  .dash{grid-template-columns:1fr}
+  .src{grid-template-columns:1fr}
+  .fontgrid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important}
+}
+</style>
+</head>
+<body class="onb">
+
+<!-- ======================= ONBOARDING ======================= -->
+<div class="onboard" id="onboard">
+  <div class="ob-bar">
+    <div class="brand">KERN<sup>®</sup></div>
+    <div style="display:flex;gap:20px;align-items:center">
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-setlang="ru" aria-pressed="true">RU</button>
+        <button type="button" data-setlang="en" aria-pressed="false">EN</button>
+      </div>
+      <button class="ob-skip" id="obSkip" data-ru="Пропустить →" data-en="Skip →">Пропустить →</button>
+    </div>
+  </div>
+
+  <div class="ob">
+    <div class="ob-steps" aria-hidden="true">
+      <div class="os cur" id="os1" data-ru="01 · Импорт" data-en="01 · Import">01 · Импорт</div>
+      <div class="os" id="os2" data-ru="02 · Шрифты" data-en="02 · Fonts">02 · Шрифты</div>
+      <div class="os" id="os3" data-ru="03 · Шкала и команда" data-en="03 · Scale &amp; team">03 · Шкала и команда</div>
+    </div>
+
+    <!-- step 1 -->
+    <div class="ob-pane on" id="obp1">
+      <h1 data-ru="Откуда берём вашу типографику?" data-en="Where does your typography live now?">Откуда берём вашу типографику?</h1>
+      <p class="sub" data-ru="KERN импортирует существующие стили и сразу покажет расхождения. Можно начать и с чистого листа."
+         data-en="KERN imports your existing styles and shows the drift right away. Starting from scratch works too.">KERN импортирует существующие стили и сразу покажет расхождения. Можно начать и с чистого листа.</p>
+      <div class="src" role="group">
+        <button type="button" class="sc" data-src="figma" aria-pressed="true">
+          <span class="si">figma://styles</span>
+          <h3>Figma</h3>
+          <p data-ru="Подтянем текстовые стили из файла или библиотеки." data-en="We pull text styles from a file or a library.">Подтянем текстовые стили из файла или библиотеки.</p>
+        </button>
+        <button type="button" class="sc" data-src="css" aria-pressed="false">
+          <span class="si">*.css / *.scss</span>
+          <h3 data-ru="CSS / код" data-en="CSS / code">CSS / код</h3>
+          <p data-ru="Вставьте стили — распарсим размеры, интерлиньяж и веса." data-en="Paste your styles — we parse sizes, leading and weights.">Вставьте стили — распарсим размеры, интерлиньяж и веса.</p>
+        </button>
+        <button type="button" class="sc" data-src="manual" aria-pressed="false">
+          <span class="si">tabula rasa</span>
+          <h3 data-ru="Вручную" data-en="From scratch">Вручную</h3>
+          <p data-ru="Соберём систему с нуля — прямо в следующем шаге." data-en="Build the system from zero — starting next step.">Соберём систему с нуля — прямо в следующем шаге.</p>
+        </button>
+      </div>
+      <div class="urlrow">
+        <input type="text" value="figma.com/file/aCmE21/acme-retail-brand?node=0-1" aria-label="Figma URL">
+        <button class="btn ghost" data-ru="Проверить доступ" data-en="Check access">Проверить доступ</button>
+      </div>
+      <div class="ob-nav">
+        <span></span>
+        <button class="btn" data-obnext="2" data-ru="Дальше: шрифты →" data-en="Next: fonts →">Дальше: шрифты →</button>
+      </div>
+    </div>
+
+    <!-- step 2 -->
+    <div class="ob-pane" id="obp2">
+      <h1 data-ru="Шрифтовая пара" data-en="Your font pair">Шрифтовая пара</h1>
+      <p class="sub" data-ru="Мы нашли в файле 2 семейства. Проверьте начертания — превью сразу на двух языках."
+         data-en="We found 2 families in the file. Check the styles — the preview runs in both languages at once.">Мы нашли в файле 2 семейства. Проверьте начертания — превью сразу на двух языках.</p>
+      <div class="fontgrid">
+        <div class="fsel">
+          <div class="ctl">
+            <label class="lbl" data-ru="Заголовки" data-en="Headings">Заголовки</label>
+            <select><option>Onest · Variable</option><option>Suisse Int'l</option><option>PP Neue Montreal</option></select>
+          </div>
+          <div class="ctl">
+            <label class="lbl" data-ru="Текст" data-en="Body">Текст</label>
+            <select><option>Onest · Variable</option><option>Golos Text</option></select>
+          </div>
+          <div class="ctl">
+            <label class="lbl" data-ru="Моно / значения" data-en="Mono / values">Моно / значения</label>
+            <select><option>JetBrains Mono</option><option>Geist Mono</option></select>
+          </div>
+        </div>
+        <div class="spec">
+          <div class="sp-h" data-ru="Съешь ещё этих мягких булок" data-en="Grumpy wizards make toxic brew">Съешь ещё этих мягких булок</div>
+          <p class="sp-b" data-ru="Быстрая бурая лиса перепрыгивает через ленивую собаку. The quick brown fox jumps over the lazy dog — кириллица и латиница в одной системе."
+             data-en="The quick brown fox jumps over the lazy dog. Съешь ещё этих мягких французских булок — Cyrillic and Latin in one system.">Быстрая бурая лиса перепрыгивает через ленивую собаку. The quick brown fox jumps over the lazy dog — кириллица и латиница в одной системе.</p>
+          <div class="sp-m">Onest · 100–900 · latin + cyrillic · variable ✓</div>
+        </div>
+      </div>
+      <div class="ob-nav">
+        <button class="btn ghost" data-obnext="1" data-ru="← Назад" data-en="← Back">← Назад</button>
+        <button class="btn" data-obnext="3" data-ru="Дальше: шкала →" data-en="Next: scale →">Дальше: шкала →</button>
+      </div>
+    </div>
+
+    <!-- step 3 -->
+    <div class="ob-pane" id="obp3">
+      <h1 data-ru="Первая шкала — и команда" data-en="Your first scale — and the team">Первая шкала — и команда</h1>
+      <p class="sub" data-ru="Стартовые параметры можно менять когда угодно: каждая правка станет версией."
+         data-en="Starting values can change anytime: every edit becomes a version.">Стартовые параметры можно менять когда угодно: каждая правка станет версией.</p>
+      <div class="panel" style="margin-bottom:24px">
+        <div class="controls">
+          <div class="ctl">
+            <label class="lbl" for="obBase" data-ru="Базовый кегль" data-en="Base size">Базовый кегль</label>
+            <input type="number" id="obBase" value="18" min="12" max="24">
+          </div>
+          <div class="ctl">
+            <label class="lbl" for="obRatio">Ratio</label>
+            <select id="obRatio">
+              <option value="1.2" data-ru="1.2 — минорная терция" data-en="1.2 — minor third">1.2 — минорная терция</option>
+              <option value="1.25" selected data-ru="1.25 — мажорная терция" data-en="1.25 — major third">1.25 — мажорная терция</option>
+              <option value="1.333" data-ru="1.333 — кварта" data-en="1.333 — perfect fourth">1.333 — кварта</option>
+            </select>
+          </div>
+        </div>
+        <div id="obRows"></div>
+      </div>
+      <div class="invite">
+        <input type="text" value="olya@acme.co, max@acme.co" aria-label="Invite emails">
+        <button class="btn ghost" data-ru="Пригласить" data-en="Invite">Пригласить</button>
+      </div>
+      <div class="ob-nav">
+        <button class="btn ghost" data-obnext="2" data-ru="← Назад" data-en="← Back">← Назад</button>
+        <button class="btn acid" id="obFinish" data-ru="Создать систему ✓" data-en="Create the system ✓">Создать систему ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= APP FRAME ======================= -->
+<div class="frame">
+  <!-- sidebar -->
+  <header class="appbar">
+    <div class="brand"><span class="mark">K</span>KERN<sup>®</sup></div>
+    <div class="proj" role="button" tabindex="0">
+      <span class="pv">A</span>
+      <span class="pd">
+        <span class="pn">Acme Retail</span>
+        <span class="pm">v2.4.0</span>
+      </span>
+      <span class="chev" aria-hidden="true">▾</span>
+    </div>
+    <nav class="appnav" aria-label="Screens">
+      <button class="nv" data-screen="dashboard"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7.2" height="7.2" rx="2"/><rect x="13.3" y="3.5" width="7.2" height="7.2" rx="2"/><rect x="3.5" y="13.3" width="7.2" height="7.2" rx="2"/><rect x="13.3" y="13.3" width="7.2" height="7.2" rx="2"/></svg></span><span class="t" data-ru="Дашборд" data-en="Dashboard">Дашборд</span></button>
+      <button class="nv" data-screen="scale"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19 9.6 5 15.2 19"/><path d="M6.1 14.3h7"/><path d="M19.5 6.5v11"/><path d="m17.5 8.5 2-2 2 2"/><path d="m17.5 15.5 2 2 2-2"/></svg></span><span class="t" data-ru="Шкала" data-en="Scale">Шкала</span></button>
+      <button class="nv" data-screen="tokens"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6 20.4 12 12 20.4 3.6 12z"/></svg></span><span class="t" data-ru="Токены" data-en="Tokens">Токены</span></button>
+      <button class="nv" data-screen="rules"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="12.5" height="9.5" rx="2"/><rect x="14.5" y="9.5" width="6" height="10" rx="2"/></svg></span><span class="t" data-ru="Адаптивность" data-en="Responsive">Адаптивность</span></button>
+      <button class="nv" data-screen="check"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4"/><path d="m8.6 12.3 2.3 2.3 4.5-5"/></svg></span><span class="t" data-ru="Проверки" data-en="Checks">Проверки</span><span class="bdg b-fail">1</span></button>
+      <button class="nv" data-screen="diff"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6.5" cy="6" r="2.4"/><circle cx="6.5" cy="18" r="2.4"/><circle cx="17.5" cy="12" r="2.4"/><path d="M6.5 8.4v7.2"/><path d="M6.5 9c0 3 8.6 0 8.6 3"/></svg></span><span class="t" data-ru="Версии" data-en="Versions">Версии</span></button>
+      <button class="nv" data-screen="team"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.6" r="3.4"/><path d="M3.6 19c.8-3 2.8-4.5 5.4-4.5s4.6 1.5 5.4 4.5"/><circle cx="16.9" cy="8" r="2.5"/><path d="M16 13.4c2.5.2 3.9 1.6 4.5 4.3"/></svg></span><span class="t" data-ru="Участники" data-en="Members">Участники</span></button>
+      <button class="nv" data-screen="export"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v9.5"/><path d="M8.6 10.4 12 13.8l3.4-3.4"/><path d="M4.5 16.5V18a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-1.5"/></svg></span><span class="t" data-ru="Экспорт" data-en="Export">Экспорт</span></button>
+    </nav>
+    <div class="usr" title="Ната · owner · Team plan"><span class="av">Н</span></div>
+  </header>
+
+  <!-- canvas -->
+  <div class="canvas">
+    <div class="top">
+      <h1 id="topTitle">Дашборд</h1>
+      <span class="vchip">v2.4.0</span>
+      <span class="sp"></span>
+      <button class="onb-link" id="onbAgain" data-ru="Пройти онбординг заново" data-en="Replay onboarding">Пройти онбординг заново</button>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-setlang="ru" aria-pressed="true">RU</button>
+        <button type="button" data-setlang="en" aria-pressed="false">EN</button>
+      </div>
+      <button class="btn" id="topAction" data-ru="Опубликовать" data-en="Publish">Опубликовать</button>
+    </div>
+
+    <div class="work">
+      <!-- ============ DASHBOARD ============ -->
+      <section class="scr" id="scr-dashboard">
+        <div class="dash">
+          <div>
+            <div class="dash-head">
+              <h2 class="scr-h" data-ru="Проекты" data-en="Projects">Проекты</h2>
+              <p class="dash-sub" data-ru="Три системы · <b>1 fail</b> требует внимания · всё остальное в порядке" data-en="Three systems · <b>1 fail</b> needs attention · everything else is fine">Три системы · <b>1 fail</b> требует внимания · всё остальное в порядке</p>
+            </div>
+            <div class="pcards">
+              <article class="pc" tabindex="0">
+                <div class="pc-swatch sw-blue">
+                  <span class="aa">Aa</span>
+                  <span class="pc-specs">
+                    <span>Onest · variable</span>
+                    <span>base 18 · ratio 1.25</span>
+                    <span>24 tokens</span>
+                  </span>
+                </div>
+                <div class="pc-body">
+                  <h3>Acme Retail</h3>
+                  <span class="pmeta">brand-system · v2.4.0</span>
+                  <div class="prow">
+                    <span class="st"><span class="dot o"></span>2 warn</span>
+                    <span class="st"><span class="dot r"></span>1 fail</span>
+                    <span class="avs"><span class="av1">Н</span><span class="av2">О</span><span class="av3">М</span></span>
+                  </div>
+                </div>
+              </article>
+              <article class="pc" tabindex="0">
+                <div class="pc-swatch sw-orange">
+                  <span class="aa" style="font-weight:500">Aa</span>
+                  <span class="pc-specs">
+                    <span>Suisse Int'l</span>
+                    <span>base 16 · ratio 1.2</span>
+                    <span>18 tokens</span>
+                  </span>
+                </div>
+                <div class="pc-body">
+                  <h3>Nord Bank</h3>
+                  <span class="pmeta">type-core · v1.2.0</span>
+                  <div class="prow">
+                    <span class="st"><span class="dot g"></span>all pass</span>
+                    <span class="avs"><span class="av2">О</span><span class="av1">Н</span></span>
+                  </div>
+                </div>
+              </article>
+              <article class="pc" tabindex="0">
+                <div class="pc-swatch sw-bud">
+                  <span class="aa" style="letter-spacing:.04em">Aa</span>
+                  <span class="pc-specs">
+                    <span>Onest + JB Mono</span>
+                    <span>base 18 · ratio 1.25</span>
+                    <span>9 tokens</span>
+                  </span>
+                </div>
+                <div class="pc-body">
+                  <h3>KERN Brand</h3>
+                  <span class="pmeta" data-ru="v0.1.0 · черновик · сам себя кернит" data-en="v0.1.0 · draft · kerning itself">v0.1.0 · черновик · сам себя кернит</span>
+                  <div class="prow">
+                    <span class="st"><span class="dot g"></span>recursion ✓</span>
+                    <span class="avs"><span class="av1">Н</span></span>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="ph"><h2 data-ru="Активность" data-en="Activity">Активность</h2></div>
+            <div class="feed">
+              <div class="fi"><span class="fav av2">О</span>
+                <span><span data-ru="Оля изменила heading/xl" data-en="Olya changed heading/xl">Оля изменила heading/xl</span><br>
+                <span class="chg"><span class="old">88/96</span> → <span class="new">96/104</span></span>
+                <span class="fm" data-ru="2 часа назад · v2.4.0" data-en="2 hours ago · v2.4.0">2 часа назад · v2.4.0</span></span>
+              </div>
+              <div class="fi"><span class="fav av3">М</span>
+                <span><span data-ru="Максим подключил Tailwind-экспорт" data-en="Maxim wired up the Tailwind export">Максим подключил Tailwind-экспорт</span><br>
+                <span class="fm" data-ru="вчера · интеграции" data-en="yesterday · integrations">вчера · интеграции</span></span>
+              </div>
+              <div class="fi"><span class="fav av1">Н</span>
+                <span><span data-ru="Ната откатила caption до v2.2.1" data-en="Nata rolled caption back to v2.2.1">Ната откатила caption до v2.2.1</span><br>
+                <span class="fm" data-ru="3 дня назад · rollback" data-en="3 days ago · rollback">3 дня назад · rollback</span></span>
+              </div>
+              <div class="fi"><span class="fav av2">О</span>
+                <span><span data-ru="Оля прокомментировала body/m" data-en="Olya commented on body/m">Оля прокомментировала body/m</span><br>
+                <span class="fm" data-ru="3 дня назад · «интерлиньяж не для лендинга»" data-en="3 days ago · “that leading won’t fly on the landing”">3 дня назад · «интерлиньяж не для лендинга»</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCALE BUILDER ============ -->
+      <section class="scr" id="scr-scale">
+        <div class="panel">
+          <div class="controls">
+            <div class="ctl">
+              <label class="lbl" for="sBase" data-ru="Базовый кегль, px" data-en="Base size, px">Базовый кегль, px</label>
+              <input type="number" id="sBase" value="18" min="12" max="24" step="0.5">
+            </div>
+            <div class="ctl">
+              <label class="lbl" for="sRatio">Ratio</label>
+              <select id="sRatio">
+                <option value="1.2" data-ru="1.2 — минорная терция" data-en="1.2 — minor third">1.2 — минорная терция</option>
+                <option value="1.25" selected data-ru="1.25 — мажорная терция" data-en="1.25 — major third">1.25 — мажорная терция</option>
+                <option value="1.333" data-ru="1.333 — кварта" data-en="1.333 — perfect fourth">1.333 — кварта</option>
+                <option value="1.414" data-ru="1.414 — увеличенная кварта" data-en="1.414 — augmented fourth">1.414 — увеличенная кварта</option>
+                <option value="1.5" data-ru="1.5 — квинта" data-en="1.5 — perfect fifth">1.5 — квинта</option>
+                <option value="custom" data-ru="свой…" data-en="custom…">свой…</option>
+              </select>
+            </div>
+            <div class="ctl" id="sCustomWrap" style="display:none">
+              <label class="lbl" for="sCustom" data-ru="Свой ratio" data-en="Custom ratio">Свой ratio</label>
+              <input type="number" id="sCustom" value="1.28" min="1.05" max="1.8" step="0.01">
+            </div>
+            <div class="ctl">
+              <label class="lbl" for="sSteps" data-ru="Ступеней" data-en="Steps">Ступеней</label>
+              <input type="range" id="sSteps" min="5" max="9" value="7">
+              <span class="cv" id="sStepsVal">7</span>
+            </div>
+          </div>
+          <div id="sRows" role="listbox" aria-label="Scale steps"></div>
+        </div>
+      </section>
+
+      <!-- ============ TOKENS ============ -->
+      <section class="scr" id="scr-tokens">
+        <div class="panel">
+          <div class="ph"><h2 data-ru="Токены типографики" data-en="Typography tokens">Токены типографики</h2>
+            <span class="sp" style="flex:1"></span>
+            <span class="lbl" id="tokCount"></span></div>
+          <table class="tt" id="tokTable">
+            <thead><tr>
+              <th style="width:70px">Aa</th>
+              <th data-ru="Токен" data-en="Token">Токен</th>
+              <th data-ru="Шрифт" data-en="Family">Шрифт</th>
+              <th data-ru="Кегль / интерлиньяж" data-en="Size / leading">Кегль / интерлиньяж</th>
+              <th data-ru="Трекинг" data-en="Tracking">Трекинг</th>
+              <th data-ru="Вес" data-en="Weight">Вес</th>
+              <th data-ru="Статус" data-en="Status">Статус</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ RESPONSIVE RULES ============ -->
+      <section class="scr" id="scr-rules">
+        <div class="panel">
+          <div class="controls">
+            <div class="ctl">
+              <span class="lbl" data-ru="Брейкпоинты" data-en="Breakpoints">Брейкпоинты</span>
+              <div class="bp-chips" id="bpChips">
+                <span class="bp">360</span><span class="bp">768</span><span class="bp">1024</span><span class="bp cur">1440</span><span class="bp">1920</span>
+              </div>
+            </div>
+            <div class="ctl" style="flex:1;min-width:260px">
+              <label class="lbl" for="rVp" data-ru="Вьюпорт" data-en="Viewport">Вьюпорт</label>
+              <input type="range" id="rVp" min="360" max="1920" value="1440" style="width:100%">
+              <span class="cv"><span id="rVpVal">1440</span> px</span>
+            </div>
+          </div>
+          <div class="fluid-prev">
+            <div class="fp" id="fluidText" data-ru="Заголовки текут между вьюпортами" data-en="Headings flow between viewports">Заголовки текут между вьюпортами</div>
+            <div class="fm" id="fluidMeta"></div>
+          </div>
+          <div id="ruleRows"></div>
+        </div>
+      </section>
+
+      <!-- ============ CHECK ============ -->
+      <section class="scr" id="scr-check">
+        <div class="panel">
+          <div class="ck-stats" aria-hidden="true">
+            <div><b>21</b><span>pass</span></div>
+            <div class="w"><b>2</b><span>warn</span></div>
+            <div class="f"><b>1</b><span>fail</span></div>
+          </div>
+          <div class="chips">
+            <button class="st pass" data-cf="all" aria-pressed="true"><span data-ru="все · 24" data-en="all · 24">все · 24</span></button>
+            <button class="st warn" data-cf="warn" aria-pressed="false"><span class="dot o"></span>2 warn</button>
+            <button class="st fail" data-cf="fail" aria-pressed="false"><span class="dot r"></span>1 fail</button>
+          </div>
+          <table class="tt">
+            <thead><tr>
+              <th data-ru="Токен · где" data-en="Token · where">Токен · где</th>
+              <th data-ru="Проверка" data-en="Check">Проверка</th>
+              <th data-ru="Образец" data-en="Sample">Образец</th>
+              <th data-ru="Статус" data-en="Status">Статус</th>
+            </tr></thead>
+            <tbody id="checkBody">
+              <tr data-lvl="pass">
+                <td><span class="mono">body/m</span> · Chocolate</td>
+                <td><span data-ru="Контраст" data-en="Contrast">Контраст</span> <span class="mono">13.6:1</span></td>
+                <td><span class="csample" style="background:#EFE7D9;color:#1B1533;border:1px solid rgba(26,0,137,.15)">Съешь ещё булок</span></td>
+                <td><span class="st"><span class="dot g"></span>pass</span></td>
+              </tr>
+              <tr data-lvl="pass">
+                <td><span class="mono">heading/l</span> · DarkBlue</td>
+                <td><span data-ru="Контраст" data-en="Contrast">Контраст</span> <span class="mono">14.9:1</span></td>
+                <td><span class="csample" style="background:#1A0089;color:#fff;font-weight:700">Заголовок</span></td>
+                <td><span class="st"><span class="dot g"></span>pass</span></td>
+              </tr>
+              <tr data-lvl="warn">
+                <td><span class="mono">body/l</span> · <span data-ru="статья" data-en="article">статья</span></td>
+                <td><span data-ru="Длина строки" data-en="Line length">Длина строки</span> <span class="mono">82 ch</span></td>
+                <td><span class="mono" style="font-size:11px">45–75 ch</span></td>
+                <td><span class="st"><span class="dot o"></span>warn</span></td>
+              </tr>
+              <tr data-lvl="warn">
+                <td><span class="mono">heading/s</span> · mobile</td>
+                <td><span data-ru="Интерлиньяж" data-en="Leading">Интерлиньяж</span> <span class="mono">1.02</span></td>
+                <td><span class="mono" style="font-size:11px">min 1.05</span></td>
+                <td><span class="st"><span class="dot o"></span>warn</span></td>
+              </tr>
+              <tr data-lvl="fail">
+                <td><span class="mono">caption</span> · DarkBlue</td>
+                <td><span data-ru="Контраст" data-en="Contrast">Контраст</span> <span class="mono">2.8:1</span></td>
+                <td><span class="csample" style="background:#1A0089;color:#6A5CC4">12px подпись</span></td>
+                <td>
+                  <span class="st"><span class="dot r"></span>fail</span>
+                  <div class="fix">
+                    <span data-ru="Поднимите цвет до White Chocolate (12:1) или кегль до 14px semibold." data-en="Raise the colour to White Chocolate (12:1) or the size to 14px semibold.">Поднимите цвет до White Chocolate (12:1) или кегль до 14px semibold.</span>
+                    <span class="mono">caption/on-blue → #EFE7D9</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ DIFF ============ -->
+      <section class="scr" id="scr-diff">
+        <div class="grid2">
+          <div class="panel">
+            <div class="ph diffhead">
+              <select aria-label="from"><option>v2.3.0 · 12 mar</option><option>v2.2.1</option></select>
+              <span class="mono">→</span>
+              <select aria-label="to"><option>v2.4.0 · <span data-ru="сегодня" data-en="today">сегодня</span></option></select>
+              <div class="dseg" role="group">
+                <button data-dstate="old" aria-pressed="false" data-ru="Было" data-en="Before">Было</button>
+                <button data-dstate="new" aria-pressed="true" data-ru="Стало" data-en="After">Стало</button>
+              </div>
+            </div>
+            <div id="diffRows"></div>
+            <div class="xfoot">
+              <button class="btn ghost" data-ru="↩ Откатить к v2.3.0" data-en="↩ Roll back to v2.3.0">↩ Откатить к v2.3.0</button>
+              <span class="xnote" data-ru="3 токена изменено · 21 без изменений" data-en="3 tokens changed · 21 untouched">3 токена изменено · 21 без изменений</span>
+            </div>
+          </div>
+          <div class="panel chlog">
+            <div class="ph"><h2>Changelog · v2.4.0</h2></div>
+            <div class="feed">
+              <div class="fi"><span class="fav av2">О</span>
+                <span><span class="mono">heading/xl</span> <span class="chg"><span class="old">88/96</span> → <span class="new">96/104</span></span><br>
+                <span class="fm" data-ru="Оля · 2 часа назад · «крупнее на охватах»" data-en="Olya · 2 hours ago · “bigger for reach layouts”">Оля · 2 часа назад · «крупнее на охватах»</span></span>
+              </div>
+              <div class="fi"><span class="fav av2">О</span>
+                <span><span class="mono">heading/l</span> <span class="chg"><span class="old">-1%</span> → <span class="new">-2%</span> ls</span><br>
+                <span class="fm" data-ru="Оля · 2 часа назад" data-en="Olya · 2 hours ago">Оля · 2 часа назад</span></span>
+              </div>
+              <div class="fi"><span class="fav av1">Н</span>
+                <span><span class="mono">body/m</span> <span class="chg"><span class="old">1.5</span> → <span class="new">1.55</span> lh</span><br>
+                <span class="fm" data-ru="Ната · вчера · «дышит лучше»" data-en="Nata · yesterday · “breathes better”">Ната · вчера · «дышит лучше»</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ TEAM ============ -->
+      <section class="scr" id="scr-team">
+        <div class="grid2">
+          <div class="panel">
+            <div class="ph"><h2 data-ru="Участники · Acme Retail" data-en="Members · Acme Retail">Участники · Acme Retail</h2>
+              <span style="flex:1"></span>
+              <button class="btn ghost" data-ru="+ Пригласить" data-en="+ Invite">+ Пригласить</button></div>
+            <table class="tt">
+              <thead><tr>
+                <th data-ru="Участник" data-en="Member">Участник</th>
+                <th>Email</th>
+                <th data-ru="Роль" data-en="Role">Роль</th>
+                <th data-ru="Активность" data-en="Activity">Активность</th>
+              </tr></thead>
+              <tbody>
+                <tr><td><span class="avs"><span class="av1">Н</span></span> <b data-ru="Ната" data-en="Nata">Ната</b></td>
+                  <td class="mono">nata@acme.co</td>
+                  <td><span class="mono">owner</span></td>
+                  <td class="mono" data-ru="сейчас" data-en="now">сейчас</td></tr>
+                <tr><td><span class="avs"><span class="av2">О</span></span> <b data-ru="Оля" data-en="Olya">Оля</b></td>
+                  <td class="mono">olya@acme.co</td>
+                  <td><select class="rolesel"><option selected>editor</option><option>viewer</option></select></td>
+                  <td class="mono" data-ru="2 ч назад" data-en="2 h ago">2 ч назад</td></tr>
+                <tr><td><span class="avs"><span class="av3">М</span></span> <b data-ru="Максим" data-en="Maxim">Максим</b></td>
+                  <td class="mono">max@acme.co</td>
+                  <td><select class="rolesel"><option>editor</option><option selected>viewer</option></select></td>
+                  <td class="mono" data-ru="вчера" data-en="yesterday">вчера</td></tr>
+                <tr><td><span class="avs"><span style="background:var(--paper);border:1px dashed var(--ink-2)">?</span></span> dev@nordbank.com</td>
+                  <td class="mono">—</td>
+                  <td><span class="pend" data-ru="приглашён" data-en="invited">приглашён</span></td>
+                  <td class="mono">—</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="panel">
+            <div class="ph"><h2 data-ru="Обсуждение · heading/xl" data-en="Thread · heading/xl">Обсуждение · heading/xl</h2></div>
+            <div class="cmt" style="border:0;padding:16px 18px">
+              <div class="c1"><span class="cav">О</span>
+                <span class="cb" data-ru="96/104 на мобильном перебор — предлагаю clamp до 64." data-en="96/104 is too much on mobile — let’s clamp it down to 64.">96/104 на мобильном перебор — предлагаю clamp до 64.
+                  <span class="cm" data-ru="Оля · 2 ч назад" data-en="Olya · 2 h ago">Оля · 2 ч назад</span></span>
+              </div>
+              <div class="c1"><span class="cav" style="background:var(--acid);color:var(--ink)">Н</span>
+                <span class="cb" data-ru="Согласна. Заведёшь правило в «Адаптивности»?" data-en="Agreed. Will you add the rule under Responsive?">Согласна. Заведёшь правило в «Адаптивности»?
+                  <span class="cm" data-ru="Ната · 1 ч назад" data-en="Nata · 1 h ago">Ната · 1 ч назад</span></span>
+              </div>
+              <input type="text" data-ru-ph="Ответить…" data-en-ph="Reply…" placeholder="Ответить…">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ EXPORT ============ -->
+      <section class="scr" id="scr-export">
+        <div class="panel" style="max-width:860px">
+          <div class="xtabs" role="tablist">
+            <button class="xt" role="tab" data-fmt="css" aria-selected="true">CSS</button>
+            <button class="xt" role="tab" data-fmt="scss" aria-selected="false">SCSS</button>
+            <button class="xt" role="tab" data-fmt="json" aria-selected="false">Figma Tokens</button>
+            <button class="xt" role="tab" data-fmt="tailwind" aria-selected="false">Tailwind</button>
+          </div>
+          <div class="xcode" id="xCode"></div>
+          <div class="xfoot">
+            <button class="btn" id="xCopy" data-ru="Скопировать" data-en="Copy">Скопировать</button>
+            <span class="xnote mono">npx kern sync --project acme --token $KERN_TOKEN</span>
+            <span class="xnote" style="margin-left:auto" data-ru="Всегда соответствует v2.4.0" data-en="Always matches v2.4.0">Всегда соответствует v2.4.0</span>
+          </div>
+        </div>
+      </section>
+
+    <!-- inspector -->
+    <aside class="insp" id="insp">
+      <h2 data-ru="Инспектор" data-en="Inspector">Инспектор</h2>
+      <span class="tokname" id="iName">heading/xl</span>
+      <div class="fld">
+        <label class="lbl" for="iSize" data-ru="Кегль, px" data-en="Size, px">Кегль, px</label>
+        <input id="iSize" type="text" readonly value="—">
+      </div>
+      <div class="fld">
+        <label class="lbl" for="iLh" data-ru="Интерлиньяж" data-en="Line height">Интерлиньяж</label>
+        <input id="iLh" type="number" step="0.05" min="0.9" max="2" value="1.1">
+      </div>
+      <div class="fld">
+        <label class="lbl" for="iLs" data-ru="Трекинг" data-en="Letter spacing">Трекинг</label>
+        <select id="iLs">
+          <option value="-0.02em">−2%</option>
+          <option value="-0.01em">−1%</option>
+          <option value="0" selected>0</option>
+          <option value="0.04em">+4%</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label class="lbl" for="iW" data-ru="Вес" data-en="Weight">Вес</label>
+        <select id="iW">
+          <option value="450">450 · text</option>
+          <option value="600">600 · semibold</option>
+          <option value="700" selected>700 · bold</option>
+          <option value="800">800 · heavy</option>
+        </select>
+      </div>
+      <div class="wcag"><span class="dot g"></span><span id="iWcag">WCAG AA · 15.6:1 on Paper</span></div>
+      <div class="cmt">
+        <div class="c1"><span class="cav">О</span>
+          <span class="cb" data-ru="Не трогайте вес — он в брендбуке." data-en="Don’t touch the weight — it’s in the brand book.">Не трогайте вес — он в брендбуке.
+            <span class="cm" data-ru="Оля · вчера" data-en="Olya · yesterday">Оля · вчера</span></span>
+        </div>
+        <input type="text" data-ru-ph="Комментировать…" data-en-ph="Comment…" placeholder="Комментировать…">
+      </div>
+    </aside>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ================= state ================= */
+  var S = {base:18, ratio:1.25, steps:7, sel:'heading/m', lh:{}, w:{}};
+  var NAMES = ['caption','body/s','body/m','heading/s','heading/m','heading/l','heading/xl','display','display/xl'];
+  var N0 = 2; // index of exponent 0 → body/m
+  var PANGRAM = {
+    ru:'Съешь ещё этих мягких французских булок, да выпей же чаю',
+    en:'The quick brown fox jumps over the lazy dog'
+  };
+  var TITLES = {
+    dashboard:{ru:'Дашборд',en:'Dashboard'},
+    scale:{ru:'Type Scale Builder',en:'Type Scale Builder'},
+    tokens:{ru:'Токены',en:'Tokens'},
+    rules:{ru:'Адаптивные правила',en:'Responsive rules'},
+    check:{ru:'Проверки читаемости',en:'Readability checks'},
+    diff:{ru:'Версии и диффы',en:'Versions & diffs'},
+    team:{ru:'Команда',en:'Team'},
+    export:{ru:'Экспорт',en:'Export'}
+  };
+  var lang = function(){ return document.documentElement.dataset.lang || 'ru'; };
+
+  function ratio(){
+    var v = document.getElementById('sRatio').value;
+    return v === 'custom' ? parseFloat(document.getElementById('sCustom').value) || 1.25 : parseFloat(v);
+  }
+  function tokens(){
+    var out = [], base = parseFloat(document.getElementById('sBase').value) || 18, r = ratio();
+    var steps = parseInt(document.getElementById('sSteps').value, 10);
+    for(var i = 0; i < steps; i++){
+      var n = i - N0;
+      var px = Math.round(base * Math.pow(r, n) * 100) / 100;
+      var name = NAMES[i] || ('step/' + n);
+      var head = i > N0;
+      out.push({
+        name:name, n:n, px:px,
+        rem:Math.round(px / 16 * 1000) / 1000,
+        lh:S.lh[name] || (px >= 28 ? 1.1 : 1.5),
+        ls:head ? (px >= 60 ? '-0.02em' : '-0.01em') : '0',
+        w:S.w[name] || (head ? 700 : 450),
+        head:head
+      });
+    }
+    return out;
+  }
+
+  /* ================= i18n ================= */
+  function applyLang(l){
+    document.documentElement.lang = l;
+    document.documentElement.dataset.lang = l;
+    document.querySelectorAll('[data-ru]').forEach(function(el){ el.innerHTML = el.dataset[l]; });
+    document.querySelectorAll('[data-ru-ph]').forEach(function(el){ el.placeholder = el.dataset[l === 'ru' ? 'ruPh' : 'enPh']; });
+    document.querySelectorAll('[data-setlang]').forEach(function(b){
+      b.setAttribute('aria-pressed', String(b.dataset.setlang === l));
+    });
+    try{ localStorage.setItem('kern-lang', l); }catch(e){}
+    renderAll();
+  }
+  document.querySelectorAll('[data-setlang]').forEach(function(b){
+    b.addEventListener('click', function(){ applyLang(b.dataset.setlang); });
+  });
+
+  /* ================= screens ================= */
+  var current = 'dashboard';
+  function showScreen(id){
+    current = id;
+    document.body.classList.remove('onb');
+    document.querySelectorAll('.scr').forEach(function(s){ s.classList.remove('on'); });
+    var scr = document.getElementById('scr-' + id);
+    if(scr) scr.classList.add('on');
+    document.querySelectorAll('.nv').forEach(function(n){
+      n.setAttribute('aria-current', String(n.dataset.screen === id));
+    });
+    document.getElementById('topTitle').textContent = (TITLES[id] || {})[lang()] || id;
+    document.getElementById('insp').classList.toggle('on', id === 'scale' || id === 'tokens');
+    if(history.replaceState) history.replaceState(null, '', '#' + id);
+  }
+  document.querySelectorAll('.nv').forEach(function(n){
+    n.addEventListener('click', function(){ showScreen(n.dataset.screen); });
+  });
+
+  /* ================= onboarding ================= */
+  function obStep(k){
+    [1,2,3].forEach(function(i){
+      document.getElementById('obp' + i).classList.toggle('on', i === k);
+      var os = document.getElementById('os' + i);
+      os.classList.toggle('cur', i === k);
+      os.classList.toggle('done', i < k);
+    });
+  }
+  document.querySelectorAll('[data-obnext]').forEach(function(b){
+    b.addEventListener('click', function(){ obStep(parseInt(b.dataset.obnext, 10)); renderObRows(); });
+  });
+  document.querySelectorAll('.src .sc').forEach(function(c){
+    c.addEventListener('click', function(){
+      document.querySelectorAll('.src .sc').forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+      c.setAttribute('aria-pressed','true');
+    });
+  });
+  document.getElementById('obSkip').addEventListener('click', function(){ showScreen('dashboard'); });
+  document.getElementById('obFinish').addEventListener('click', function(){ showScreen('dashboard'); });
+  document.getElementById('onbAgain').addEventListener('click', function(){
+    document.body.classList.add('onb'); obStep(1);
+    if(history.replaceState) history.replaceState(null, '', '#onboarding');
+  });
+  function renderObRows(){
+    var host = document.getElementById('obRows');
+    if(!host) return;
+    var base = parseFloat(document.getElementById('obBase').value) || 18;
+    var r = parseFloat(document.getElementById('obRatio').value);
+    host.innerHTML = '';
+    [4,2,0].forEach(function(n){
+      var px = Math.round(base * Math.pow(r, n) * 100) / 100;
+      var d = document.createElement('div'); d.className = 'srow'; d.style.cursor = 'default';
+      d.innerHTML = '<span class="sn">' + NAMES[n + N0] + '</span>' +
+        '<span class="sx" style="font-size:' + Math.min(px, 44) + 'px;font-weight:' + (n > 0 ? 700 : 450) + '">' + PANGRAM[lang()] + '</span>' +
+        '<span class="sv">' + px + 'px</span>';
+      host.appendChild(d);
+    });
+  }
+  document.getElementById('obBase').addEventListener('input', renderObRows);
+  document.getElementById('obRatio').addEventListener('change', renderObRows);
+
+  /* ================= scale builder ================= */
+  function renderScale(){
+    var host = document.getElementById('sRows');
+    var toks = tokens();
+    host.innerHTML = '';
+    if(!toks.some(function(t){ return t.name === S.sel; })) S.sel = toks[toks.length - 1].name;
+    toks.slice().reverse().forEach(function(t){
+      var d = document.createElement('div');
+      d.className = 'srow'; d.setAttribute('role','option'); d.tabIndex = 0;
+      d.setAttribute('aria-selected', String(t.name === S.sel));
+      d.innerHTML =
+        '<span class="sn">' + t.name + '<br><span style="opacity:.55">n=' + t.n + '</span></span>' +
+        '<span class="sx" style="font-size:' + Math.min(t.px, 64) + 'px;line-height:' + t.lh + ';font-weight:' + t.w + ';letter-spacing:' + t.ls + '">' + PANGRAM[lang()] + '</span>' +
+        '<span class="sv">' + t.px + 'px · ' + t.rem + 'rem<br>lh ' + t.lh + ' · ls ' + t.ls + '</span>';
+      var pick = function(){ S.sel = t.name; renderScale(); renderInspector(); };
+      d.addEventListener('click', pick);
+      d.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pick(); } });
+      host.appendChild(d);
+    });
+    document.getElementById('sStepsVal').textContent = document.getElementById('sSteps').value;
+  }
+  function renderInspector(){
+    var t = tokens().find(function(x){ return x.name === S.sel; });
+    if(!t) return;
+    document.getElementById('iName').textContent = t.name;
+    document.getElementById('iSize').value = t.px + ' px · ' + t.rem + ' rem';
+    document.getElementById('iLh').value = t.lh;
+    document.getElementById('iLs').value = t.ls;
+    document.getElementById('iW').value = String(t.w);
+    var big = t.px >= 24;
+    document.getElementById('iWcag').textContent = 'WCAG AA · ' + (big ? '3:1' : '4.5:1') + ' · 13.6:1 on Chocolate ✓';
+  }
+  ['sBase','sRatio','sSteps','sCustom'].forEach(function(id){
+    var el = document.getElementById(id);
+    el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', function(){
+      document.getElementById('sCustomWrap').style.display =
+        document.getElementById('sRatio').value === 'custom' ? '' : 'none';
+      renderAll();
+    });
+  });
+  document.getElementById('iLh').addEventListener('input', function(){
+    S.lh[S.sel] = parseFloat(this.value) || 1.2; renderScale();
+  });
+  document.getElementById('iW').addEventListener('change', function(){
+    S.w[S.sel] = parseInt(this.value, 10); renderScale();
+  });
+
+  /* ================= tokens table ================= */
+  function renderTokens(){
+    var tb = document.querySelector('#tokTable tbody');
+    var toks = tokens();
+    tb.innerHTML = '';
+    toks.slice().reverse().forEach(function(t){
+      var st = t.name === 'caption'
+        ? '<span class="st fail"><span class="dot r"></span>fail</span>'
+        : (t.name === 'body/l' || t.name === 'heading/s'
+          ? '<span class="st warn"><span class="dot o"></span>warn</span>'
+          : '<span class="st pass"><span class="dot g"></span>pass</span>');
+      var tr = document.createElement('tr');
+      tr.tabIndex = 0;
+      tr.innerHTML =
+        '<td><span style="font-size:' + Math.min(t.px, 30) + 'px;font-weight:' + t.w +
+          ';line-height:1;letter-spacing:' + t.ls + '">Ag</span></td>' +
+        '<td class="mono">' + t.name + '</td>' +
+        '<td>Onest</td>' +
+        '<td class="mono">' + t.px + ' / ' + Math.round(t.px * t.lh) + '</td>' +
+        '<td class="mono">' + t.ls + '</td>' +
+        '<td class="mono">' + t.w + '</td>' +
+        '<td>' + st + '</td>';
+      var pick = function(){ S.sel = t.name; renderInspector(); };
+      tr.addEventListener('click', pick);
+      tb.appendChild(tr);
+    });
+    var l = lang();
+    document.getElementById('tokCount').textContent =
+      toks.length + (l === 'ru' ? ' размерных + 17 семантических' : ' size + 17 semantic');
+  }
+
+  /* ================= responsive rules ================= */
+  function fluidPx(minPx, maxPx, vp){
+    var t = (vp - 360) / (1920 - 360);
+    return Math.round((minPx + (maxPx - minPx) * Math.max(0, Math.min(1, t))) * 10) / 10;
+  }
+  function renderRules(){
+    var vp = parseInt(document.getElementById('rVp').value, 10);
+    document.getElementById('rVpVal').textContent = vp;
+    document.querySelectorAll('#bpChips .bp').forEach(function(b){
+      b.classList.toggle('cur', parseInt(b.textContent, 10) <= vp &&
+        (!b.nextElementSibling || parseInt(b.nextElementSibling.textContent, 10) > vp));
+    });
+    var toks = tokens().filter(function(t){ return t.head; }).reverse();
+    var host = document.getElementById('ruleRows');
+    host.innerHTML = '';
+    toks.forEach(function(t){
+      var minPx = Math.round(t.px * 0.62 * 10) / 10, maxPx = t.px;
+      var cur = fluidPx(minPx, maxPx, vp);
+      var w = ((cur - minPx) / (maxPx - minPx)) * 100 || 0;
+      var d = document.createElement('div'); d.className = 'srow'; d.style.cursor = 'default';
+      d.innerHTML =
+        '<span class="sn">' + t.name + '</span>' +
+        '<span><span class="mono" style="font-size:11px">clamp(' + minPx + 'px, ' +
+          (Math.round((maxPx - minPx) / (1920 - 360) * 1000) / 10) + 'vw + ' + minPx + 'px, ' + maxPx + 'px)</span>' +
+          '<span class="rbar" style="display:block;margin-top:8px"><i style="width:' + w + '%"></i></span></span>' +
+        '<span class="sv">' + cur + 'px @ ' + vp + '</span>';
+      host.appendChild(d);
+    });
+    var hero = toks[0];
+    if(hero){
+      var minH = Math.round(hero.px * 0.62), curH = fluidPx(minH, hero.px, vp);
+      var f = document.getElementById('fluidText');
+      f.style.fontSize = Math.min(curH, 72) + 'px';
+      document.getElementById('fluidMeta').textContent =
+        hero.name + ' · ' + curH + 'px @ ' + vp + 'px · clamp(' + minH + ', fluid, ' + hero.px + ')';
+    }
+  }
+  document.getElementById('rVp').addEventListener('input', renderRules);
+
+  /* ================= check filters ================= */
+  document.querySelectorAll('[data-cf]').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('[data-cf]').forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+      b.setAttribute('aria-pressed','true');
+      var f = b.dataset.cf;
+      document.querySelectorAll('#checkBody tr').forEach(function(tr){
+        tr.style.display = (f === 'all' || tr.dataset.lvl === f) ? '' : 'none';
+      });
+    });
+  });
+
+  /* ================= diff ================= */
+  var DIFF = [
+    {name:'heading/xl', oldPx:88, newPx:96, oldLh:96, newLh:104, oldW:700, newW:700},
+    {name:'heading/l',  oldPx:56, newPx:56, oldLs:'-1%', newLs:'-2%', oldW:700, newW:700},
+    {name:'body/m',     oldPx:18, newPx:18, oldLhF:1.5, newLhF:1.55, oldW:450, newW:450}
+  ];
+  var dState = 'new';
+  function renderDiff(){
+    var host = document.getElementById('diffRows');
+    host.innerHTML = '';
+    DIFF.forEach(function(d){
+      var cur = dState === 'new';
+      var raw = cur ? d.newPx : d.oldPx;
+      var fs = raw >= 40 ? Math.round(raw * 0.55 * 10) / 10 : raw;
+      var row = document.createElement('div'); row.className = 'dline';
+      var vals = '';
+      if(d.oldPx !== d.newPx) vals += '<span class="old">' + d.oldPx + '/' + d.oldLh + '</span> → <span class="new">' + d.newPx + '/' + d.newLh + '</span>';
+      else if(d.oldLs) vals += 'ls <span class="old">' + d.oldLs + '</span> → <span class="new">' + d.newLs + '</span>';
+      else vals += 'lh <span class="old">' + d.oldLhF + '</span> → <span class="new">' + d.newLhF + '</span>';
+      row.innerHTML =
+        '<span class="sn mono" style="font-size:11.5px">' + d.name + '</span>' +
+        '<span class="dx" style="font-size:' + fs + 'px;font-weight:' + (cur ? d.newW : d.oldW) + ';letter-spacing:' +
+          (d.oldLs ? (cur ? '-0.02em' : '-0.01em') : '-0.01em') + ';line-height:' +
+          (d.oldLhF ? (cur ? d.newLhF : d.oldLhF) : 1.05) + '">' + PANGRAM[lang()].slice(0, 24) + '</span>' +
+        '<span class="dv">' + vals + '</span>';
+      host.appendChild(row);
+    });
+  }
+  document.querySelectorAll('[data-dstate]').forEach(function(b){
+    b.addEventListener('click', function(){
+      dState = b.dataset.dstate;
+      document.querySelectorAll('[data-dstate]').forEach(function(x){
+        x.setAttribute('aria-pressed', String(x === b));
+      });
+      renderDiff();
+    });
+  });
+
+  /* ================= export ================= */
+  var fmt = 'css';
+  function genExport(){
+    var toks = tokens();
+    if(fmt === 'css'){
+      return ':root {\n  /* Acme Retail · v2.4.0 · KERN */\n' + toks.map(function(t){
+        return '  --type-' + t.name.replace('/','-') + ': ' + t.px + 'px;';
+      }).join('\n') + '\n}';
+    }
+    if(fmt === 'scss'){
+      return '// Acme Retail · v2.4.0 · KERN\n' + toks.map(function(t){
+        return '$type-' + t.name.replace('/','-') + ': ' + t.px + 'px;';
+      }).join('\n');
+    }
+    if(fmt === 'json'){
+      var o = {};
+      toks.forEach(function(t){
+        o[t.name] = {value:{fontSize:t.px + 'px', lineHeight:String(t.lh), fontWeight:t.w}, type:'typography'};
+      });
+      return JSON.stringify(o, null, 2);
+    }
+    return 'module.exports = {\n  theme: {\n    fontSize: {\n' + toks.map(function(t){
+      return "      '" + t.name.replace('/','-') + "': ['" + t.px + "px', '" + t.lh + "']";
+    }).join(',\n') + '\n    }\n  }\n}';
+  }
+  function renderExport(){ document.getElementById('xCode').textContent = genExport(); }
+  document.querySelectorAll('.xt').forEach(function(b){
+    b.addEventListener('click', function(){
+      fmt = b.dataset.fmt;
+      document.querySelectorAll('.xt').forEach(function(x){ x.setAttribute('aria-selected', String(x === b)); });
+      renderExport();
+    });
+  });
+  document.getElementById('xCopy').addEventListener('click', function(){
+    var btn = this, l = lang();
+    var done = function(){
+      btn.textContent = l === 'ru' ? 'Скопировано ✓' : 'Copied ✓';
+      setTimeout(function(){ btn.textContent = btn.dataset[lang()]; }, 1500);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(genExport()).then(done, done);
+    } else done();
+  });
+
+  /* ================= render all / boot ================= */
+  function renderAll(){
+    renderScale(); renderInspector(); renderTokens(); renderRules();
+    renderDiff(); renderExport(); renderObRows();
+    document.getElementById('topTitle').textContent = (TITLES[current] || {})[lang()] || current;
+  }
+  window.__kernApp = {show: showScreen, lang: applyLang, render: renderAll};
+
+  var saved = 'ru';
+  try{ saved = localStorage.getItem('kern-lang') || 'ru'; }catch(e){}
+  try{
+    var qp = new URLSearchParams(location.search).get('lang');
+    if(qp === 'ru' || qp === 'en') saved = qp;
+  }catch(e){}
+  var h = (location.hash || '').replace('#','');
+  applyLang(saved);
+  if(h && h !== 'onboarding' && document.getElementById('scr-' + h)){
+    showScreen(h);
+  } else {
+    document.body.classList.add('onb');
+    document.querySelectorAll('.nv').forEach(function(n){ n.setAttribute('aria-current','false'); });
+  }
+})();
+</script>
+</body>
+</html>

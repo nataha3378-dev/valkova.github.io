@@ -22,6 +22,10 @@ crew-os/slides.html
 crew-os/fonts.html
 crew-os/cover.html
 
+# KERN case — internal working files
+kern/TZ.md
+kern/cover.html
+
 # Other project working folders (not linked from the live site yet)
 magazine/
 cooper-email/
